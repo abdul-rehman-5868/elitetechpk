@@ -1,0 +1,65 @@
+{%- doc -%}
+  Product card for the Shop mega menu "Most popular" grid.
+
+  @param {object} product - Product to render
+{%- enddoc -%}
+
+{% liquid
+  assign rating_value = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value | default: 5.0
+%}
+
+<a class="shop-mega-menu__product-card" href="{{ product.url }}">
+  <div class="shop-mega-menu__product-media">
+    {% if product.featured_image != blank %}
+      {{
+        product.featured_image
+        | image_url: width: 520
+        | image_tag:
+          loading: 'lazy',
+          widths: '180, 280, 360, 440, 520',
+          sizes: '(min-width: 990px) 14vw, 33vw',
+          alt: product.featured_image.alt
+      }}
+    {% else %}
+      {{ 'product-1' | placeholder_svg_tag: 'shop-mega-menu__placeholder' }}
+    {% endif %}
+    <span class="shop-mega-menu__rating">
+      <span aria-hidden="true">★</span>
+      {{ rating_value }}
+    </span>
+  </div>
+  <div class="shop-mega-menu__product-copy">
+    {% if product.vendor != blank %}
+      <span class="shop-mega-menu__vendor">{{ product.vendor }}</span>
+    {% endif %}
+    <strong class="shop-mega-menu__product-title">{{ product.title }}</strong>
+    <span class="shop-mega-menu__product-price">{{ product.price | money }}</span>
+    <span class="shop-mega-menu__swatches" aria-hidden="true">
+      {% assign shown_images = '' %}
+      {% assign swatch_count = 0 %}
+      {% for variant in product.variants %}
+        {% if variant.featured_image != blank and swatch_count < 4 %}
+          {% assign image_id = variant.featured_image.id | append: '' %}
+          {% unless shown_images contains image_id %}
+            <span class="shop-mega-menu__swatch">
+              {{
+                variant.featured_image
+                | image_url: width: 80
+                | image_tag:
+                  widths: '40, 80',
+                  sizes: '22px',
+                  loading: 'lazy',
+                  alt: variant.title
+              }}
+            </span>
+            {% assign shown_images = shown_images | append: image_id | append: ',' %}
+            {% assign swatch_count = swatch_count | plus: 1 %}
+          {% endunless %}
+        {% endif %}
+      {% endfor %}
+      {% if product.variants.size > swatch_count and swatch_count > 0 %}
+        <span class="shop-mega-menu__swatch-more">+{{ product.variants.size | minus: swatch_count }}</span>
+      {% endif %}
+    </span>
+  </div>
+</a>

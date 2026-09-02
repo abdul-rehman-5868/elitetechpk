@@ -1,0 +1,404 @@
+{% doc %}
+  Shared Best Sellers / collection product card styles.
+{% enddoc %}
+
+{% stylesheet %}
+  .bss-card {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    align-self: stretch;
+    min-width: 0;
+    height: auto;
+    overflow: hidden;
+    border: 0;
+    border-radius: 1.35rem;
+    background: var(--bss-card-bg, #f7f7f7);
+  }
+
+  .bss-card__gallery {
+    position: relative;
+    aspect-ratio: 1 / 1.08;
+    overflow: hidden;
+    background: var(--bss-card-bg, #f7f7f7);
+    cursor: ew-resize;
+    touch-action: manipulation;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    isolation: isolate;
+  }
+
+  .bss-card__gallery::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 42%;
+    background: linear-gradient(
+      to top,
+      var(--bss-card-bg, #f7f7f7) 0%,
+      rgb(247 247 247 / 0.94) 32%,
+      rgb(247 247 247 / 0) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .bss-card__media-track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.3s ease;
+    will-change: transform;
+  }
+
+  .bss-card__slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+  }
+
+  .bss-card__image,
+  .bss-card__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .bss-card__badge,
+  .bss-card__rating {
+    position: absolute;
+    z-index: 2;
+  }
+
+  .bss-card__badge {
+    top: 0.85rem;
+    left: 0.85rem;
+    padding: 0.28rem 0.6rem;
+    border-radius: 999px;
+    background: var(--bss-accent, #4b8f18);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .bss-card__rating {
+    top: 0.85rem;
+    right: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.28rem 0.55rem;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #111111;
+    font-size: 0.72rem;
+    font-weight: 500;
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.06);
+  }
+
+  .bss-card__rating-star {
+    color: #f3b000;
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+
+  .bss-card__view {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 4;
+    display: none;
+    place-items: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    padding: 0;
+    border: 1px solid #e5e5e5;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #111111;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.06);
+  }
+
+  .bss-card__view-icon {
+    width: 1rem;
+    height: 1rem;
+    display: block;
+  }
+
+  .bss-card__gallery:hover .bss-card__rating,
+  .bss-card:focus-within .bss-card__gallery .bss-card__rating {
+    display: none;
+  }
+
+  .bss-card__gallery:hover .bss-card__view,
+  .bss-card:focus-within .bss-card__gallery .bss-card__view {
+    display: grid;
+  }
+
+  .bss-card__quick-add {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .bss-card__quick-add .bss-card__view,
+  .bss-card__quick-add .bss-card__cta {
+    pointer-events: none;
+  }
+
+  .bss-card__gallery:hover .bss-card__quick-add .bss-card__view,
+  .bss-card:focus-within .bss-card__gallery .bss-card__quick-add .bss-card__view,
+  .bss-card__gallery:hover .bss-card__quick-add .bss-card__cta,
+  .bss-card:focus-within .bss-card__gallery .bss-card__quick-add .bss-card__cta {
+    pointer-events: auto;
+  }
+
+  .bss-card__cta {
+    position: absolute;
+    left: 50%;
+    right: auto;
+    bottom: 2.35rem;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+    padding: 0.7rem 1.25rem;
+    border: 0;
+    border-radius: 999px;
+    background: #111111;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .bss-card__gallery:hover .bss-card__cta,
+  .bss-card:focus-within .bss-card__gallery .bss-card__cta {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .bss-card__dots {
+    position: absolute;
+    left: 50%;
+    bottom: 0.75rem;
+    z-index: 3;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    pointer-events: auto;
+  }
+
+  .bss-card__dot {
+    width: 0.35rem;
+    height: 0.35rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #bbbbbb;
+    cursor: pointer;
+  }
+
+  .bss-card__dot.is-active {
+    background: #111111;
+  }
+
+  .bss-card__body {
+    display: grid;
+    gap: 0.4rem;
+    align-content: start;
+    padding: 0.72rem 0.9rem 0.95rem;
+    background: var(--bss-card-bg, #f7f7f7);
+    position: relative;
+    z-index: 2;
+    margin-top: -0.15rem;
+  }
+
+  .bss-card__vendor {
+    margin: 0;
+    color: #9a9a9a;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  .bss-card__title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.65rem;
+  }
+
+  .bss-card__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    min-height: calc(2 * 1.25em);
+    font-size: 1rem;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    font-weight: 700;
+    color: #111111;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .bss-card__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .bss-card__price {
+    flex: 0 0 auto;
+    padding-top: 0.05em;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111111;
+    white-space: nowrap;
+  }
+
+  .bss-card__price .price,
+  .bss-card__price .price__regular,
+  .bss-card__price .price-item {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  .bss-card__swatches {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.15rem;
+  }
+
+  .bss-card__swatch {
+    width: 1.7rem;
+    height: 1.7rem;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: 0.4rem;
+    background: #ffffff;
+  }
+
+  .bss-card__swatch.is-active {
+    border-color: #cfcfcf;
+  }
+
+  .bss-card__swatch img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .bss-card__more {
+    color: #777777;
+    font-size: 0.7rem;
+  }
+
+  .bss-card__spec-scroller {
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-top: none;
+    border-radius: 0 0 1.35rem 1.35rem;
+    outline: none;
+  }
+
+  .bss-card__spec-track {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    width: 200%;
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .bss-card__spec-scroller:hover .bss-card__spec-track,
+  .bss-card__spec-scroller:focus-within .bss-card__spec-track {
+    transform: translate3d(-50%, 0, 0);
+  }
+
+  .bss-card__spec {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 0 0 50%;
+    min-width: 0;
+    min-height: 3.75rem;
+    padding: 0.65rem 0.7rem;
+    border-right: 1px solid #ececec;
+  }
+
+  .bss-card__spec:last-child {
+    border-right: 0;
+  }
+
+  .bss-card__spec-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: 1.05rem;
+    height: 1.05rem;
+    color: #777777;
+  }
+
+  .bss-card__spec-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .bss-card__spec-copy {
+    display: grid;
+    min-width: 0;
+    line-height: 1.15;
+  }
+
+  .bss-card__spec-copy strong {
+    overflow: hidden;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #111111;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bss-card__spec-copy small {
+    margin-top: 0.12rem;
+    color: #999999;
+    font-size: 0.6rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bss-card__media-track,
+    .bss-card__spec-track {
+      transition: none;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .bss-card__cta {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+{% endstylesheet %}

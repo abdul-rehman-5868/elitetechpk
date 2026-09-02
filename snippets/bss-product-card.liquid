@@ -1,0 +1,284 @@
+{% doc %}
+  Shared product card used by Best Sellers and the collection grid.
+
+  @param {object} product - Product object
+  @param {string} [button_label] - CTA label (default: Choose options)
+  @param {string} [fallback_driver_size] - Spec fallback
+  @param {string} [fallback_weight] - Spec fallback
+  @param {string} [fallback_battery] - Spec fallback
+  @param {string} [fallback_bluetooth] - Spec fallback
+  @param {string} [fallback_charging] - Spec fallback
+  @param {string} [fallback_range] - Spec fallback
+  @param {string} [image_sizes] - Image sizes attribute
+{% enddoc %}
+
+{% liquid
+  assign button_label = button_label | default: 'Choose options'
+  assign image_sizes = image_sizes | default: '(min-width: 990px) 25vw, 45vw'
+  assign fallback_driver_size = fallback_driver_size | default: ''
+  assign fallback_weight = fallback_weight | default: ''
+  assign fallback_battery = fallback_battery | default: ''
+  assign fallback_bluetooth = fallback_bluetooth | default: ''
+  assign fallback_charging = fallback_charging | default: ''
+  assign fallback_range = fallback_range | default: ''
+
+  assign media_count = 0
+  for media in product.media
+    if media.media_type == 'image' and media_count < 3
+      assign media_count = media_count | plus: 1
+    endif
+  endfor
+  if media_count == 0
+    assign media_count = 1
+  endif
+
+  assign default_media_index = 0
+  if media_count > 1
+    assign default_media_index = 1
+  endif
+
+  assign rating = product.metafields.reviews.rating.value.rating | default: product.metafields.reviews.rating.value | default: '5.0'
+  assign driver_size = product.metafields.custom.driver_size.value | default: blank
+  assign product_weight = product.metafields.custom.product_weight.value | default: blank
+  assign battery_life = product.metafields.custom.battery_life.value | default: blank
+  assign bluetooth_version = product.metafields.custom.bluetooth_version.value | default: blank
+  assign charging_time = product.metafields.custom.charging_time.value | default: blank
+  assign wireless_range = product.metafields.custom.wireless_range.value | default: blank
+
+  assign has_specs = false
+  if driver_size != blank
+    assign has_specs = true
+  endif
+  if product_weight != blank
+    assign has_specs = true
+  endif
+  if battery_life != blank
+    assign has_specs = true
+  endif
+  if bluetooth_version != blank
+    assign has_specs = true
+  endif
+  if charging_time != blank
+    assign has_specs = true
+  endif
+  if wireless_range != blank
+    assign has_specs = true
+  endif
+%}
+
+<article class="bss-card" data-bss-card>
+  <div
+    class="bss-card__gallery"
+    data-bss-gallery
+    data-media-count="{{ media_count }}"
+    data-active-media="{{ default_media_index }}"
+  >
+    <div
+      class="bss-card__media-track"
+      data-bss-media-track
+      style="transform: translate3d(-{{ default_media_index | times: 100 }}%, 0, 0);"
+    >
+      {% assign rendered_media = 0 %}
+      {% for media in product.media %}
+        {% if media.media_type == 'image' and rendered_media < 3 %}
+          <div class="bss-card__slide">
+            {{
+              media
+              | image_url: width: 1000
+              | image_tag:
+                widths: '360, 540, 720, 900, 1000',
+                sizes: image_sizes,
+                class: 'bss-card__image',
+                loading: 'lazy',
+                alt: product.title
+            }}
+          </div>
+          {% assign rendered_media = rendered_media | plus: 1 %}
+        {% endif %}
+      {% endfor %}
+
+      {% if rendered_media == 0 %}
+        <div class="bss-card__slide">
+          {{ 'product-apparel-1' | placeholder_svg_tag: 'bss-card__image bss-card__placeholder' }}
+        </div>
+      {% endif %}
+    </div>
+
+    {% if product.tags contains 'New' or product.tags contains 'new' %}
+      <span class="bss-card__badge">New</span>
+    {% endif %}
+
+    <span class="bss-card__rating">
+      <span class="bss-card__rating-star" aria-hidden="true">★</span>
+      {{ rating }}
+    </span>
+
+    <quick-add-component
+      class="bss-card__quick-add"
+      data-product-url="{{ product.url }}"
+      data-product-title="{{ product.title | escape }}"
+      data-product-id="{{ product.id }}"
+      data-quick-add-button="choose"
+      data-product-options-count="{{ product.options.size }}"
+      data-uses-selling-plans="{% if product.requires_selling_plan or product.selling_plan_groups.size > 0 %}true{% else %}false{% endif %}"
+    >
+      <button
+        type="button"
+        class="bss-card__view"
+        on:click="quick-add-component/handleClick"
+        aria-label="Quick view {{ product.title | escape }}"
+      >
+        <svg class="bss-card__view-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          {%- render 'icon', icon: 'eye' -%}
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="bss-card__cta"
+        on:click="quick-add-component/handleClick"
+      >
+        {{ button_label }}
+      </button>
+    </quick-add-component>
+
+    {% if media_count > 1 %}
+      <div class="bss-card__dots" role="group" aria-label="Product images">
+        {% for dot_index in (1..media_count) %}
+          {% assign zero_index = dot_index | minus: 1 %}
+          <button
+            type="button"
+            class="bss-card__dot{% if zero_index == default_media_index %} is-active{% endif %}"
+            data-bss-dot
+            aria-label="Show image {{ dot_index }}"
+            aria-pressed="{% if zero_index == default_media_index %}true{% else %}false{% endif %}"
+          ></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="bss-card__body">
+    {% if product.vendor != blank %}
+      <p class="bss-card__vendor">{{ product.vendor }}</p>
+    {% endif %}
+
+    <div class="bss-card__title-row">
+      <h3 class="bss-card__title">
+        <a href="{{ product.url }}">{{ product.title }}</a>
+      </h3>
+      <div class="bss-card__price">{% render 'price', product_resource: product %}</div>
+    </div>
+
+    <div class="bss-card__swatches" aria-label="Product variants">
+      {% assign shown_images = '' %}
+      {% assign swatch_count = 0 %}
+      {% for variant in product.variants %}
+        {% if variant.featured_image != blank and swatch_count < 4 %}
+          {% assign image_id = variant.featured_image.id | append: '' %}
+          {% unless shown_images contains image_id %}
+            <span class="bss-card__swatch{% if swatch_count == 0 %} is-active{% endif %}">
+              {{
+                variant.featured_image
+                | image_url: width: 100
+                | image_tag:
+                  widths: '60, 100',
+                  sizes: '30px',
+                  loading: 'lazy',
+                  alt: variant.title
+              }}
+            </span>
+            {% assign shown_images = shown_images | append: image_id | append: ',' %}
+            {% assign swatch_count = swatch_count | plus: 1 %}
+          {% endunless %}
+        {% endif %}
+      {% endfor %}
+      {% if product.variants.size > swatch_count and swatch_count > 0 %}
+        <span class="bss-card__more">+{{ product.variants.size | minus: swatch_count }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if has_specs %}
+    <div
+      class="bss-card__spec-scroller"
+      data-bss-spec-scroller
+      tabindex="0"
+      aria-label="Product specifications"
+    >
+      <div class="bss-card__spec-track">
+        {% if driver_size != blank %}
+          <div class="bss-card__spec">
+            <span class="bss-card__spec-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" focusable="false">{%- render 'icon', icon: 'ruler' -%}</svg>
+            </span>
+            <span class="bss-card__spec-copy">
+              <strong>{{ driver_size }}</strong>
+              <small>Driver size</small>
+            </span>
+          </div>
+        {% endif %}
+
+        {% if product_weight != blank %}
+          <div class="bss-card__spec">
+            <span class="bss-card__spec-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" focusable="false">{%- render 'icon', icon: 'box' -%}</svg>
+            </span>
+            <span class="bss-card__spec-copy">
+              <strong>{{ product_weight }}</strong>
+              <small>Product weight</small>
+            </span>
+          </div>
+        {% endif %}
+
+        {% if battery_life != blank %}
+          <div class="bss-card__spec">
+            <span class="bss-card__spec-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" focusable="false">{%- render 'icon', icon: 'lightning_bolt' -%}</svg>
+            </span>
+            <span class="bss-card__spec-copy">
+              <strong>{{ battery_life }}</strong>
+              <small>Battery life</small>
+            </span>
+          </div>
+        {% endif %}
+
+        {% if bluetooth_version != blank %}
+          <div class="bss-card__spec">
+            <span class="bss-card__spec-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" focusable="false">{%- render 'icon', icon: 'star' -%}</svg>
+            </span>
+            <span class="bss-card__spec-copy">
+              <strong>{{ bluetooth_version }}</strong>
+              <small>Bluetooth®</small>
+            </span>
+          </div>
+        {% endif %}
+
+        {% if charging_time != blank %}
+          <div class="bss-card__spec">
+            <span class="bss-card__spec-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" focusable="false">{%- render 'icon', icon: 'check_box' -%}</svg>
+            </span>
+            <span class="bss-card__spec-copy">
+              <strong>{{ charging_time }}</strong>
+              <small>Charging</small>
+            </span>
+          </div>
+        {% endif %}
+
+        {% if wireless_range != blank %}
+          <div class="bss-card__spec">
+            <span class="bss-card__spec-icon" aria-hidden="true">
+              <svg viewBox="0 0 20 20" focusable="false">{%- render 'icon', icon: 'lightning_bolt' -%}</svg>
+            </span>
+            <span class="bss-card__spec-copy">
+              <strong>{{ wireless_range }}</strong>
+              <small>Wireless range</small>
+            </span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+</article>

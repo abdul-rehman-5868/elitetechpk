@@ -1,0 +1,145 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "header",
+  "name": "t:names.header",
+  "sections": {
+    "reference_utility_bar": {
+      "type": "reference-utility-bar",
+      "blocks": {
+        "announcement_1": {
+          "type": "_announcement",
+          "settings": {
+            "text": "A question? Visit our contact page",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "weight": "",
+            "letter_spacing": "normal",
+            "case": "none",
+            "text_color": "#ffffff"
+          }
+        },
+        "announcement_2": {
+          "type": "_announcement",
+          "settings": {
+            "text": "Free shipping on orders over $100",
+            "font": "var(--font-body--family)",
+            "font_size": "1rem",
+            "weight": "",
+            "letter_spacing": "normal",
+            "case": "none",
+            "text_color": "#ffffff"
+          }
+        }
+      },
+      "block_order": ["announcement_1", "announcement_2"],
+      "settings": {
+        "speed": 5,
+        "facebook_url": "https://facebook.com",
+        "twitter_url": "https://x.com",
+        "instagram_url": "https://instagram.com",
+        "youtube_url": "https://youtube.com",
+        "show_language": true,
+        "show_country": true,
+        "country_selector_style": true,
+        "show_floating_rail": true,
+        "hide_rail_on_mobile": true,
+        "discount_text": "GET 20% OFF",
+        "rail_offset_top": 64,
+        "rail_background": "#ffffff",
+        "rail_text_color": "#111111",
+        "background_color": "#1F1F1F",
+        "text_color": "#ffffff",
+        "padding_block": 18
+      }
+    },
+    "header_section": {
+      "type": "header",
+      "blocks": {
+        "header-logo": {
+          "type": "_header-logo",
+          "static": true,
+          "settings": {
+            "hide_logo_on_home_page": false,
+            "padding-block-start": 0,
+            "padding-block-end": 0
+          },
+          "blocks": {}
+        },
+        "header-menu": {
+          "type": "_header-menu",
+          "static": true,
+          "settings": {
+            "menu": "main-menu",
+            "show_shop_dropdown": true,
+            "mega_category_1": "headphones",
+            "mega_category_2": "earphones",
+            "mega_category_3": "speakers",
+            "mega_category_4": "accessories",
+            "mega_promo_title": "Build your bundle",
+            "mega_promo_text": "Buy 3 and save 30%",
+            "show_collections_dropdown": true,
+            "collections_card_description_1": "Surround yourself in sound.",
+            "collections_card_description_2": "Small size, big sound.",
+            "collections_card_description_3": "Fill the room with music.",
+            "collections_card_description_4": "Complete your setup.",
+            "collections_all_title": "All Collections",
+            "collections_all_text": "Check out all our collections.",
+            "type_font_primary_size": "0.875rem",
+            "menu_font_style": "inverse",
+            "type_font_primary_link": "body",
+            "type_case_primary_link": "none",
+            "menu_style": "text",
+            "featured_products_aspect_ratio": "4 / 5",
+            "featured_collections_aspect_ratio": "16 / 9",
+            "image_border_radius": 0,
+            "navigation_bar": false,
+            "drawer_accordion": false,
+            "drawer_accordion_expand_first": false,
+            "drawer_dividers": false
+          },
+          "blocks": {}
+        }
+      },
+      "settings": {
+        "logo_position": "left",
+        "menu_position": "center",
+        "menu_row": "top",
+        "show_search": true,
+        "search_position": "right",
+        "search_row": "top",
+        "show_country": false,
+        "country_selector_style": false,
+        "show_language": false,
+        "localization_font": "heading",
+        "localization_font_size": "0.875rem",
+        "localization_position": "right",
+        "localization_row": "top",
+        "section_width": "page-width",
+        "section_height": "standard",
+        "enable_sticky_header": "always",
+        "divider_width": 0,
+        "divider_size": "page-width",
+        "border_width": 0,
+        "actions_display_style": "icon",
+        "background_color_top": "#ffffff",
+        "text_color_top": "#111111",
+        "enable_transparent_header_home": false,
+        "home_inverse_logo": true,
+        "text_color_transparent_home": "#ffffff",
+        "enable_transparent_header_product": false,
+        "enable_transparent_header_collection": true,
+        "collection_inverse_logo": true,
+        "text_color_transparent_collection": "#ffffff"
+      }
+    }
+  },
+  "order": ["reference_utility_bar", "header_section"]
+}

@@ -1,0 +1,10 @@
+{% doc %}
+  Collection product card — shared Best Sellers card design.
+  @param {object} product - Product object
+{% enddoc %}
+
+{% render 'bss-product-card',
+  product: product,
+  button_label: 'Choose options',
+  image_sizes: '(min-width: 990px) 22vw, 45vw'
+%}

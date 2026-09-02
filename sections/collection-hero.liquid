@@ -1,0 +1,281 @@
+{% liquid
+  assign hero_image = section.settings.image
+  if hero_image == blank
+    assign hero_image = collection.image
+  endif
+  if hero_image == blank
+    assign hero_image = collection.products.first.featured_image
+  endif
+
+  assign image_alt = hero_image.alt | default: collection.title
+%}
+
+<section
+  class="collection-hero"
+  style="
+    --collection-hero-height: {{ section.settings.height }}svh;
+    --collection-hero-overlay: {{ section.settings.overlay_color }};
+    --collection-hero-position: {{ section.settings.image_position }};
+  "
+>
+  <div class="collection-hero__media">
+    {% if hero_image != blank %}
+      {{
+        hero_image
+        | image_url: width: 3840
+        | image_tag:
+          widths: '750, 1100, 1500, 2000, 2600, 3200, 3840',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'high',
+          class: 'collection-hero__image',
+          alt: image_alt
+      }}
+    {% else %}
+      {{ 'hero-apparel-2' | placeholder_svg_tag: 'collection-hero__image collection-hero__placeholder' }}
+    {% endif %}
+  </div>
+
+  <div class="collection-hero__overlay" aria-hidden="true"></div>
+
+  <div class="collection-hero__content">
+    <nav class="collection-hero__breadcrumbs" aria-label="Breadcrumb">
+      <span class="collection-hero__breadcrumb-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4.5 11.5 12 5l7.5 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6.5 10.5V19h11v-8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      {% liquid
+        assign hero_crumb_title = collection.title
+        if collection.handle == 'all' or hero_crumb_title == blank
+          assign hero_crumb_title = 'All products'
+        endif
+        assign hero_has_filters = false
+        for filter in collection.filters
+          if filter.type == 'price_range'
+            if filter.min_value.value != blank or filter.max_value.value != blank
+              assign hero_has_filters = true
+              break
+            endif
+          elsif filter.active_values.size > 0
+            assign hero_has_filters = true
+            break
+          endif
+        endfor
+      %}
+      {% if hero_has_filters %}
+        <a href="{{ collection.url }}">{{ hero_crumb_title }}</a>
+        {% for filter in collection.filters %}
+          {% if filter.type == 'price_range' %}
+            {% if filter.min_value.value != blank or filter.max_value.value != blank %}
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">
+                {% if filter.min_value.value != blank and filter.max_value.value != blank %}
+                  {{ filter.min_value.value | money }} – {{ filter.max_value.value | money }}
+                {% elsif filter.min_value.value != blank %}
+                  From {{ filter.min_value.value | money }}
+                {% else %}
+                  Up to {{ filter.max_value.value | money }}
+                {% endif %}
+              </span>
+            {% endif %}
+          {% else %}
+            {% for value in filter.active_values %}
+              <span aria-hidden="true">/</span>
+              <span aria-current="page">{{ value.label }}</span>
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <a href="{{ routes.collections_url }}">Collections</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{{ hero_crumb_title }}</span>
+      {% endif %}
+    </nav>
+
+    <h1 class="collection-hero__title">
+      {% if collection.handle == 'all' %}
+        All products
+      {% else %}
+        {{ collection.title }}
+      {% endif %}
+    </h1>
+
+    {% if section.settings.show_description and collection.description != blank %}
+      <div class="collection-hero__description rte">{{ collection.description }}</div>
+    {% endif %}
+  </div>
+</section>
+
+{% stylesheet %}
+  .collection-hero {
+    position: relative;
+    /* Visual target ~80vh; setting max is 75 for theme upload validation */
+    min-height: max(460px, 80svh);
+    overflow: hidden;
+    border-radius: 0;
+    background: #343434;
+    color: #ffffff;
+  }
+
+  .collection-hero__media,
+  .collection-hero__overlay {
+    position: absolute;
+    inset: 0;
+  }
+
+  .collection-hero__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--collection-hero-position, center);
+  }
+
+  .collection-hero__placeholder {
+    background: #5a5a5a;
+  }
+
+  .collection-hero__overlay {
+    background:
+      linear-gradient(to top, rgb(0 0 0 / 55%) 0%, transparent 55%),
+      var(--collection-hero-overlay, rgb(0 0 0 / 18%));
+    pointer-events: none;
+  }
+
+  .collection-hero__content {
+    position: absolute;
+    z-index: 1;
+    right: max(var(--page-margin), 2rem);
+    bottom: clamp(4.5rem, 9vw, 6.5rem);
+    left: max(var(--page-margin), 2rem);
+    display: grid;
+    justify-items: start;
+    gap: 0.85rem;
+  }
+
+  .collection-hero__breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.8rem;
+    line-height: 1;
+    opacity: 0.95;
+  }
+
+  .collection-hero__breadcrumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .collection-hero__breadcrumbs a:hover {
+    opacity: 0.7;
+  }
+
+  .collection-hero__breadcrumb-icon {
+    display: inline-flex;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .collection-hero__breadcrumb-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .collection-hero__title {
+    margin: 0;
+    max-width: 16ch;
+    color: inherit;
+    font-family: var(--font-heading--family);
+    font-size: clamp(3.75rem, 7.5vw, 7rem);
+    font-style: var(--font-heading--style);
+    font-weight: 750;
+    letter-spacing: -0.055em;
+    line-height: 0.9;
+  }
+
+  .collection-hero__description {
+    max-width: 42rem;
+    font-size: 0.95rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .collection-hero {
+      min-height: max(380px, 70svh);
+    }
+
+    .collection-hero__content {
+      right: 1.25rem;
+      bottom: 3rem;
+      left: 1.25rem;
+      gap: 0.75rem;
+    }
+
+    .collection-hero__title {
+      font-size: clamp(2.85rem, 14vw, 4.5rem);
+    }
+
+    .collection-hero__breadcrumbs {
+      gap: 0.45rem;
+      font-size: 0.72rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection hero",
+  "enabled_on": {
+    "templates": ["collection"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Override image",
+      "info": "Uses the collection image, then the first product image when blank."
+    },
+    {
+      "type": "range",
+      "id": "height",
+      "label": "Height",
+      "min": 40,
+      "max": 90,
+      "step": 1,
+      "unit": "vh",
+      "default": 80
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        { "value": "left center", "label": "Left" },
+        { "value": "center center", "label": "Center" },
+        { "value": "right center", "label": "Right" }
+      ],
+      "default": "center center"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay",
+      "default": "#0000002e",
+      "alpha": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show description",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection hero"
+    }
+  ]
+}
+{% endschema %}

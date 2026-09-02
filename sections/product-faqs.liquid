@@ -1,0 +1,823 @@
+{% liquid
+  assign heading = section.settings.heading
+  assign note = section.settings.note
+  assign note_link_label = section.settings.note_link_label
+  assign note_link = section.settings.note_link
+  assign contact_heading = section.settings.contact_heading
+  assign contact_subheading = section.settings.contact_subheading
+  assign button_label = section.settings.button_label
+%}
+
+<script
+  src="{{ 'product-faqs.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+<product-faqs
+  id="ProductFAQs"
+  class="product-faqs section spacing-style"
+  style="
+    --product-story-content-inset: clamp(1.25rem, 6vw, 15vw);
+    --product-story-shell-inset: clamp(2rem, 4vw, 3.5rem);
+    --pf-radius: {{ section.settings.corner_radius }}px;
+    --pf-bg: {{ section.settings.background_color }};
+    --pf-panel: {{ section.settings.panel_color }};
+    --pf-text: {{ section.settings.text_color }};
+    --pf-muted: {{ section.settings.muted_color }};
+    --pf-field: {{ section.settings.field_color }};
+    --pf-light-field: {{ section.settings.light_field_color }};
+    --pf-sticky-top: calc(
+      var(--header-group-height, var(--header-height, 0px)) + 30px + var(--product-story-toc-height, 3rem) + 12px
+    );
+    {% render 'spacing-style', settings: section.settings %}
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="product-faqs__container">
+  <div class="product-faqs__shell">
+    <div class="product-faqs__layout">
+      <div class="product-faqs__main">
+        <div class="product-faqs__header">
+          {% if heading != blank %}
+            <h2 class="product-faqs__heading">{{ heading | escape }}</h2>
+          {% endif %}
+
+          {% if note != blank %}
+            <p class="product-faqs__note">
+              {% if note_link != blank and note_link_label != blank %}
+                {{ note | escape | replace: note_link_label, '%%LINK%%' | split: '%%LINK%%' | first }}
+                <a class="product-faqs__note-link" href="{{ note_link }}">{{ note_link_label | escape }}</a>
+                {{ note | escape | replace: note_link_label, '%%LINK%%' | split: '%%LINK%%' | last }}
+              {% else %}
+                {{ note | escape }}
+              {% endif %}
+            </p>
+          {% endif %}
+        </div>
+
+        <div class="product-faqs__accordion">
+          {% for block in section.blocks %}
+            {% if block.type != 'faq_item' %}{% continue %}{% endif %}
+            <details
+              class="product-faqs__item"
+              {% if block.settings.open_by_default %}open{% endif %}
+              {{ block.shopify_attributes }}
+            >
+              <summary class="product-faqs__summary">
+                <span>{{ block.settings.question | escape }}</span>
+                <span class="product-faqs__icon" aria-hidden="true">
+                  <span class="product-faqs__icon-plus">
+                    <span class="svg-wrapper">{{ 'icon-plus.svg' | inline_asset_content }}</span>
+                  </span>
+                  <span class="product-faqs__icon-close">
+                    <span class="svg-wrapper">{{ 'icon-accordion-close.svg' | inline_asset_content }}</span>
+                  </span>
+                </span>
+              </summary>
+              <div class="product-faqs__panel">
+                <div class="product-faqs__answer rte">
+                  {{ block.settings.answer }}
+                </div>
+              </div>
+            </details>
+          {% endfor %}
+        </div>
+      </div>
+
+      <aside class="product-faqs__aside">
+        <div class="product-faqs__contact">
+          <div class="product-faqs__contact-intro">
+            <div class="product-faqs__contact-copy">
+              {% if contact_heading != blank %}
+                <h3 class="product-faqs__contact-heading">{{ contact_heading | escape }}</h3>
+              {% endif %}
+              {% if contact_subheading != blank %}
+                <p class="product-faqs__contact-subheading">{{ contact_subheading | escape }}</p>
+              {% endif %}
+            </div>
+
+            <div class="product-faqs__avatars" aria-hidden="true">
+              {% for i in (1..3) %}
+                {% liquid
+                  assign avatar_key = 'avatar_' | append: i
+                  assign avatar = section.settings[avatar_key]
+                %}
+                <span class="product-faqs__avatar{% if forloop.last %} product-faqs__avatar--online{% endif %}">
+                  {% if avatar != blank %}
+                    {{
+                      avatar
+                      | image_url: width: 96
+                      | image_tag:
+                        class: 'product-faqs__avatar-image',
+                        widths: '48, 72, 96',
+                        loading: 'lazy',
+                        alt: ''
+                    }}
+                  {% else %}
+                    {% liquid
+                      case forloop.index
+                        when 1
+                          assign placeholder_avatar_id = 12
+                        when 2
+                          assign placeholder_avatar_id = 25
+                        else
+                          assign placeholder_avatar_id = 33
+                      endcase
+                    %}
+                    <img
+                      class="product-faqs__avatar-image"
+                      src="https://i.pravatar.cc/96?img={{ placeholder_avatar_id }}"
+                      alt=""
+                      width="48"
+                      height="48"
+                      loading="lazy"
+                    >
+                  {% endif %}
+                </span>
+              {% endfor %}
+            </div>
+          </div>
+
+          {% form 'contact', class: 'product-faqs__form' %}
+            <input
+              class="product-faqs__input product-faqs__input--text"
+              type="text"
+              name="contact[name]"
+              placeholder="{{ section.settings.name_placeholder | escape }}"
+              autocomplete="name"
+              required
+            >
+            <input
+              class="product-faqs__input product-faqs__input--text"
+              type="email"
+              name="contact[email]"
+              placeholder="{{ section.settings.email_placeholder | escape }}"
+              autocomplete="email"
+              required
+            >
+            <textarea
+              class="product-faqs__textarea"
+              name="contact[body]"
+              rows="5"
+              placeholder="{{ section.settings.message_placeholder | escape }}"
+              required
+            ></textarea>
+            <button class="button product-faqs__submit" type="submit">
+              <span class="product-faqs__submit-text">{{ button_label | escape }}</span>
+            </button>
+          {% endform %}
+        </div>
+      </aside>
+    </div>
+  </div>
+  </div>
+</product-faqs>
+
+{% stylesheet %}
+  .product-faqs {
+    display: block;
+    color: var(--pf-text, #ffffff);
+  }
+
+  .product-faqs__container {
+    width: 100%;
+    margin-inline: auto;
+    padding-inline: 0;
+    box-sizing: border-box;
+  }
+
+  .product-faqs__shell {
+    overflow: hidden;
+    border-radius: var(--pf-radius, 24px);
+    background: var(--pf-bg, #111111);
+  }
+
+  .product-faqs__layout {
+    display: grid;
+    gap: 0;
+    align-items: start;
+  }
+
+  .product-faqs__main {
+    padding: var(--product-story-shell-inset, clamp(2rem, 4vw, 3.5rem));
+    padding-top: 4rem;
+  }
+
+  .product-faqs__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.85rem 1rem;
+    margin-bottom: 2.25rem;
+  }
+
+  .product-faqs__heading {
+    margin: 0;
+    font-family: var(--font-body--family);
+    font-size: clamp(2.25rem, 4.5vw, 3.25rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    text-transform: none;
+    color: var(--pf-text, #ffffff);
+  }
+
+  .product-faqs__note {
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    background: rgb(255 255 255 / 6%);
+    color: var(--pf-muted, #a0a0a0);
+    font-family: var(--font-body--family);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.4;
+    max-width: 16rem;
+  }
+
+  .product-faqs__note-link {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .product-faqs__accordion {
+    border-top: 1px solid rgb(255 255 255 / 10%);
+  }
+
+  .product-faqs__item {
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+  }
+
+  .product-faqs__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--font-body--family);
+    font-size: 1.0625rem;
+    line-height: 1.45;
+    font-weight: 500;
+    text-transform: none;
+    color: var(--pf-text, #ffffff);
+  }
+
+  .product-faqs__summary:hover,
+  .product-faqs__summary:focus-visible {
+    color: var(--pf-text, #ffffff);
+  }
+
+  .product-faqs__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .product-faqs__icon {
+    position: relative;
+    width: 0.75rem;
+    height: 0.75rem;
+    flex: none;
+    --icon-stroke-width: 1px;
+    color: var(--pf-text, #ffffff);
+  }
+
+  .product-faqs__icon-plus,
+  .product-faqs__icon-close {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    transition: opacity 220ms ease, transform 280ms ease;
+  }
+
+  .product-faqs__icon-plus .svg-wrapper,
+  .product-faqs__icon-close .svg-wrapper {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .product-faqs__icon-plus svg,
+  .product-faqs__icon-close svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .product-faqs__icon-close {
+    opacity: 0;
+    transform: rotate(-90deg);
+  }
+
+  .product-faqs__item[open] .product-faqs__icon-plus {
+    opacity: 0;
+    transform: rotate(90deg);
+  }
+
+  .product-faqs__item[open] .product-faqs__icon-close {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+
+  .product-faqs__panel {
+    overflow: hidden;
+    transition: height 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .product-faqs__item:not([open]) > .product-faqs__panel {
+    height: 0;
+  }
+
+  .product-faqs__item[open] > .product-faqs__panel {
+    height: auto;
+  }
+
+  .product-faqs__answer {
+    padding: 0.15rem 0 1.5rem;
+    color: var(--pf-muted, #a0a0a0);
+    font-family: var(--font-body--family);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.55;
+  }
+
+  .product-faqs__answer > *:first-child {
+    margin-block-start: 0;
+  }
+
+  .product-faqs__answer > *:last-child {
+    margin-block-end: 0;
+  }
+
+  .product-faqs__aside {
+    min-width: 0;
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+  }
+
+  .product-faqs__contact {
+    height: 100%;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border-radius: 18px;
+    background: var(--pf-panel, #1a1a1a);
+  }
+
+  .product-faqs__contact-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: 1.75rem;
+  }
+
+  .product-faqs__contact-copy {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .product-faqs__contact-heading {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-body--family);
+    font-size: clamp(1.125rem, 1.8vw, 1.375rem);
+    line-height: 1.2;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--pf-text, #ffffff);
+  }
+
+  .product-faqs__contact-subheading {
+    margin: 0;
+    color: var(--pf-muted, #a0a0a0);
+    font-family: var(--font-body--family);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.45;
+  }
+
+  .product-faqs__avatars {
+    display: flex;
+    flex: none;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-right: 0.35rem;
+  }
+
+  .product-faqs__avatar {
+    position: relative;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-left: -0.65rem;
+    overflow: hidden;
+    border: 2px solid var(--pf-panel, #1a1a1a);
+    border-radius: 999px;
+    background: #2a2a2a;
+  }
+
+  .product-faqs__avatar:first-child {
+    margin-left: 0;
+  }
+
+  .product-faqs__avatar-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-faqs__avatar--online::after {
+    content: '';
+    position: absolute;
+    right: 1px;
+    bottom: 1px;
+    width: 0.55rem;
+    height: 0.55rem;
+    border: 2px solid var(--pf-panel, #1a1a1a);
+    border-radius: 999px;
+    background: #22c55e;
+  }
+
+  .product-faqs__form {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .product-faqs__input,
+  .product-faqs__textarea {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 0;
+    font-family: var(--font-body--family);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .product-faqs__input--text {
+    border-radius: 999px;
+    background: var(--pf-light-field, #ececec);
+    color: #111111;
+  }
+
+  .product-faqs__input--text::placeholder {
+    color: #888888;
+  }
+
+  .product-faqs__textarea {
+    border-radius: 14px;
+    background: var(--pf-field, #262626);
+    color: var(--pf-text, #ffffff);
+    min-height: 8rem;
+    resize: vertical;
+  }
+
+  .product-faqs__textarea::placeholder {
+    color: rgb(255 255 255 / 42%);
+  }
+
+  .product-faqs__submit {
+    width: 100%;
+    min-height: 3.15rem;
+    margin-top: 0.5rem;
+    border-radius: 999px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  html .product-faqs__submit.button {
+    isolation: isolate;
+    overflow: hidden;
+    position: relative;
+    color: #111111;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px #111111;
+    transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  html .product-faqs__submit.button::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    width: 175%;
+    height: 280%;
+    aspect-ratio: auto;
+    border-radius: 50%;
+    background: #111111;
+    transform: translate(-50%, 85%);
+    pointer-events: none;
+    animation: none;
+  }
+
+  html .product-faqs__submit.button:hover,
+  html .product-faqs__submit.button.is-fill-leaving {
+    color: #ffffff;
+    background: #ffffff;
+    box-shadow: inset 0 0 0 1px #111111;
+  }
+
+  html .product-faqs__submit.button:hover::before {
+    animation: button-circle-enter 450ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  html .product-faqs__submit.button.is-fill-leaving::before {
+    animation: button-circle-leave 450ms cubic-bezier(0.64, 0, 0.78, 0) forwards;
+  }
+
+  .product-faqs__submit-text {
+    position: relative;
+    z-index: 1;
+    clip-path: ellipse(140% 100% at 50% 50%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html .product-faqs__submit.button:hover::before {
+      animation: none;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-faqs__panel,
+    .product-faqs__icon-plus,
+    .product-faqs__icon-close {
+      transition: none;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .product-faqs__header {
+      flex-wrap: nowrap;
+    }
+
+    .product-faqs__note {
+      flex: none;
+      margin-left: auto;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .product-faqs__layout {
+      grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.85fr);
+    }
+
+    .product-faqs__aside {
+      position: sticky;
+      top: var(--pf-sticky-top);
+      align-self: start;
+      padding: clamp(1.25rem, 2vw, 1.75rem);
+      padding-left: 0;
+    }
+
+    .product-faqs__contact {
+      min-height: 100%;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product FAQs",
+  "tag": "section",
+  "class": "product-faqs-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "FAQs"
+    },
+    {
+      "type": "text",
+      "id": "note",
+      "label": "Note",
+      "default": "Please read our FAQs page to find out more."
+    },
+    {
+      "type": "text",
+      "id": "note_link_label",
+      "label": "Note link label",
+      "default": "FAQs"
+    },
+    {
+      "type": "url",
+      "id": "note_link",
+      "label": "Note link"
+    },
+    {
+      "type": "text",
+      "id": "contact_heading",
+      "label": "Contact heading",
+      "default": "Didn't find your answer?"
+    },
+    {
+      "type": "text",
+      "id": "contact_subheading",
+      "label": "Contact subheading",
+      "default": "Don't hesitate to contact us"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_1",
+      "label": "Avatar 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_2",
+      "label": "Avatar 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_3",
+      "label": "Avatar 3"
+    },
+    {
+      "type": "text",
+      "id": "name_placeholder",
+      "label": "Name placeholder",
+      "default": "Name"
+    },
+    {
+      "type": "text",
+      "id": "email_placeholder",
+      "label": "Email placeholder",
+      "default": "Email"
+    },
+    {
+      "type": "text",
+      "id": "message_placeholder",
+      "label": "Message placeholder",
+      "default": "Message"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Send message"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "panel_color",
+      "label": "Contact panel",
+      "default": "#1A1A1A"
+    },
+    {
+      "type": "color",
+      "id": "field_color",
+      "label": "Message field background",
+      "default": "#262626"
+    },
+    {
+      "type": "color",
+      "id": "light_field_color",
+      "label": "Name and email field background",
+      "default": "#ECECEC"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "muted_color",
+      "label": "Muted text",
+      "default": "#A0A0A0"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "Left padding",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "Right padding",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "FAQ item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "Are over-ear headphones comfortable for extended periods of listening?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Yes. Soft ear cushions and an adjustable headband are designed for long listening sessions with minimal pressure.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "open_by_default",
+          "label": "Open by default",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product FAQs",
+      "category": "Product",
+      "blocks": [
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Are over-ear headphones comfortable for extended periods of listening?",
+            "answer": "<p>Yes. Soft ear cushions and an adjustable headband are designed for long listening sessions with minimal pressure.</p>",
+            "open_by_default": false
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Do over-ear headphones offer better sound quality compared to in-ear models?",
+            "answer": "<p>Over-ear designs typically allow larger drivers and better passive isolation, which can deliver fuller sound and clearer detail.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Are over-ear headphones suitable for sports or gym activities?",
+            "answer": "<p>They can work for many workouts, though in-ear models may stay more secure during high-movement activities.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How do I maintain and clean my over-ear headphones?",
+            "answer": "<p>Wipe cushions and surfaces with a soft dry cloth. Avoid liquids on drivers and store them in the case when not in use.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Do over-ear headphones cause ear fatigue or increase in temperature around the ears?",
+            "answer": "<p>Breathable materials and a balanced clamp force help reduce heat build-up and fatigue during longer sessions.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

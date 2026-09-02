@@ -1,0 +1,39 @@
+{% doc %}
+  Cart drawer header with Cart / Recently viewed tabs and close button.
+  @param {string} [heading_id]
+{% enddoc %}
+
+<div class="cart-drawer-header">
+  <div class="cart-drawer-header__tabs" role="tablist" aria-label="Cart views">
+    <button
+      type="button"
+      class="cart-drawer-header__tab is-active"
+      role="tab"
+      aria-selected="true"
+      data-cart-tab="cart"
+      id="{{ heading_id | default: 'cart-drawer-heading' }}"
+    >
+      Cart{% unless cart.empty? %}<sup class="cart-drawer-header__count">{{ cart.item_count }}</sup>{% endunless %}
+    </button>
+    <button
+      type="button"
+      class="cart-drawer-header__tab"
+      role="tab"
+      aria-selected="false"
+      data-cart-tab="recent"
+    >
+      Recently viewed
+    </button>
+  </div>
+
+  <button
+    class="theme-drawer__close-button cart-drawer-header__close"
+    on:click="#cart-drawer/close"
+    type="button"
+    aria-label="{{ 'actions.close' | t }}"
+  >
+    <span class="svg-wrapper" aria-hidden="true">
+      {{- 'icon-close.svg' | inline_asset_content -}}
+    </span>
+  </button>
+</div>

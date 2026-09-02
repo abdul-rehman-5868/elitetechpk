@@ -1,0 +1,275 @@
+{% liquid
+  assign highlights_href = section.settings.toc_highlights_target | default: '#ProductStoryHighlights'
+  assign features_href = section.settings.toc_features_target | default: '#ProductFeatures'
+  assign faqs_href = section.settings.toc_faqs_target | default: '#ProductFAQs'
+%}
+
+<script
+  src="{{ 'product-story-toc.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+<product-story-toc
+  class="product-story-toc section spacing-style"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  {{ section.shopify_attributes }}
+>
+  <div class="product-story-toc__slot" data-toc-slot>
+    <nav
+      id="ProductStoryTocNav"
+      class="product-story-toc__nav"
+      data-toc-nav
+      aria-label="{{ section.settings.toc_aria_label | escape }}"
+    >
+      <a
+        class="product-story-toc__link product-story-toc__link--up"
+        href="{{ highlights_href }}"
+        data-toc-link
+        aria-label="{{ section.settings.toc_up_label | escape }}"
+      >
+        <span aria-hidden="true">↑</span>
+      </a>
+      <a
+        class="product-story-toc__link is-active"
+        href="{{ highlights_href }}"
+        data-toc-link
+        aria-current="true"
+      >
+        {{ section.settings.toc_highlights_label | escape }}
+      </a>
+      <a
+        class="product-story-toc__link"
+        href="{{ features_href }}"
+        data-toc-link
+      >
+        {{ section.settings.toc_features_label | escape }}
+      </a>
+      <a
+        class="product-story-toc__link"
+        href="{{ faqs_href }}"
+        data-toc-link
+      >
+        {{ section.settings.toc_faqs_label | escape }}
+      </a>
+    </nav>
+  </div>
+</product-story-toc>
+
+{% stylesheet %}
+  .product-story-toc {
+    --pst-toc-gap: 30px;
+    --pst-toc-top: calc(var(--header-group-height, var(--header-height, 0px)) + var(--pst-toc-gap));
+    display: block;
+    background: transparent;
+    color: #111111;
+  }
+
+  .product-story-toc__slot {
+    position: relative;
+    width: max-content;
+    max-width: 100%;
+    min-height: 2.9rem;
+  }
+
+  .product-story-toc__nav {
+    position: relative;
+    z-index: calc(var(--layer-sticky, 8) + 4);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    width: max-content;
+    max-width: calc(100vw - 2rem);
+    padding: 0.28rem;
+    overflow-x: auto;
+    border-radius: 999px;
+    background: #ececec;
+    scrollbar-width: none;
+  }
+
+  .product-story-toc__nav.is-pinned {
+    position: fixed;
+    top: var(--pst-toc-top);
+    left: var(--homepage-gutter, 12px);
+    z-index: 1000;
+  }
+
+  .product-story-toc--on-dark .product-story-toc__nav,
+  body.product-story-toc-on-dark #ProductStoryTocNav.is-pinned {
+    background: #1a1a1a;
+    color: #ffffff;
+  }
+
+  body.product-story-toc-on-dark #ProductStoryTocNav.is-pinned .product-story-toc__link {
+    color: #ffffff;
+  }
+
+  body.product-story-toc-on-dark #ProductStoryTocNav.is-pinned .product-story-toc__link--up {
+    background: #ffffff;
+    color: #111111;
+  }
+
+  body.product-story-toc-on-dark
+    #ProductStoryTocNav.is-pinned
+    .product-story-toc__link.is-active:not(.product-story-toc__link--up),
+  body.product-story-toc-on-dark
+    #ProductStoryTocNav.is-pinned
+    .product-story-toc__link[aria-current='true']:not(.product-story-toc__link--up) {
+    background: #ffffff;
+    color: #111111;
+  }
+
+  .product-story-toc__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .product-story-toc__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.35rem;
+    padding: 0.5rem 0.95rem;
+    border-radius: 999px;
+    color: #111111;
+    text-decoration: none;
+    font-size: 0.9rem;
+    line-height: 1;
+    white-space: nowrap;
+    background: transparent;
+    transition: background 160ms ease, color 160ms ease;
+  }
+
+  .product-story-toc__link--up {
+    width: 2.1rem;
+    height: 2.1rem;
+    min-height: 2.1rem;
+    padding: 0;
+    border-radius: 999px;
+    background: #111111;
+    color: #ffffff;
+    font-size: 0.95rem;
+  }
+
+  .product-story-toc__link--up.is-active,
+  .product-story-toc__link--up[aria-current='true'] {
+    background: #111111;
+    color: #ffffff;
+  }
+
+  .product-story-toc__link.is-active:not(.product-story-toc__link--up),
+  .product-story-toc__link[aria-current='true']:not(.product-story-toc__link--up) {
+    background: #111111;
+    color: #ffffff;
+  }
+
+  .product-story-toc__link:not(.is-active):not(.product-story-toc__link--up):hover {
+    background: rgb(0 0 0 / 6%);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product story TOC",
+  "tag": "section",
+  "class": "product-story-toc-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "toc_aria_label",
+      "label": "Accessibility label",
+      "default": "Product section navigation"
+    },
+    {
+      "type": "text",
+      "id": "toc_up_label",
+      "label": "Up control label",
+      "default": "Back to highlights"
+    },
+    {
+      "type": "text",
+      "id": "toc_highlights_label",
+      "label": "Highlights label",
+      "default": "Highlights"
+    },
+    {
+      "type": "text",
+      "id": "toc_highlights_target",
+      "label": "Highlights link",
+      "default": "#ProductStoryHighlights"
+    },
+    {
+      "type": "text",
+      "id": "toc_features_label",
+      "label": "Features label",
+      "default": "Features"
+    },
+    {
+      "type": "text",
+      "id": "toc_features_target",
+      "label": "Features link",
+      "default": "#ProductFeatures"
+    },
+    {
+      "type": "text",
+      "id": "toc_faqs_label",
+      "label": "FAQs label",
+      "default": "FAQs"
+    },
+    {
+      "type": "text",
+      "id": "toc_faqs_target",
+      "label": "FAQs link",
+      "default": "#ProductFAQs"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top padding",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "Left padding",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "Right padding",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product story TOC",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

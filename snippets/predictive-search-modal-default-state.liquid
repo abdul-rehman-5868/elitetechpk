@@ -1,0 +1,56 @@
+{% doc %}
+  Default search modal content: popular categories and info links.
+
+  @param {number} [shadow_opacity] - Shadow opacity for the dropdown container
+{% enddoc %}
+
+{% liquid
+  assign category_handles = 'headphones,earphones,speakers,accessories' | split: ','
+  assign info_items = 'About|/pages/about-us,Contact|/pages/contact,FAQs|/pages/faq' | split: ','
+%}
+
+<div
+  id="predictive-search-results"
+  class="predictive-search-dropdown"
+  role="listbox"
+  aria-expanded="true"
+  style="--color-shadow: rgb(var(--color-foreground-rgb) / {{ shadow_opacity | default: 0.1 }});"
+>
+  <div class="predictive-search-results__inner">
+    <div class="search-modal__default-section">
+      <h4 class="predictive-search-results__section-label">
+        {{ 'content.search_popular_categories' | t }}
+      </h4>
+      <ul class="search-modal__default-links list-unstyled">
+        {% for handle in category_handles %}
+          {% assign category = collections[handle] %}
+          {% if category != blank %}
+            <li ref="resultsItems[]">
+              <a class="search-modal__default-link" href="{{ category.url }}">
+                {{ category.title }}
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="search-modal__default-section">
+      <h4 class="predictive-search-results__section-label">
+        {{ 'content.search_info' | t }}
+      </h4>
+      <ul class="search-modal__default-links list-unstyled">
+        {% for entry in info_items %}
+          {% assign parts = entry | split: '|' %}
+          {% assign link_label = parts[0] %}
+          {% assign link_url = parts[1] %}
+          <li ref="resultsItems[]">
+            <a class="search-modal__default-link" href="{{ link_url }}">
+              {{ link_label }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>

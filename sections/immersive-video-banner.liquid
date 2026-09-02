@@ -1,0 +1,495 @@
+{% liquid
+  assign video = section.settings.video
+  assign poster = section.settings.poster
+  if poster == blank and video != blank
+    assign poster = video.preview_image
+  endif
+
+  assign autoplay = section.settings.autoplay
+  assign loop = section.settings.loop
+
+  case section.settings.height
+    when 'small'
+      assign min_height = '28rem'
+    when 'medium'
+      assign min_height = '36rem'
+    when 'large'
+      assign min_height = '44rem'
+    when 'full'
+      assign min_height = 'calc(100svh - var(--header-height, 0px))'
+    else
+      assign min_height = '36rem'
+  endcase
+%}
+
+<script
+  src="{{ 'immersive-video-banner.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+<immersive-video-banner
+  class="immersive-video-banner"
+  style="
+    --ivb-min-height: {{ min_height }};
+    --ivb-overlay: {{ section.settings.overlay_color }};
+    --ivb-text: {{ section.settings.text_color }};
+    --ivb-button-bg: {{ section.settings.button_background }};
+    --ivb-button-fg: {{ section.settings.button_text_color }};
+    --ivb-radius: {{ section.settings.corner_radius }}px;
+    --ivb-panel-radius: var(--section-panel-radius, var(--ivb-radius));
+    --ivb-content-max: {{ section.settings.content_max_width }}rem;
+  "
+  data-autoplay="{% if autoplay %}true{% else %}false{% endif %}"
+  data-loop="{% if loop %}true{% else %}false{% endif %}"
+  data-reduced-motion="false"
+  {{ section.shopify_attributes }}
+>
+  <div class="immersive-video-banner__media" aria-hidden="true">
+    {% if video != blank %}
+      {{
+        video
+        | video_tag:
+          image_size: '2500x',
+          autoplay: false,
+          loop: loop,
+          muted: true,
+          controls: false,
+          class: 'immersive-video-banner__video'
+      }}
+    {% elsif poster != blank %}
+      {{
+        poster
+        | image_url: width: 3840
+        | image_tag:
+          widths: '832, 1200, 1600, 1920, 2560, 3840',
+          sizes: '100vw',
+          class: 'immersive-video-banner__poster',
+          loading: 'lazy',
+          alt: section.settings.heading
+      }}
+    {% else %}
+      {{ 'hero-apparel-3' | placeholder_svg_tag: 'immersive-video-banner__placeholder' }}
+    {% endif %}
+
+    {% if poster != blank and video != blank %}
+      <img
+        class="immersive-video-banner__poster immersive-video-banner__poster--fallback"
+        src="{{ poster | image_url: width: 2000 }}"
+        alt=""
+        loading="lazy"
+        width="{{ poster.width }}"
+        height="{{ poster.height }}"
+      >
+    {% endif %}
+
+    <div class="immersive-video-banner__overlay"></div>
+  </div>
+
+  <div class="immersive-video-banner__content">
+    {% if section.settings.heading != blank %}
+      <h2 class="immersive-video-banner__heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    {% if section.settings.subheading != blank %}
+      <p class="immersive-video-banner__subheading">{{ section.settings.subheading }}</p>
+    {% endif %}
+
+    {% if section.settings.button_label != blank %}
+      {% if section.settings.button_link != blank %}
+        <a class="immersive-video-banner__button" href="{{ section.settings.button_link }}">
+          <span>{{ section.settings.button_label }}</span>
+          <span class="immersive-video-banner__button-icon" aria-hidden="true">
+            {{- 'icon-arrow.svg' | inline_asset_content -}}
+          </span>
+        </a>
+      {% else %}
+        <span class="immersive-video-banner__button">
+          <span>{{ section.settings.button_label }}</span>
+          <span class="immersive-video-banner__button-icon" aria-hidden="true">
+            {{- 'icon-arrow.svg' | inline_asset_content -}}
+          </span>
+        </span>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  {% if video != blank %}
+    <button
+      type="button"
+      class="immersive-video-banner__toggle"
+      ref="toggle"
+      aria-label="{{ 'accessibility.play_video' | t }}"
+      data-state="paused"
+    >
+      <span class="immersive-video-banner__toggle-icon immersive-video-banner__toggle-icon--play" aria-hidden="true">
+        {{- 'icon-play.svg' | inline_asset_content -}}
+      </span>
+      <span class="immersive-video-banner__toggle-icon immersive-video-banner__toggle-icon--pause" aria-hidden="true">
+        {{- 'icon-pause.svg' | inline_asset_content -}}
+      </span>
+    </button>
+  {% endif %}
+</immersive-video-banner>
+
+<script type="module">
+  const root = document.currentScript?.previousElementSibling?.tagName === 'IMMERSIVE-VIDEO-BANNER'
+    ? document.currentScript.previousElementSibling
+    : document.querySelector('immersive-video-banner');
+
+  if (root && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    root.dataset.reducedMotion = 'true';
+    root.dataset.autoplay = 'false';
+  }
+</script>
+
+{% stylesheet %}
+  /* Edge-to-edge panel; vertical gap comes from white homepage shell above/below */
+  .immersive-video-banner-section {
+    --hp-shell-pad-x-mobile: 0px;
+    --hp-shell-pad-x-desktop: 0px;
+    --hp-shell-pad-x-lg: 0px;
+  }
+
+  .immersive-video-banner {
+    position: relative;
+    display: grid;
+    min-height: var(--ivb-min-height, 34rem);
+    border-radius: var(--ivb-panel-radius, var(--ivb-radius, 17px))
+      var(--ivb-panel-radius, var(--ivb-radius, 17px)) 0 0;
+    overflow: hidden;
+    color: var(--ivb-text, #ffffff);
+    background: #000000;
+    isolation: isolate;
+    transition: border-radius 0.28s ease;
+  }
+
+  .immersive-video-banner__media,
+  .immersive-video-banner__content {
+    grid-area: 1 / 1;
+  }
+
+  .immersive-video-banner__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: grid;
+    place-items: center;
+    background: #000000;
+  }
+
+  .immersive-video-banner__video,
+  .immersive-video-banner__poster,
+  .immersive-video-banner__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    background: #000000;
+  }
+
+  .immersive-video-banner__poster--fallback {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .immersive-video-banner[data-state='paused'] .immersive-video-banner__poster--fallback {
+    opacity: 1;
+  }
+
+  .immersive-video-banner__overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--ivb-overlay, rgb(0 0 0 / 35%));
+    pointer-events: none;
+  }
+
+  .immersive-video-banner__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.85rem;
+    padding: 0;
+    max-width: min(calc(100% - 2rem), calc(var(--ivb-content-max, 40) * 1rem));
+    margin-inline: auto;
+    pointer-events: none;
+  }
+
+  .immersive-video-banner__heading {
+    margin: 0;
+    font-size: clamp(2.25rem, 6vw, 4.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+
+  .immersive-video-banner__subheading {
+    margin: 0;
+    font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+    line-height: 1.45;
+    max-width: 36ch;
+    opacity: 0.95;
+  }
+
+  .immersive-video-banner__button {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.75rem;
+    padding: 0.85rem 1.35rem;
+    border-radius: 999px;
+    background: var(--ivb-button-bg, #ffffff);
+    color: var(--ivb-button-fg, #111111);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+  }
+
+  .immersive-video-banner__button:hover {
+    opacity: 0.92;
+  }
+
+  .immersive-video-banner__button-icon {
+    display: inline-flex;
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .immersive-video-banner__button-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .immersive-video-banner__toggle {
+    position: absolute;
+    right: max(1rem, calc(var(--ivb-panel-radius, 17px) + 0.35rem));
+    bottom: 1rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 45%);
+    color: #ffffff;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .immersive-video-banner__toggle:hover {
+    background: rgb(0 0 0 / 60%);
+  }
+
+  .immersive-video-banner__toggle:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 3px;
+  }
+
+  .immersive-video-banner__toggle-icon {
+    display: none;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .immersive-video-banner__toggle-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .immersive-video-banner__toggle[data-state='paused'] .immersive-video-banner__toggle-icon--play,
+  .immersive-video-banner[data-state='paused'] .immersive-video-banner__toggle-icon--play {
+    display: block;
+  }
+
+  .immersive-video-banner__toggle[data-state='playing'] .immersive-video-banner__toggle-icon--pause,
+  .immersive-video-banner[data-state='playing'] .immersive-video-banner__toggle-icon--pause {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .immersive-video-banner__poster--fallback,
+    .immersive-video-banner__button {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Immersive video banner",
+  "tag": "section",
+  "class": "immersive-video-banner-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Video"
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video"
+    },
+    {
+      "type": "image_picker",
+      "id": "poster",
+      "label": "Poster image"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Autoplay",
+      "default": true,
+      "info": "Video plays muted. Reduced-motion users see the poster until they press play."
+    },
+    {
+      "type": "checkbox",
+      "id": "loop",
+      "label": "Loop video",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Section height",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "full", "label": "Full screen" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Top corner radius",
+      "min": 0,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Sound. Sculpted."
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "A speaker that excites the eye and ear from every angle."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop Echo Elegance"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 20,
+      "max": 60,
+      "step": 1,
+      "unit": "rem",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay",
+      "default": "#00000059",
+      "alpha": true
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#111111"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Immersive video banner",
+      "category": "Banners",
+      "settings": {
+        "heading": "Sound. Sculpted.",
+        "subheading": "A speaker that excites the eye and ear from every angle.",
+        "button_label": "Shop Echo Elegance",
+        "button_link": "shopify://collections/all",
+        "height": "medium",
+        "corner_radius": 17,
+        "autoplay": true,
+        "loop": true
+      }
+    }
+  ]
+}
+{% endschema %}

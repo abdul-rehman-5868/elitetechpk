@@ -1,0 +1,156 @@
+{% doc %}
+  Collection page toolbar:
+  Show filters + category pills on the left; sort on the right.
+
+  @param {object} results - Collection or search results
+  @param {string} sort_by - Current sort value
+  @param {string} section_id - Parent section id
+  @param {object} settings - Section settings (category collections / menu)
+{% enddoc %}
+
+{% liquid
+  assign use_menu = false
+  assign rendered_count = 0
+  assign max_categories = settings.toolbar_max_categories | default: 6
+
+  if settings.toolbar_menu != blank and settings.toolbar_menu.links.size > 0
+    assign use_menu = true
+  endif
+%}
+
+<div class="collection-toolbar">
+  <div class="collection-toolbar__start">
+    <button
+      type="button"
+      class="collection-toolbar__filters"
+      on:click="#filters-drawer/open"
+      aria-haspopup="dialog"
+    >
+      <span class="collection-toolbar__filters-icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <path d="M3 5.5h14M6 10h8M8.5 14.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </span>
+      Show filters
+    </button>
+
+    <nav class="collection-toolbar__categories" aria-label="Product categories">
+      {% if use_menu %}
+        {% for link in settings.toolbar_menu.links %}
+          {% if rendered_count >= max_categories %}
+            {% break %}
+          {% endif %}
+
+          {% liquid
+            assign link_count = blank
+            if link.type == 'collection_link' and link.object != blank
+              assign link_count = link.object.all_products_count
+            elsif link.type == 'catalog_link'
+              assign link_count = collections.all.all_products_count
+            elsif link.url contains '/collections/'
+              assign link_handle = link.url | split: '/collections/' | last | split: '/' | first | split: '?' | first
+              if link_handle != blank and collections[link_handle] != blank
+                assign link_count = collections[link_handle].all_products_count
+              endif
+            endif
+          %}
+
+          {% if rendered_count > 0 %}
+            <span class="collection-toolbar__sep" aria-hidden="true">/</span>
+          {% endif %}
+          <a
+            href="{{ link.url }}"
+            class="collection-toolbar__category{% if link.active or link.current %} is-active{% endif %}"
+          >
+            {{ link.title }}
+            {% if link_count != blank %}
+              <sup>{{ link_count }}</sup>
+            {% endif %}
+          </a>
+          {% assign rendered_count = rendered_count | plus: 1 %}
+        {% endfor %}
+      {% else %}
+        {% liquid
+          assign toolbar_collection_list = ''
+          if settings.toolbar_collection_1 != blank
+            assign toolbar_collection_list = toolbar_collection_list | append: settings.toolbar_collection_1.handle | append: ','
+          endif
+          if settings.toolbar_collection_2 != blank
+            assign toolbar_collection_list = toolbar_collection_list | append: settings.toolbar_collection_2.handle | append: ','
+          endif
+          if settings.toolbar_collection_3 != blank
+            assign toolbar_collection_list = toolbar_collection_list | append: settings.toolbar_collection_3.handle | append: ','
+          endif
+          if settings.toolbar_collection_4 != blank
+            assign toolbar_collection_list = toolbar_collection_list | append: settings.toolbar_collection_4.handle | append: ','
+          endif
+          if settings.toolbar_collection_5 != blank
+            assign toolbar_collection_list = toolbar_collection_list | append: settings.toolbar_collection_5.handle | append: ','
+          endif
+          if settings.toolbar_collection_6 != blank
+            assign toolbar_collection_list = toolbar_collection_list | append: settings.toolbar_collection_6.handle | append: ','
+          endif
+        %}
+
+        {% if toolbar_collection_list != blank %}
+          {% assign toolbar_handles = toolbar_collection_list | split: ',' %}
+          {% for handle in toolbar_handles %}
+            {% if handle == blank %}
+              {% continue %}
+            {% endif %}
+            {% assign link_collection = collections[handle] %}
+            {% if link_collection == blank %}
+              {% continue %}
+            {% endif %}
+            {% if rendered_count > 0 %}
+              <span class="collection-toolbar__sep" aria-hidden="true">/</span>
+            {% endif %}
+            <a
+              href="{{ link_collection.url }}"
+              class="collection-toolbar__category{% if collection.handle == link_collection.handle %} is-active{% endif %}"
+            >
+              {{ link_collection.title }}
+              <sup>{{ link_collection.all_products_count }}</sup>
+            </a>
+            {% assign rendered_count = rendered_count | plus: 1 %}
+          {% endfor %}
+        {% else %}
+          {% for link_collection in collections %}
+            {% if rendered_count >= max_categories %}
+              {% break %}
+            {% endif %}
+            {% if link_collection.handle == 'all' or link_collection.handle == 'frontpage' %}
+              {% continue %}
+            {% endif %}
+            {% if link_collection.all_products_count == 0 %}
+              {% continue %}
+            {% endif %}
+            {% if rendered_count > 0 %}
+              <span class="collection-toolbar__sep" aria-hidden="true">/</span>
+            {% endif %}
+            <a
+              href="{{ link_collection.url }}"
+              class="collection-toolbar__category{% if collection.handle == link_collection.handle %} is-active{% endif %}"
+            >
+              {{ link_collection.title }}
+              <sup>{{ link_collection.all_products_count }}</sup>
+            </a>
+            {% assign rendered_count = rendered_count | plus: 1 %}
+          {% endfor %}
+        {% endif %}
+      {% endif %}
+    </nav>
+  </div>
+
+  <div class="collection-toolbar__end">
+    {% render 'sorting',
+      results: results,
+      sort_by: sort_by,
+      filter_style: 'horizontal',
+      suffix: 'desktop',
+      sort_position: 'desktop',
+      should_use_select_on_mobile: false,
+      section_id: section_id
+    %}
+  </div>
+</div>

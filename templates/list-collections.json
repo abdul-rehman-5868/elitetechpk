@@ -1,0 +1,35 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "reference_collections_grid": {
+      "type": "reference-collections-grid",
+      "name": "Collections grid",
+      "settings": {
+        "heading": "Collections",
+        "collection_list": [],
+        "show_all_products": true,
+        "all_products_fallback_text": "Check out all our products",
+        "columns": 4,
+        "image_ratio": "1 / 1",
+        "gap": 24,
+        "card_radius": 20,
+        "card_background": "#f5f5f5",
+        "section_width": "page-width",
+        "background_color": "#ffffff",
+        "padding-block-start": 56,
+        "padding-block-end": 64
+      }
+    }
+  },
+  "order": [
+    "reference_collections_grid"
+  ]
+}

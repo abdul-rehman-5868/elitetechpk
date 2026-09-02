@@ -1,0 +1,769 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */{
+  "sections": {
+    "peek_hero_carousel": {
+      "type": "peek-hero-carousel",
+      "blocks": {
+        "slide_1": {
+          "type": "_peek-slide",
+          "settings": {
+            "heading": "Experience unparalleled audio elegance.",
+            "heading_color": "#ffffff",
+            "button_label": "Shop Headphones",
+            "button_link": "shopify://collections/all",
+            "button_background": "#ffffff",
+            "button_text_color": "#111111",
+            "toggle_overlay": true,
+            "overlay_color": "#00000066",
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        },
+        "slide_2": {
+          "type": "_peek-slide",
+          "settings": {
+            "heading": "Crafted for immersive listening.",
+            "heading_color": "#ffffff",
+            "button_label": "Shop Collection",
+            "button_link": "shopify://collections/all",
+            "button_background": "#ffffff",
+            "button_text_color": "#111111",
+            "toggle_overlay": true,
+            "overlay_color": "#00000066",
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        },
+        "slide_3": {
+          "type": "_peek-slide",
+          "settings": {
+            "heading": "Premium sound. Timeless design.",
+            "heading_color": "#ffffff",
+            "button_label": "Explore Now",
+            "button_link": "shopify://collections/all",
+            "button_background": "#ffffff",
+            "button_text_color": "#111111",
+            "toggle_overlay": true,
+            "overlay_color": "#00000066",
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        }
+      },
+      "block_order": [
+        "slide_1",
+        "slide_2",
+        "slide_3"
+      ],
+      "settings": {
+        "side_peek": 3,
+        "slideshow_gap": 12,
+        "corner_radius": 17,
+        "slide_height": "large",
+        "background_color": "#ffffff",
+        "icons_style": "arrow",
+        "slideshow_controls_style": "dots",
+        "autoplay": false,
+        "autoplay_speed": 5,
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "story_collection_carousel": {
+      "type": "story-collection-carousel",
+      "settings": {
+        "heading": "We believe in the power of <em>sound</em>",
+        "body": "<p>Harmony Sound is an audio brand dedicated to providing high-quality audio equipment for audiophiles and music enthusiasts.</p><p>Our mission is to create products that deliver exceptional sound quality and immersive listening experiences.</p>",
+        "button_label": "Our Story",
+        "button_link": "shopify://pages/about",
+        "collection_list": [
+          "headphones",
+          "earphones",
+          "speakers",
+          "accessories"
+        ],
+        "intro_gap": 48,
+        "card_subtitle": "",
+        "show_card_image": true,
+        "columns": 4,
+        "mobile_card_size": "70cqw",
+        "columns_gap": 12,
+        "card_height": 400,
+        "card_corner_radius": 17,
+        "background_color": "#ffffff",
+        "card_background": "#f3f3f3",
+        "card_text_color": "#111111",
+        "card_active_background": "#8a8a8a",
+        "card_active_text_color": "#ffffff",
+        "icons_style": "arrow",
+        "icons_shape": "none",
+        "section_width": "full-width",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "immersive_video_banner": {
+      "type": "immersive-video-banner",
+      "settings": {
+        "heading": "Sound. Sculpted.",
+        "subheading": "A speaker that excites the eye and ear from every angle.",
+        "button_label": "Shop Echo Elegance",
+        "button_link": "shopify://collections/all",
+        "autoplay": true,
+        "loop": true,
+        "height": "large",
+        "corner_radius": 17,
+        "content_max_width": 40,
+        "overlay_color": "#00000059",
+        "text_color": "#ffffff",
+        "button_background": "#ffffff",
+        "button_text_color": "#111111",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "featured_product_showcase": {
+      "type": "featured-product-information",
+      "blocks": {
+        "media-gallery": {
+          "type": "_featured-product-information-carousel",
+          "static": true,
+          "settings": {
+            "aspect_ratio": "adapt",
+            "constrain_to_viewport": false,
+            "media_fit": "contain",
+            "media_radius": 17,
+            "extend_media": false,
+            "zoom": true,
+            "video_loop": false,
+            "hide_variants": true,
+            "icons_style": "arrow",
+            "slideshow_controls_style": "thumbnails",
+            "slideshow_mobile_controls_style": "thumbnails",
+            "thumbnail_position": "left",
+            "thumbnail_width": 72,
+            "thumbnail_radius": 12,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          }
+        },
+        "featured-badge": {
+          "type": "featured-product-badge",
+          "static": true,
+          "settings": {
+            "label": "FEATURED PRODUCT \u2022 FEATURED PRODUCT \u2022 ",
+            "size": 96,
+            "background_color": "#ffffff",
+            "text_color": "#111111",
+            "hide_on_mobile": true
+          }
+        },
+        "product-highlights": {
+          "type": "product-highlights",
+          "static": true,
+          "settings": {
+            "heading": "Product highlights",
+            "corner_radius": 17,
+            "item_1_icon": "ruler",
+            "item_1_title": "40mm",
+            "item_1_caption": "Driver size",
+            "item_2_icon": "box",
+            "item_2_title": "323 g",
+            "item_2_caption": "Product weight",
+            "item_3_icon": "lightning_bolt",
+            "item_3_title": "38h",
+            "item_3_caption": "Battery life",
+            "item_4_icon": "star",
+            "item_4_title": "v5.1",
+            "item_4_caption": "Bluetooth",
+            "item_5_icon": "check_box",
+            "item_5_title": "Adaptive active",
+            "item_5_caption": "Noise cancellation",
+            "item_6_icon": "lightning_bolt",
+            "item_6_title": "USB-C",
+            "item_6_caption": "Connector"
+          }
+        },
+        "product-details": {
+          "type": "_product-details",
+          "static": true,
+          "settings": {
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "gap": 20,
+            "sticky_details_desktop": true,
+            "background_color": "#ffffff",
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "vendor": {
+              "type": "text",
+              "settings": {
+                "text": "<p>{{ closest.product.vendor }}</p>",
+                "width": "100%",
+                "max_width": "none",
+                "alignment": "left",
+                "type_preset": "paragraph",
+                "font_size": "0.8rem",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "header": {
+              "type": "group",
+              "name": "t:names.header",
+              "settings": {
+                "content_direction": "row",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "space-between",
+                "vertical_alignment": "flex-start",
+                "gap": 16,
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "title": {
+                  "type": "product-title",
+                  "name": "t:names.title",
+                  "settings": {
+                    "width": "100%",
+                    "max_width": "none",
+                    "alignment": "left",
+                    "type_preset": "h3",
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "price": {
+                  "type": "price",
+                  "name": "t:names.product_price",
+                  "settings": {
+                    "show_sale_price_first": true,
+                    "show_installments": false,
+                    "show_tax_info": false,
+                    "type_preset": "h5",
+                    "width": "fit-content",
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "title",
+                "price"
+              ]
+            },
+            "review": {
+              "type": "review",
+              "settings": {
+                "stars_style": "shaded",
+                "show_number": true,
+                "type_preset": "paragraph",
+                "width": "100%",
+                "alignment": "left"
+              },
+              "blocks": {}
+            },
+            "description": {
+              "type": "product-description",
+              "settings": {
+                "width": "100%",
+                "max_width": "none",
+                "alignment": "left",
+                "type_preset": "paragraph",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "variant_picker": {
+              "type": "variant-picker",
+              "settings": {
+                "variant_style": "buttons",
+                "show_swatches": true,
+                "variant_style_class": "default",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "inventory": {
+              "type": "product-inventory",
+              "settings": {
+                "inventory_threshold": 10,
+                "show_inventory_quantity": true,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "buy_buttons": {
+              "type": "buy-buttons",
+              "name": "t:names.product_buy_buttons",
+              "settings": {
+                "stacking": true,
+                "show_pickup_availability": false,
+                "gift_card_form": false,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "quantity": {
+                  "type": "quantity",
+                  "static": true,
+                  "settings": {}
+                },
+                "add-to-cart": {
+                  "type": "add-to-cart",
+                  "static": true,
+                  "settings": {
+                    "style_class": "button"
+                  }
+                },
+                "accelerated-checkout": {
+                  "type": "accelerated-checkout",
+                  "static": true,
+                  "settings": {}
+                }
+              },
+              "block_order": []
+            },
+            "share_row": {
+              "type": "product-share-row",
+              "settings": {
+                "show_facebook": true,
+                "show_twitter": true,
+                "show_pinterest": true,
+                "show_email": true,
+                "help_label": "Need help?",
+                "help_link": "shopify://pages/contact"
+              },
+              "blocks": {}
+            },
+            "service_panel": {
+              "type": "product-service-panel",
+              "settings": {
+                "background_color": "#f3f3f3",
+                "card_background": "#ffffff",
+                "corner_radius": 17,
+                "item_1_icon": "truck",
+                "item_1_text": "In stock! Ships within 1-2 business days.",
+                "item_2_icon": "chat_bubble",
+                "item_2_text": "90-day risk-free trial",
+                "item_3_icon": "star",
+                "item_3_text": "2-Year Warranty",
+                "item_4_icon": "box",
+                "item_4_text": "Complimentary shipping & returns"
+              },
+              "blocks": {}
+            },
+            "view_details": {
+              "type": "product-view-details",
+              "settings": {
+                "label": "View full details"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "vendor",
+            "header",
+            "review",
+            "description",
+            "variant_picker",
+            "inventory",
+            "buy_buttons",
+            "share_row",
+            "service_panel",
+            "view_details"
+          ]
+        }
+      },
+      "block_order": [],
+      "name": "Featured product showcase",
+      "settings": {
+        "product": "apex-ultrabook-14",
+        "reference_layout": true,
+        "show_featured_badge": true,
+        "show_product_highlights": true,
+        "content_width": "content-full-width",
+        "desktop_media_position": "left",
+        "equal_columns": true,
+        "limit_details_width": false,
+        "gap": 0,
+        "background_color": "#ffffff",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "image_compare_showcase": {
+      "type": "image-compare-showcase",
+      "blocks": {
+        "comparison-slider": {
+          "type": "comparison-slider",
+          "static": true,
+          "settings": {
+            "slider_style": "horizontal",
+            "show_text": true,
+            "before_text": "Flow Harmony|Gold Tone",
+            "after_text": "Flow Harmony|Crimson Shadow",
+            "text_preset": "h6",
+            "text_position_horizontal": "end",
+            "text_background": false,
+            "text_color": "#ffffff",
+            "image_ratio": "landscape",
+            "width": "fill",
+            "width_mobile": "fill",
+            "height": "fit",
+            "slider_bg_color": "#ffffff",
+            "slider_handle_color": "#777777",
+            "border": "none",
+            "border_radius": 17,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          }
+        }
+      },
+      "block_order": [],
+      "name": "Image compare showcase",
+      "settings": {
+        "eyebrow": "Sound in Spectrum",
+        "heading": "<em>Vibrant</em> Headphone Choices",
+        "eyebrow_color": "#111111",
+        "heading_color": "#111111",
+        "accent_start": "#c4a574",
+        "accent_end": "#8b6914",
+        "background_color": "#ffffff",
+        "corner_radius": 17,
+        "padding_inline_mobile": 12,
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "marquee_9AMajF": {
+      "type": "marquee",
+      "blocks": {
+        "text_RGxHtE": {
+          "type": "text",
+          "settings": {
+            "text": "<h2>Effort \u25cb Play anything \u25cb Different</h2>",
+            "width": "fit-content",
+            "max_width": "none",
+            "alignment": "left",
+            "type_preset": "custom",
+            "font": "inter",
+            "font_size": "7.5rem",
+            "line_height": "tight",
+            "letter_spacing": "loose",
+            "case": "none",
+            "wrap": "nowrap",
+            "text_color": "#171717",
+            "font_weight": "900 !important",
+            "background": false,
+            "background_color": "#00000026",
+            "corner_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "text_RGxHtE"
+      ],
+      "name": "Scroll marquee",
+      "settings": {
+        "movement_direction": "normal",
+        "speed_factor": "medium",
+        "scroll_reactive": true,
+        "idle_rate": 35,
+        "scroll_boost": 12,
+        "max_boost": 35,
+        "hover_pause": true,
+        "outlined_text": true,
+        "outline_color": "#111111",
+        "outline_width": 1,
+        "font_size": 10,
+        "font_size_mobile": 3.5,
+        "background_color": "#ffffff",
+        "padding-block-start": 0,
+        "padding-block-end": 0,
+        "gap_between_elements": 56
+      }
+    },
+    "parallax_sale_banner": {
+      "type": "parallax-sale-banner",
+      "name": "Parallax sale banner",
+      "settings": {
+        "image_position": "center center",
+        "height": "medium",
+        "parallax_strength": 48,
+        "corner_radius": 17,
+        "heading": "Get up to 50% off\non waterproof speakers",
+        "subheading": "",
+        "button_label": "Discover sales",
+        "button_link": "shopify://collections/all",
+        "content_max_width": 34,
+        "overlay_opacity": 28,
+        "text_color": "#ffffff",
+        "button_background": "#ffffff",
+        "button_text_color": "#111111",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "hotspot_product_showcase": {
+      "type": "hotspot-product-showcase",
+      "blocks": {
+        "hotspot_1": {
+          "type": "hotspot_product",
+          "settings": {
+            "product": "apex-overear-pro",
+            "x_position": 58,
+            "y_position": 42,
+            "rating": "5.0"
+          }
+        },
+        "hotspot_2": {
+          "type": "hotspot_product",
+          "settings": {
+            "product": "apex-overear-lite",
+            "x_position": 42,
+            "y_position": 68,
+            "rating": "5.0"
+          }
+        }
+      },
+      "block_order": [
+        "hotspot_1",
+        "hotspot_2"
+      ],
+      "name": "Hotspot product showcase",
+      "settings": {
+        "eyebrow": "Premium Speakers",
+        "heading": "Bring Quality Sound into Your Home",
+        "button_label": "Choose options",
+        "corner_radius": 17,
+        "gap": 40,
+        "card_background": "#f7f7f7",
+        "accent_color": "#e8b089",
+        "hotspot_color": "#ffffff",
+        "bullseye_color": "#ffffff",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "review_quote_slider": {
+      "type": "review-quote-slider",
+      "blocks": {
+        "review_1": {
+          "type": "review",
+          "settings": {
+            "quote": "Harmony Sound's meticulous curation of premium audio tech truly stands out. Their offerings, from headphones to expansive home theaters, consistently raise the bar.",
+            "source": "Rolling Stone",
+            "reviewer": "Nathan Wright",
+            "detail": "Rolling Stone"
+          }
+        },
+        "review_2": {
+          "type": "review",
+          "settings": {
+            "quote": "From studio monitors to living-room systems, every pick feels intentional. It's rare to find a store that understands both performance and design this well.",
+            "source": "Wired",
+            "reviewer": "Ava Chen",
+            "detail": "Wired"
+          }
+        },
+        "review_3": {
+          "type": "review",
+          "settings": {
+            "quote": "The listening experience is elevated at every price point. Clear guidance, premium curation, and products that actually sound as good as they look.",
+            "source": "Pitchfork",
+            "reviewer": "Jordan Miles",
+            "detail": "Pitchfork"
+          }
+        }
+      },
+      "block_order": [
+        "review_1",
+        "review_2",
+        "review_3"
+      ],
+      "name": "Review quote slider",
+      "settings": {
+        "overlay_opacity": 55,
+        "height": "medium",
+        "corner_radius": 17,
+        "content_max_width": 42,
+        "text_color": "#ffffff",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "best_sellers_showcase": {
+      "type": "best-sellers-showcase",
+      "name": "Best sellers showcase",
+      "settings": {
+        "heading": "Best Sellers",
+        "tab_1_label": "Headphones",
+        "collection_1": "headphones",
+        "tab_2_label": "Earphones",
+        "collection_2": "earphones",
+        "tab_3_label": "Speakers",
+        "collection_3": "speakers",
+        "tab_4_label": "Accessories",
+        "collection_4": "accessories",
+        "max_products": 8,
+        "button_label": "Choose options",
+        "fallback_driver_size": "40mm",
+        "fallback_weight": "285 g",
+        "fallback_battery": "35h",
+        "fallback_bluetooth": "v5.1",
+        "fallback_charging": "2h",
+        "fallback_range": "10m",
+        "corner_radius": 17,
+        "card_background": "#f7f7f7",
+        "accent_color": "#4b8f18",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "diagonal_logo_marquees": {
+      "type": "diagonal-logo-marquees",
+      "blocks": {
+        "logo_1": {
+          "type": "brand_logo",
+          "settings": {
+            "label": "Apple",
+            "logo_width": 100
+          }
+        },
+        "logo_2": {
+          "type": "brand_logo",
+          "settings": {
+            "label": "Bowers & Wilkins",
+            "logo_width": 190
+          }
+        },
+        "logo_3": {
+          "type": "brand_logo",
+          "settings": {
+            "label": "urbanista",
+            "logo_width": 140
+          }
+        },
+        "logo_4": {
+          "type": "brand_logo",
+          "settings": {
+            "label": "B&O",
+            "logo_width": 100
+          }
+        },
+        "logo_5": {
+          "type": "brand_logo",
+          "settings": {
+            "label": "BOSE",
+            "logo_width": 110
+          }
+        },
+        "logo_6": {
+          "type": "brand_logo",
+          "settings": {
+            "label": "Master & Dynamic",
+            "logo_width": 170
+          }
+        },
+        "logo_7": {
+          "type": "brand_logo",
+          "settings": {
+            "label": "logitech",
+            "logo_width": 130
+          }
+        }
+      },
+      "block_order": [
+        "logo_1",
+        "logo_2",
+        "logo_3",
+        "logo_4",
+        "logo_5",
+        "logo_6",
+        "logo_7"
+      ],
+      "name": "Diagonal logo marquees",
+      "settings": {
+        "angle": 6,
+        "row_height": 104,
+        "gap_between_elements": 80,
+        "primary_background": "#f4e7a5",
+        "primary_text_color": "#111111",
+        "secondary_background": "#f1f1f1",
+        "secondary_text_color": "#bdbdbd",
+        "secondary_opacity": 90,
+        "speed_factor": "medium",
+        "idle_rate": 35,
+        "scroll_boost": 12,
+        "max_boost": 35,
+        "hover_pause": true,
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    }
+  },
+  "order": [
+    "peek_hero_carousel",
+    "story_collection_carousel",
+    "immersive_video_banner",
+    "featured_product_showcase",
+    "image_compare_showcase",
+    "marquee_9AMajF",
+    "parallax_sale_banner",
+    "hotspot_product_showcase",
+    "review_quote_slider",
+    "best_sellers_showcase",
+    "diagonal_logo_marquees"
+  ]
+}

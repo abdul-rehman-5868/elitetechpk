@@ -1,0 +1,62 @@
+{%- doc -%}
+  Brand checkbox list when Search & Discovery has no Vendor filter.
+  Uses collection.all_vendors and filter.v.vendor query params.
+
+  @param {object} collection - Collection object
+  @param {string} section_id - Section id for unique input ids
+{%- enddoc -%}
+
+{% if collection != blank and collection.all_vendors.size > 0 %}
+  {% liquid
+    assign query = request.query_string | url_decode | default: ''
+  %}
+  <accordion-custom class="facets__item filter-brands-fallback">
+    <details class="facets__panel" open>
+      <summary class="facets__summary">
+        <span class="facets__label">Brand</span>
+        <span class="svg-wrapper icon-caret icon-animated">
+          {{- 'icon-caret.svg' | inline_asset_content -}}
+        </span>
+      </summary>
+      <div class="facets__panel-content details-content">
+        <ul class="facets__inputs list-unstyled" role="list">
+          {% for vendor in collection.all_vendors %}
+            {% liquid
+              assign vendor_active = false
+              assign vendor_needle = 'filter.v.vendor=' | append: vendor
+              if query contains vendor_needle
+                assign vendor_active = true
+              endif
+
+              assign vendor_count = 0
+              for product in collection.products
+                if product.vendor == vendor
+                  assign vendor_count = vendor_count | plus: 1
+                endif
+              endfor
+            %}
+            <li class="facets__inputs-list-item">
+              <label class="facets__input-label">
+                <input
+                  type="checkbox"
+                  name="filter.v.vendor"
+                  value="{{ vendor | escape }}"
+                  id="Filter-brand-fallback-{{ section_id }}-{{ forloop.index }}"
+                  {% if vendor_active %}
+                    checked
+                  {% endif %}
+                >
+                <span class="facets__input-label-text">
+                  {{- vendor -}}
+                  {% if vendor_count > 0 %}
+                    <span class="facets__input-count">({{ vendor_count }})</span>
+                  {% endif %}
+                </span>
+              </label>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </details>
+  </accordion-custom>
+{% endif %}

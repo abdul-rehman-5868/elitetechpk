@@ -1,0 +1,794 @@
+{% doc %}
+  Product Information Content
+
+  Renders the product information layout with media gallery and product details.
+  Used by both product-information and featured-product-information sections.
+
+  @param {product} product - Product object
+  @param {string} section_id - Unique section ID
+  @param {object} settings - Section settings object
+  @param {string} media_gallery - Captured HTML for the product media gallery block
+  @param {string} product_details - Captured HTML for the product details block
+  @param {string} additional_blocks - Captured HTML for additional section blocks
+
+  @example
+  {% capture media_gallery %}
+    {% content_for 'block', type: '_product-media-gallery', id: 'media-gallery', closest.product: product %}
+  {% endcapture %}
+
+  {% capture product_details %}
+    {% content_for 'block', type: '_product-details', id: 'product-details', closest.product: product %}
+  {% endcapture %}
+
+  {% capture additional_blocks %}
+    {% content_for 'blocks' %}
+  {% endcapture %}
+
+  {% render 'product-information-content',
+    product: product,
+    section_id: section.id,
+    settings: section.settings,
+    media_gallery: media_gallery,
+    product_details: product_details,
+    additional_blocks: additional_blocks
+  %}
+{% enddoc %}
+
+{% liquid
+  # Determine render order based on media position
+  if settings.desktop_media_position == 'left'
+    assign render_order = 'media,product-details'
+  else
+    assign render_order = 'product-details,media'
+  endif
+
+  # Check if product has media
+  assign product_has_media = true
+  if product.media.size == 0
+    assign product_has_media = false
+  endif
+
+  # Build product grid class
+  assign product_grid_class = 'product-information__grid'
+
+  if product_has_media == false
+    assign product_grid_class = product_grid_class | append: ' product-information--media-none'
+  elsif settings.desktop_media_position == 'right'
+    assign product_grid_class = product_grid_class | append: ' product-information--media-right'
+  else
+    assign product_grid_class = product_grid_class | append: ' product-information--media-left'
+  endif
+
+  if settings.equal_columns
+    assign product_grid_class = product_grid_class | append: ' product-information__grid--half'
+
+    if settings.limit_details_width
+      assign product_grid_class = product_grid_class | append: ' product-information__grid--limit-details'
+    endif
+  endif
+
+  # Determine content width
+  case settings.content_width
+    when 'content-center-aligned'
+      assign content_width = 'page-width'
+    when 'content-full-width'
+      assign content_width = 'full-width'
+  endcase
+
+  assign reference_layout = false
+  if request.page_type == 'product'
+    assign reference_layout = true
+  endif
+%}
+
+{% liquid
+  if settings.background_color != blank
+    render 'contrast-override', background_color: settings.background_color, section_id: section_id
+  endif
+%}
+
+<div
+  class="section-background{% if settings.background_color != blank %} color-custom-{{ section_id }}{% endif %}"
+></div>
+<div
+  class="product-information section section--{{ content_width }} spacing-style{% if settings.background_color != blank %} color-custom-{{ section_id }}{% endif %} relative{% if reference_layout %} product-information--reference-layout{% endif %}"
+  style="{% render 'spacing-style', settings: settings %} --gap: {{ settings.gap }}px;"
+  data-testid="product-information"
+>
+  {% comment %} {% if settings.desktop_media_position == 'left' and product_has_media and request.page_type == 'product' %}
+    {% assign product_href = '#ProductInformation-' | append: section_id %}
+    {% render 'skip-to-content-link', href: product_href, text: 'accessibility.skip_to_product_info' %}
+  {% endif %} {% endcomment %}
+  <product-component
+    class="{{ product_grid_class }}"
+    data-product-grid-content
+    {% # theme-check-disable UnknownFilter %}
+    view-event-payload="{{ product | standard_event_data: 'view' | escape }}"
+    {% # theme-check-enable UnknownFilter %}
+  >
+    {% assign render_order_array = render_order | split: ',' %}
+    {% capture media %}
+      <div
+        class="product-information__media"
+        data-testid="product-information-media"
+      >
+        {{ media_gallery }}
+        <div class="product-information__media-footer">
+          {{ additional_blocks }}
+        </div>
+      </div>
+    {% endcapture %}
+
+    {% for block in render_order_array %}
+      {% if block == 'media' and product_has_media %}
+        {{ media }}
+      {% elsif block == 'product-details' %}
+        {{ product_details }}
+      {% endif %}
+    {% endfor %}
+  </product-component>
+
+  {% unless product_has_media %}
+    {{ additional_blocks }}
+  {% endunless %}
+</div>
+
+{% stylesheet %}
+  .product-information {
+    gap: var(--gap) 0;
+  }
+
+  /* Base grid layout */
+  .product-information__grid {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: 1 / -1;
+  }
+
+  /* Default column positions */
+  .product-details {
+    order: 1;
+  }
+
+  .product-information__media {
+    order: 0;
+    width: 0;
+    min-width: 100%;
+  }
+
+  .product-information__media .product-media-gallery__placeholder-image {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Mobile styles */
+  @media screen and (max-width: 749px) {
+    .product-information__media {
+      grid-column: 1 / -1;
+    }
+
+    .product-details {
+      grid-column: 2 / 3;
+    }
+  }
+
+  /* Desktop styles */
+  @media screen and (min-width: 750px) {
+    .product-information__grid {
+      grid-column: 2;
+    }
+
+    /* Position when there is no media */
+    .product-information__grid.product-information--media-none {
+      .product-details {
+        width: var(--narrow-content-width);
+        margin: 0 auto;
+      }
+    }
+
+    /* Position when there is media */
+    .product-information__grid:not(.product-information--media-none) {
+      /* Media on the left side */
+      &.product-information--media-left {
+        grid-template-columns: 1fr min(50vw, var(--sidebar-width));
+
+        .product-information__media {
+          padding-right: calc(var(--gap, 0) / 2);
+        }
+
+        .product-details {
+          padding-left: calc(var(--gap, 0) / 2);
+        }
+
+        &:has(.media-gallery--extend) {
+          grid-column: 1 / 3;
+        }
+      }
+
+      /* Media on the right side */
+      &.product-information--media-right {
+        grid-template-columns: min(50vw, var(--sidebar-width)) 1fr;
+
+        .product-information__media {
+          padding-left: calc(var(--gap, 0) / 2);
+          order: 1;
+        }
+
+        .product-details {
+          padding-right: calc(var(--gap, 0) / 2);
+          order: 0;
+        }
+
+        &:has(.media-gallery--extend) {
+          grid-column: 2 / -1;
+        }
+      }
+
+      /* Equal width columns */
+      &.product-information__grid--half,
+      &.product-information__grid--half:has(.media-gallery--extend) {
+        grid-column: 1 / -1;
+        grid-template-columns:
+          var(--full-page-grid-margin) calc(var(--full-page-grid-central-column-width) / 2) calc(
+            var(--full-page-grid-central-column-width) / 2
+          )
+          var(--full-page-grid-margin);
+
+        &.product-information--media-left {
+          .product-information__media {
+            grid-column: 2 / 3;
+
+            &:has(.media-gallery--extend) {
+              grid-column: 1 / 3;
+            }
+          }
+
+          .product-details {
+            grid-column: 3 / 4;
+          }
+        }
+
+        &.product-information--media-right {
+          .product-information__media {
+            grid-column: 3 / 4;
+
+            &:has(.media-gallery--extend) {
+              grid-column: 3 / -1;
+            }
+          }
+
+          .product-details {
+            grid-column: 2 / 3;
+          }
+        }
+      }
+    }
+
+    /* Handle full width section */
+    .section--full-width {
+      .product-information__grid:not(.product-information--media-none) {
+        &.product-information--media-left,
+        &.product-information--media-right {
+          grid-column: 1 / -1;
+        }
+
+        &.product-information--media-left .product-details {
+          padding-inline-end: var(--padding-lg);
+        }
+
+        &.product-information--media-right .product-details {
+          padding-inline-start: var(--padding-lg);
+        }
+
+        &.product-information__grid--half.product-information--media-left {
+          .product-information__media {
+            grid-column: 1 / 3;
+          }
+
+          .product-details {
+            grid-column: 3 / -1;
+          }
+        }
+
+        &.product-information__grid--half.product-information--media-right {
+          .product-information__media {
+            grid-column: 3 / -1;
+          }
+
+          .product-details {
+            grid-column: 1 / 3;
+          }
+        }
+      }
+    }
+  }
+
+  /* Wider sidebar for large screens */
+  @media screen and (min-width: 1200px) {
+    .product-information__grid:not(
+        .product-information__grid--half,
+        .product-information--media-none
+      ).product-information--media-left {
+      grid-template-columns: 2fr 1fr;
+    }
+
+    .product-information__grid:not(
+        .product-information__grid--half,
+        .product-information--media-none
+      ).product-information--media-right {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+
+  .product-information--reference-layout {
+    --pdp-surface-radius: 18px;
+    --pdp-media-bg: #f0f0f0;
+    --pdp-sticky-gap: 14px;
+    --pdp-sticky-top: calc(var(--header-group-height, var(--header-height, 0px)) + var(--pdp-sticky-gap));
+    --pdp-viewport-media-height: calc(
+      100svh - var(--header-group-height, 0px) - var(--header-height, 0px) - var(--pdp-sticky-gap)
+    );
+    --pdp-details-gap: 1.25rem;
+    --pdp-title-size: clamp(1.75rem, 2.5vw, 2rem);
+    --pdp-price-size: 1.5rem;
+    --pdp-body-muted: #6b6b6b;
+    --pdp-review-star: #e8751a;
+    --pdp-btn-height: 3.25rem;
+    --pdp-btn-radius: 999px;
+    border-radius: var(--pdp-surface-radius);
+    overflow: clip;
+  }
+
+  .product-information--reference-layout .product-information__grid {
+    align-items: start;
+  }
+
+  .product-information--reference-layout .product-information__media {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Media gallery must not be sticky itself — only the main image sticks. */
+  .product-information--reference-layout media-gallery.sticky-content {
+    position: relative;
+    top: auto;
+  }
+
+  .product-information--reference-layout .product-details {
+    align-self: start;
+  }
+
+  .product-information--reference-layout .product-details > .group-block {
+    width: 100%;
+    max-width: 32rem;
+    margin-inline: 0;
+  }
+
+  .product-information--reference-layout .product-details > .group-block > .group-block-content {
+    gap: var(--pdp-details-gap);
+  }
+
+  /* Vendor */
+  .product-information--reference-layout .product-details > .group-block > .group-block-content > .text-block:first-child,
+  .product-information--reference-layout .product-details > .group-block > .group-block-content > .text-block:first-child p {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #111111;
+    margin: 0;
+  }
+
+  /* Title row */
+  .product-information--reference-layout .product-details .group-block .group-block-content.layout-panel-flex--row {
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .product-information--reference-layout .product-details .text-block.h3 > *,
+  .product-information--reference-layout .product-details .text-block.h3 :is(h1, h2, h3, h4, h5, h6),
+  .product-information--reference-layout .product-details .text-block.h3 p,
+  .product-information--reference-layout .product-details a.contents .text-block.h3 p {
+    font-size: var(--pdp-title-size);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-transform: none;
+    margin: 0;
+  }
+
+  /* Price */
+  .product-information--reference-layout .product-details product-price.text-block.h5 > *:not(.tax-note),
+  .product-information--reference-layout .product-details product-price.text-block.custom > *:not(.tax-note),
+  .product-information--reference-layout .product-details product-price.text-block.h5,
+  .product-information--reference-layout .product-details product-price.text-block.custom {
+    font-family: var(--font-body--family);
+    font-size: var(--pdp-price-size);
+    font-weight: 500;
+    line-height: 1.2;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  /* Reviews */
+  .product-information--reference-layout .product-details .rating-wrapper {
+    --star-fill-color: var(--pdp-review-star);
+    --star-fill-color-rgb: 232 117 26;
+    margin-block-start: -0.35rem;
+  }
+
+  .product-information--reference-layout .product-details .rating-wrapper .rating-count,
+  .product-information--reference-layout .product-details .rating-wrapper .rating-count-separator {
+    font-size: 0.875rem;
+    color: #8a8a8a;
+  }
+
+  /* Description */
+  .product-information--reference-layout .product-details .product-description,
+  .product-information--reference-layout .product-details .product-description p,
+  .product-information--reference-layout .product-details .rte {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--pdp-body-muted);
+  }
+
+  /* Variant labels */
+  .product-information--reference-layout .product-details .variant-option--buttons legend,
+  .product-information--reference-layout .product-details .variant-option--dropdowns > label {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  .product-information--reference-layout .product-details .variant-option__button-label--has-swatch {
+    border-radius: 8px;
+  }
+
+  /* Linked products spacing */
+  .product-information--reference-layout .product-linked-products--upgrades {
+    margin-block-start: 0.5rem;
+  }
+
+  .product-information--reference-layout .product-linked-products--pairs {
+    margin-block-start: 0.25rem;
+  }
+
+  .product-information--reference-layout .product-share-row {
+    margin-block-start: 0.25rem;
+  }
+
+  /* Service panel card-in-card */
+  .product-information--reference-layout .product-service-panel {
+    padding: 0.35rem;
+    margin-block-start: 0.5rem;
+  }
+
+  .product-information--reference-layout .product-service-panel__item {
+    background: var(--psp-card-bg, #ffffff);
+    border-radius: 12px;
+    margin: 0.35rem 0.5rem;
+    border-top: 0;
+    padding: 0.9rem 1rem;
+  }
+
+  .product-information--reference-layout .product-information__media .product-media-gallery__placeholder-image,
+  .product-information--reference-layout .product-information__media .product-media-container,
+  .product-information--reference-layout .product-information__media .product-media,
+  .product-information--reference-layout .product-information__media .product-media__image,
+  .product-information--reference-layout .product-information__media .deferred-media__poster-image {
+    background: var(--pdp-media-bg);
+  }
+
+  .product-information--reference-layout .product-information__media .product-media-container,
+  .product-information--reference-layout .product-information__media .product-media {
+    border-radius: var(--pdp-surface-radius);
+    overflow: hidden;
+  }
+
+  .product-information--reference-layout .product-information__media slideshow-component {
+    display: grid;
+    gap: var(--gap, 0);
+  }
+
+  .product-information--reference-layout .product-information__media slideshow-container {
+    min-width: 0;
+  }
+
+  .product-information--reference-layout .product-information__media slideshow-arrows {
+    display: none;
+  }
+
+  /* Beat inline --thumbnail-width: 72px on <media-gallery> (inline wins without !important). */
+  .product-information--reference-layout media-gallery {
+    --thumbnail-width: 100% !important;
+    --pdp-catalogue-width: clamp(10rem, 18vw, 14rem);
+  }
+
+  .product-information--reference-layout .product-information__media {
+    --thumbnail-width: 100%;
+  }
+
+  @media screen and (max-width: 749px) {
+    .product-information--reference-layout .product-information__media slideshow-controls[thumbnails] {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+
+  .product-information--reference-layout .product-information__media .slideshow-controls__thumbnails-container {
+    width: 100%;
+  }
+
+  .product-information--reference-layout .product-information__media .slideshow-controls__thumbnails {
+    width: 100%;
+  }
+
+  .product-information--reference-layout
+    .product-information__media
+    .slideshow-controls__thumbnail.slideshow-control {
+    width: 100%;
+    min-width: 100%;
+    max-width: none;
+    height: auto;
+    aspect-ratio: auto;
+    border-radius: var(--pdp-surface-radius);
+    overflow: hidden;
+    background: var(--pdp-media-bg);
+  }
+
+  .product-information--reference-layout .product-information__media .slideshow-controls__thumbnail img {
+    width: 100%;
+    height: 100%;
+    min-height: clamp(11rem, 16vw, 15rem);
+    object-fit: cover;
+  }
+
+  .product-information--reference-layout .product-information__media .slideshow-controls__thumbnail[aria-selected='true'] {
+    outline: 1px solid #111111;
+    outline-offset: 2px;
+    border-color: #111111;
+  }
+
+  .product-information--reference-layout .product-details.sticky-content--desktop {
+    --sticky-header-offset: var(--pdp-sticky-top);
+  }
+
+  body:has(#header-group #header-component[data-sticky-state='active'])
+    .product-information--reference-layout
+    .product-details.sticky-content--desktop {
+    --sticky-header-offset: var(--pdp-sticky-top);
+  }
+
+  /*
+    Reference PDP scroll:
+    1) Left main image sticks
+    2) Center catalogue scrolls with the page (creates section height)
+    3) Right details stick while the gallery/highlights scroll, then release with the section
+    4) Product highlights sit under the gallery (media column)
+  */
+  @media screen and (min-width: 750px) {
+    .product-information--reference-layout .product-information__grid.product-information--media-left,
+    .product-information--reference-layout .product-information__grid.product-information--media-right {
+      grid-template-columns: minmax(0, 1.45fr) minmax(20rem, 0.9fr);
+      gap: 0;
+      grid-column: 1 / -1;
+      align-items: start;
+    }
+
+    .product-information--reference-layout .product-information__grid.product-information--media-left .product-information__media {
+      padding-right: calc(var(--gap, 48px) / 2);
+    }
+
+    .product-information--reference-layout .product-information__grid.product-information--media-left .product-details {
+      padding-left: calc(var(--gap, 48px) / 2);
+      padding-right: 0;
+      padding-block: 0;
+    }
+
+    /*
+      Beat equal-specificity theme carousel rules
+      (.media-gallery--carousel … / 1fr auto) that collapse the centre column.
+    */
+    .product-information--reference-layout
+      .media-gallery--carousel
+      slideshow-component:has(slideshow-controls[thumbnails]):has(
+        slideshow-controls[pagination-position='right']
+      ),
+    .product-information--reference-layout
+      .media-gallery--carousel
+      slideshow-component:has(slideshow-controls[thumbnails]):has(
+        slideshow-controls[pagination-position='left']
+      ),
+    .product-information--reference-layout
+      .product-information__media
+      slideshow-component:has(slideshow-controls[thumbnails]) {
+      display: grid;
+      grid-template:
+        'container controls' auto
+        / minmax(0, 1fr) var(--pdp-catalogue-width, clamp(10rem, 18vw, 14rem));
+      align-items: start;
+      column-gap: clamp(0.85rem, 1.2vw, 1.15rem);
+      row-gap: 0;
+    }
+
+    .product-information--reference-layout
+      .media-gallery--carousel
+      slideshow-component:has(slideshow-controls[thumbnails])
+      slideshow-container,
+    .product-information--reference-layout .product-information__media slideshow-container {
+      grid-area: container;
+      order: 0;
+      position: sticky;
+      top: var(--pdp-sticky-top);
+      align-self: start;
+      z-index: 1;
+      height: var(--pdp-viewport-media-height);
+      max-height: var(--pdp-viewport-media-height);
+      overflow: hidden;
+    }
+
+    /*
+      Override theme defaults (height: 0 + internal sticky scroll).
+      Catalogue must grow with content so page scroll drives the center column.
+    */
+    .product-information--reference-layout
+      .media-gallery--carousel
+      slideshow-controls[thumbnails]:is([pagination-position='right'], [pagination-position='left']),
+    .product-information--reference-layout
+      .product-information__media
+      slideshow-controls[thumbnails]:is([pagination-position='right'], [pagination-position='left']) {
+      grid-area: controls;
+      order: 0;
+      display: flex;
+      flex-direction: column;
+      width: var(--pdp-catalogue-width, clamp(10rem, 18vw, 14rem));
+      min-width: var(--pdp-catalogue-width, clamp(10rem, 18vw, 14rem));
+      max-width: var(--pdp-catalogue-width, clamp(10rem, 18vw, 14rem));
+      height: auto;
+      min-height: 0;
+      align-self: start;
+      justify-self: stretch;
+    }
+
+    .product-information--reference-layout
+      .media-gallery--carousel
+      slideshow-controls[thumbnails]:is([pagination-position='right'], [pagination-position='left'])
+      .slideshow-controls__thumbnails-container,
+    .product-information--reference-layout
+      .product-information__media
+      slideshow-controls[thumbnails]:is([pagination-position='right'], [pagination-position='left'])
+      .slideshow-controls__thumbnails-container {
+      position: static;
+      top: auto;
+      height: auto;
+      max-height: none;
+      overflow: visible;
+    }
+
+    .product-information--reference-layout
+      .media-gallery--carousel
+      slideshow-controls[thumbnails]
+      .slideshow-controls__thumbnails,
+    .product-information--reference-layout
+      .product-information__media
+      slideshow-controls[thumbnails]
+      .slideshow-controls__thumbnails {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.85rem, 1vw, 1rem);
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+
+    .product-information--reference-layout .product-information__media .product-media-container {
+      --gallery-aspect-ratio: auto;
+      min-height: 0;
+      height: 100%;
+      max-height: var(--pdp-viewport-media-height);
+    }
+
+    .product-information--reference-layout .product-information__media slideshow-slides,
+    .product-information--reference-layout .product-information__media slideshow-slide {
+      min-height: 0;
+      height: 100%;
+      max-height: var(--pdp-viewport-media-height);
+    }
+
+    .product-information--reference-layout .product-information__media .product-media {
+      min-height: 0;
+      height: 100%;
+      max-height: 100%;
+    }
+
+    .product-information--reference-layout .product-information__media .product-media__image,
+    .product-information--reference-layout .product-information__media .product-media-container img {
+      min-height: 0;
+      height: 100%;
+      max-height: 100%;
+      width: 100%;
+      aspect-ratio: auto;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .product-information--reference-layout .product-details.sticky-content--desktop {
+      position: sticky;
+      top: var(--pdp-sticky-top);
+      align-self: start;
+    }
+
+    /*
+      Keep the right column scrolling with the media column:
+      details only stick while their own height fits the viewport; once the
+      catalogue has scrolled past the top of the details block, both move up.
+    */
+    .product-information--reference-layout .product-details.sticky-content--desktop > .group-block {
+      position: sticky;
+      top: var(--pdp-sticky-top);
+    }
+
+    .product-information--reference-layout .product-information__media-footer {
+      grid-column: 1 / -1;
+      margin-top: clamp(2rem, 4vw, 3.5rem);
+      /* Align highlights under the main image, not under the catalogue strip */
+      width: calc(100% - var(--pdp-catalogue-width, 0px) - clamp(0.85rem, 1.2vw, 1.15rem));
+      max-width: 100%;
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .product-information--reference-layout .product-information__grid.product-information--media-left,
+    .product-information--reference-layout .product-information__grid.product-information--media-right {
+      grid-template-columns: minmax(0, 1.6fr) minmax(23rem, 0.92fr);
+    }
+
+    .product-information--reference-layout media-gallery {
+      --pdp-catalogue-width: clamp(11rem, 17vw, 14.5rem);
+    }
+
+    .product-information--reference-layout
+      .media-gallery--carousel
+      slideshow-component:has(slideshow-controls[thumbnails]):has(
+        slideshow-controls[pagination-position='right']
+      ),
+    .product-information--reference-layout
+      .media-gallery--carousel
+      slideshow-component:has(slideshow-controls[thumbnails]):has(
+        slideshow-controls[pagination-position='left']
+      ),
+    .product-information--reference-layout
+      .product-information__media
+      slideshow-component:has(slideshow-controls[thumbnails]) {
+      grid-template:
+        'container controls' auto
+        / minmax(0, 1fr) var(--pdp-catalogue-width, clamp(11rem, 17vw, 14.5rem));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .product-information--reference-layout .product-information__media .slideshow-controls__thumbnail {
+      border-radius: 12px;
+      overflow: hidden;
+    }
+  }
+
+  .product-information__grid--limit-details .product-details > .group-block {
+    --details-max-width: var(--sidebar-width);
+    max-width: var(--details-max-width);
+  }
+
+  @media screen and (min-width: 1600px) {
+    .product-information__grid--limit-details .product-details > .group-block {
+      --details-max-width: 32rem;
+    }
+  }
+
+  /* If the header is sticky, make product details content stick underneath the header */
+  body:has(#header-group #header-component[data-sticky-state='active']) .product-details.sticky-content--desktop {
+    --sticky-header-offset: var(--header-height);
+  }
+
+  body:has(#header-group #header-component[data-sticky-state='active'])
+    .product-information--reference-layout
+    .product-details.sticky-content--desktop {
+    --sticky-header-offset: var(--pdp-sticky-top);
+  }
+{% endstylesheet %}

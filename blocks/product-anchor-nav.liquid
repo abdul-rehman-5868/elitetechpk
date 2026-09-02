@@ -1,0 +1,64 @@
+<nav
+  class="product-anchor-nav"
+  aria-label="Product section navigation"
+  {{ block.shopify_attributes }}
+>
+  <a href="#ProductHighlights">Highlights</a>
+  <a href="#ProductFeatures">Features</a>
+  <a href="#ProductFAQs">FAQs</a>
+</nav>
+
+{% stylesheet %}
+  .product-anchor-nav {
+    position: sticky;
+    bottom: 1rem;
+    z-index: calc(var(--layer-sticky) - 2);
+    display: inline-flex;
+    gap: 0.2rem;
+    align-items: center;
+    width: fit-content;
+    margin-top: 1.4rem;
+    padding: 0.35rem;
+    border-radius: 999px;
+    background: #f3f3f3;
+    box-shadow: 0 10px 24px rgb(0 0 0 / 8%);
+  }
+
+  .product-anchor-nav a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.35rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    color: #111111;
+    text-decoration: none;
+    font-size: 0.86rem;
+    white-space: nowrap;
+  }
+
+  .product-anchor-nav a:first-child::before {
+    content: '↑';
+    margin-right: 0.45rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .product-anchor-nav {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product anchor nav",
+  "tag": null,
+  "settings": [],
+  "presets": [
+    {
+      "name": "Product anchor nav",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

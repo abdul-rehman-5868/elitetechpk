@@ -1,0 +1,381 @@
+<script
+  src="{{ 'marquee.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+{% liquid
+  assign gap_between_elements = section.settings.gap_between_elements
+  assign scroll_reactive = section.settings.scroll_reactive
+  assign outlined_text = section.settings.outlined_text
+  assign hover_pause = section.settings.hover_pause
+
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id
+  endif
+
+  case section.settings.speed_factor
+    when 'slow'
+      assign speed_factor = 36
+    when 'fast'
+      assign speed_factor = 16
+    else
+      assign speed_factor = 25
+  endcase
+%}
+
+<div
+  class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+></div>
+<marquee-component
+  class="
+    section
+    spacing-style
+    gap-style
+    marquee
+    {% if outlined_text %} marquee--outlined{% endif %}
+    {% if scroll_reactive %} marquee--reactive{% endif %}
+    {% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}
+  "
+  style="
+    {%- render 'spacing-style', settings: section.settings %};
+    {% render 'gap-style', value: gap_between_elements, name: 'marquee-gap' %}
+    --marquee-direction: {{ section.settings.movement_direction }};
+    --marquee-outline-color: {{ section.settings.outline_color }};
+    --marquee-outline-width: {{ section.settings.outline_width }}px;
+    --marquee-font-size: {{ section.settings.font_size }}rem;
+    --marquee-font-size-mobile: {{ section.settings.font_size_mobile }}rem;
+  "
+  data-speed-factor="{{ speed_factor }}"
+  data-movement-direction="{{ section.settings.movement_direction }}"
+  {% if scroll_reactive %}
+    data-scroll-reactive="true"
+    data-idle-rate="{{ section.settings.idle_rate | times: 0.01 }}"
+    data-scroll-boost="{{ section.settings.scroll_boost }}"
+    data-max-boost="{{ section.settings.max_boost | times: 0.1 }}"
+    data-hover-pause="{% if hover_pause %}true{% else %}false{% endif %}"
+  {% endif %}
+  {% if outlined_text %}
+    data-outlined="true"
+  {% endif %}
+>
+  <div
+    class="marquee__wrapper"
+    ref="wrapper"
+  >
+    <div
+      class="marquee__content"
+      ref="content"
+    >
+      <div
+        class="marquee__repeated-items"
+        ref="marqueeItems[]"
+      >
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+  </div>
+</marquee-component>
+
+{% stylesheet %}
+  /* Outside: X 0 (edge-to-edge). Inside: X 0. Y via theme editor. */
+  .marquee-section {
+    --hp-shell-pad-x-mobile: 0px;
+    --hp-shell-pad-x-desktop: 0px;
+  }
+
+  marquee-component {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .marquee__wrapper {
+    display: flex;
+    gap: var(--marquee-gap);
+    width: fit-content;
+    white-space: nowrap;
+    will-change: transform;
+  }
+
+  .marquee__content {
+    min-width: max-content;
+    display: flex;
+    gap: var(--marquee-gap);
+  }
+
+  .marquee__content :is(p, h1, h2, h3, h4, h5, h6) {
+    white-space: nowrap;
+  }
+
+  .marquee__content .marquee__repeated-items * {
+    max-width: none;
+  }
+
+  .marquee__repeated-items {
+    min-width: max-content;
+    display: flex;
+    gap: var(--marquee-gap);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .marquee__repeated-items > * {
+    align-content: center;
+  }
+
+  .marquee--outlined .marquee__content :is(p, h1, h2, h3, h4, h5, h6, a, .text-block) {
+    color: transparent;
+    -webkit-text-stroke: var(--marquee-outline-width, 1px) #171717;
+    paint-order: stroke fill;
+  }
+
+  .marquee--outlined .marquee__content .text-block,
+  .marquee--outlined .marquee__content :is(p, h1, h2, h3, h4, h5, h6, a) {
+    font-size: var(--marquee-font-size-mobile, 6rem) !important;
+    line-height: 1 !important;
+    letter-spacing: 0.001em;
+    font-weight: 900;
+  }
+
+  @media screen and (min-width: 750px) {
+    .marquee--outlined .marquee__content .text-block,
+    .marquee--outlined .marquee__content :is(p, h1, h2, h3, h4, h5, h6, a) {
+      font-size: var(--marquee-font-size, 10rem) !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    marquee-component:not([data-disabled]):not([data-reactive]) .marquee__wrapper {
+      animation: marquee-motion var(--marquee-speed) linear infinite var(--marquee-direction);
+    }
+
+    /* Reactive mode uses WAAPI so playbackRate can reverse with scroll */
+    marquee-component[data-reactive] .marquee__wrapper {
+      animation: none;
+    }
+  }
+
+  @keyframes marquee-motion {
+    to {
+      transform: translate3d(calc(-50% - (var(--marquee-gap) / 2)), 0, 0);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.marquee",
+  "tag": "section",
+  "class": "marquee-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "text"
+    },
+    {
+      "type": "icon"
+    },
+    {
+      "type": "logo"
+    },
+    {
+      "type": "_divider"
+    }
+  ],
+  "settings": [
+    {
+      "type": "select",
+      "id": "movement_direction",
+      "label": "t:settings.motion_direction",
+      "options": [
+        {
+          "value": "reverse",
+          "label": "t:options.forward"
+        },
+        {
+          "value": "normal",
+          "label": "t:options.reverse"
+        }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "select",
+      "id": "speed_factor",
+      "label": "Base speed",
+      "options": [
+        { "value": "slow", "label": "Slow" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "fast", "label": "Fast" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "header",
+      "content": "Scroll reaction"
+    },
+    {
+      "type": "checkbox",
+      "id": "scroll_reactive",
+      "label": "React to page scroll",
+      "default": false,
+      "info": "Moves faster while scrolling, reverses when scrolling up, and pauses on hover when idle."
+    },
+    {
+      "type": "range",
+      "id": "idle_rate",
+      "label": "Idle speed",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 35,
+      "visible_if": "{{ section.settings.scroll_reactive }}"
+    },
+    {
+      "type": "range",
+      "id": "scroll_boost",
+      "label": "Scroll boost",
+      "min": 4,
+      "max": 24,
+      "step": 1,
+      "default": 12,
+      "visible_if": "{{ section.settings.scroll_reactive }}"
+    },
+    {
+      "type": "range",
+      "id": "max_boost",
+      "label": "Max boost",
+      "min": 15,
+      "max": 50,
+      "step": 1,
+      "default": 35,
+      "info": "Maximum playback multiplier ×0.1",
+      "visible_if": "{{ section.settings.scroll_reactive }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "hover_pause",
+      "label": "Pause on hover when idle",
+      "default": true,
+      "visible_if": "{{ section.settings.scroll_reactive }}"
+    },
+    {
+      "type": "header",
+      "content": "Outlined text"
+    },
+    {
+      "type": "checkbox",
+      "id": "outlined_text",
+      "label": "Outlined jumbo text",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "outline_color",
+      "label": "Outline color",
+      "default": "#222222",
+      "visible_if": "{{ section.settings.outlined_text }}"
+    },
+    {
+      "type": "range",
+      "id": "outline_width",
+      "label": "Outline width",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "unit": "px",
+      "default": 2,
+      "visible_if": "{{ section.settings.outlined_text }}"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Desktop font size",
+      "min": 3,
+      "max": 12,
+      "step": 0.5,
+      "unit": "rem",
+      "default": 7.5,
+      "visible_if": "{{ section.settings.outlined_text }}"
+    },
+    {
+      "type": "range",
+      "id": "font_size_mobile",
+      "label": "Mobile font size",
+      "min": 2,
+      "max": 6,
+      "step": 0.5,
+      "unit": "rem",
+      "default": 3.5,
+      "visible_if": "{{ section.settings.outlined_text }}"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:settings.background_color",
+      "placeholder": "t:settings.default"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "gap_between_elements",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.marquee_section",
+      "category": "t:categories.text",
+      "blocks": {
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "t:html_defaults.make_things_better",
+            "type_preset": "custom",
+            "font": "var(--font-body--family)",
+            "font_size": "var(--font-size--h2)",
+            "line_height": "tight",
+            "letter_spacing": "tight",
+            "case": "none",
+            "wrap": "nowrap",
+            "width": "fit-content"
+          }
+        }
+      },
+      "block_order": ["text"]
+    }
+  ]
+}
+{% endschema %}

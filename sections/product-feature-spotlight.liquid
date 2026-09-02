@@ -1,0 +1,263 @@
+{% liquid
+  assign image = section.settings.image
+  assign heading = section.settings.heading
+  assign body = section.settings.body
+  assign icon = section.settings.icon
+  assign image_alt = heading
+  if image != blank and image.alt != blank
+    assign image_alt = image.alt
+  endif
+%}
+
+<section
+  class="product-feature-spotlight section spacing-style"
+  style="
+    --pfs-radius: {{ section.settings.corner_radius }}px;
+    --pfs-panel: {{ section.settings.panel_color }};
+    --pfs-min-height: {{ section.settings.min_height }}px;
+    {% render 'spacing-style', settings: section.settings %}
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="product-feature-spotlight__card">
+    <div class="product-feature-spotlight__media">
+      {% if image != blank %}
+        {{
+          image
+          | image_url: width: 1800
+          | image_tag:
+            class: 'product-feature-spotlight__image',
+            widths: '600, 900, 1200, 1500, 1800',
+            sizes: '(min-width: 990px) 50vw, 100vw',
+            loading: 'lazy',
+            alt: image_alt
+        }}
+      {% else %}
+        {{ 'lifestyle-2' | placeholder_svg_tag: 'product-feature-spotlight__placeholder' }}
+      {% endif %}
+    </div>
+
+    <div class="product-feature-spotlight__content">
+      {% if icon != blank %}
+        <div class="product-feature-spotlight__icon" aria-hidden="true">
+          {{
+            icon
+            | image_url: width: 96
+            | image_tag:
+              class: 'product-feature-spotlight__icon-image',
+              widths: '48, 72, 96',
+              loading: 'lazy',
+              alt: ''
+          }}
+        </div>
+      {% else %}
+        <div class="product-feature-spotlight__icon product-feature-spotlight__icon--fallback" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 14v4a8 8 0 0 0 16 0v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M6 12a2.5 2.5 0 0 1 2.5-2.5H10V18H8.5A2.5 2.5 0 0 1 6 15.5V12Z" stroke="currentColor" stroke-width="1.6"/>
+            <path d="M26 12a2.5 2.5 0 0 0-2.5-2.5H22V18h1.5A2.5 2.5 0 0 0 26 15.5V12Z" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </div>
+      {% endif %}
+
+      {% if heading != blank %}
+        <h2 class="product-feature-spotlight__heading">{{ heading | escape }}</h2>
+      {% endif %}
+
+      {% if body != blank %}
+        <div class="product-feature-spotlight__body rte">{{ body }}</div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .product-feature-spotlight {
+    display: block;
+    background: transparent;
+    color: #111111;
+  }
+
+  .product-feature-spotlight__card {
+    display: grid;
+    overflow: hidden;
+    border-radius: var(--pfs-radius, 22px);
+    background: var(--pfs-panel, #f3f3f3);
+    min-height: var(--pfs-min-height, 420px);
+  }
+
+  .product-feature-spotlight__media {
+    min-height: 18rem;
+    background: #e8e8e8;
+  }
+
+  .product-feature-spotlight__image,
+  .product-feature-spotlight__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .product-feature-spotlight__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    padding: clamp(1.5rem, 4vw, 3.25rem);
+  }
+
+  .product-feature-spotlight__icon {
+    width: 2rem;
+    height: 2rem;
+    color: #111111;
+  }
+
+  .product-feature-spotlight__icon-image,
+  .product-feature-spotlight__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .product-feature-spotlight__heading {
+    margin: 0;
+    max-width: 14ch;
+    font-size: clamp(1.75rem, 3vw, 2.6rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    font-weight: 750;
+  }
+
+  .product-feature-spotlight__body {
+    max-width: 36rem;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: rgb(17 17 17 / 84%);
+  }
+
+  .product-feature-spotlight__body > *:first-child {
+    margin-block-start: 0;
+  }
+
+  .product-feature-spotlight__body > *:last-child {
+    margin-block-end: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .product-feature-spotlight__card {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .product-feature-spotlight__media {
+      min-height: 100%;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product feature spotlight",
+  "tag": "section",
+  "class": "product-feature-spotlight-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon",
+      "label": "Icon"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Precision Audio Excellence"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body",
+      "default": "<p>Dive deeper into your music, and experience songs like never before. Our custom-engineered 40mm drivers, paired with powerful neodymium magnets, promise impeccable sound clarity. With adjustable noise cancellation and ultra-sensitive microphones, every note and word remains crystal clear. Don't just listen, immerse.</p>"
+    },
+    {
+      "type": "color",
+      "id": "panel_color",
+      "label": "Content background",
+      "default": "#F3F3F3"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Minimum height",
+      "min": 280,
+      "max": 640,
+      "step": 20,
+      "unit": "px",
+      "default": 420
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "Left padding",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "Right padding",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product feature spotlight",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

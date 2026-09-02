@@ -1,0 +1,19 @@
+{%- doc -%}
+  Simple vertical resource list for predictive search modal.
+
+  @param {string} title - Section title
+  @param {object[]} resources - Resources to display
+{%- enddoc -%}
+
+<div class="predictive-search-resource-list">
+  <h4 class="predictive-search-results__section-label">{{ title }}</h4>
+  <ul class="predictive-search-resource-list__items list-unstyled">
+    {% for resource in resources %}
+      <li ref="resultsItems[]">
+        <a class="predictive-search-resource-list__link" href="{{ resource.url }}">
+          {{ resource.title }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

@@ -1,0 +1,461 @@
+<script
+  src="{{ 'best-sellers-showcase.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+<best-sellers-showcase
+  class="best-sellers-showcase"
+  style="
+    --bss-radius: {{ section.settings.corner_radius }}px;
+    --bss-card-bg: {{ section.settings.card_background }};
+    --bss-accent: {{ section.settings.accent_color }};
+    {% render 'spacing-padding', settings: section.settings %}
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="bss">
+    <div class="bss__header">
+      <h2 class="bss__heading">{{ section.settings.heading }}</h2>
+
+      <div class="bss__toolbar">
+        <div class="bss__tabs" role="tablist" aria-label="{{ section.settings.heading | escape }}">
+          {% for index in (1..4) %}
+            {% liquid
+              assign label_key = 'tab_' | append: index | append: '_label'
+              assign tab_label = section.settings[label_key]
+            %}
+            {% if tab_label != blank %}
+              <button
+                type="button"
+                class="bss__tab{% if forloop.first %} is-active{% endif %}"
+                data-bss-tab
+                role="tab"
+                id="bss-tab-{{ section.id }}-{{ index }}"
+                aria-controls="bss-panel-{{ section.id }}-{{ index }}"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+              >
+                {{ tab_label }}
+              </button>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="bss__nav">
+          <button
+            type="button"
+            class="bss__arrow"
+            data-bss-previous
+            aria-label="Previous products"
+          >
+            {{- 'icon-chevron-left.svg' | inline_asset_content -}}
+          </button>
+          <button
+            type="button"
+            class="bss__arrow"
+            data-bss-next
+            aria-label="Next products"
+          >
+            {{- 'icon-chevron-right.svg' | inline_asset_content -}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bss__panels">
+      {% for category_index in (1..4) %}
+        {% liquid
+          assign collection_key = 'collection_' | append: category_index
+          assign label_key = 'tab_' | append: category_index | append: '_label'
+          assign collection = section.settings[collection_key]
+          assign tab_label = section.settings[label_key]
+          if collection == blank
+            case category_index
+              when 1
+                assign collection = collections['headphones'] | default: collections.all
+              when 2
+                assign collection = collections['earphones']
+              when 3
+                assign collection = collections['speakers']
+              when 4
+                assign collection = collections['accessories']
+            endcase
+          endif
+        %}
+
+        {% if tab_label != blank %}
+          <section
+            class="bss__panel{% if forloop.first %} is-active{% endif %}"
+            id="bss-panel-{{ section.id }}-{{ category_index }}"
+            data-bss-panel
+            role="tabpanel"
+            aria-labelledby="bss-tab-{{ section.id }}-{{ category_index }}"
+            {% unless forloop.first %}
+              hidden
+            {% endunless %}
+          >
+            <div class="bss__track" data-bss-track>
+              {% if collection != blank and collection.products.size > 0 %}
+                {% for product in collection.products limit: section.settings.max_products %}
+                {% render 'bss-product-card',
+                  product: product,
+                  button_label: section.settings.button_label,
+                  fallback_driver_size: section.settings.fallback_driver_size,
+                  fallback_weight: section.settings.fallback_weight,
+                  fallback_battery: section.settings.fallback_battery,
+                  fallback_bluetooth: section.settings.fallback_bluetooth,
+                  fallback_charging: section.settings.fallback_charging,
+                  fallback_range: section.settings.fallback_range,
+                  image_sizes: '(min-width: 990px) 25vw, 78vw'
+                %}
+                {% endfor %}
+              {% else %}
+                <p class="bss__empty">No products in this collection yet.</p>
+              {% endif %}
+            </div>
+          </section>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</best-sellers-showcase>
+
+{% render 'bss-product-card-styles' %}
+
+{% stylesheet %}
+  /* Outside: X 0 (edge-to-edge). Inside: X uses --homepage-gutter on .bss. Y via theme editor. */
+  .best-sellers-showcase-section {
+    --hp-shell-pad-x-mobile: 0px;
+    --hp-shell-pad-x-desktop: 0px;
+  }
+
+  .best-sellers-showcase {
+    display: block;
+    overflow: clip;
+    background: #ffffff;
+    border-radius: var(--bss-radius, 17px) var(--bss-radius, 17px) 0 0;
+  }
+
+  .bss {
+    padding-inline: var(--homepage-gutter);
+    padding-block-start: var(--hp-pad-y-start-mobile, var(--padding-block-start, 0));
+    padding-block-end: var(--hp-pad-y-end-mobile, var(--padding-block-end, 0));
+  }
+
+  @media screen and (min-width: 750px) {
+    .bss {
+      padding-block-start: var(--hp-pad-y-start-desktop, var(--padding-block-start, 0));
+      padding-block-end: var(--hp-pad-y-end-desktop, var(--padding-block-end, 0));
+    }
+  }
+
+  .bss__header {
+    display: grid;
+    gap: 1.15rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .bss__heading {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-weight: 700;
+    color: #111111;
+  }
+
+  .bss__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .bss__tabs {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    min-width: 0;
+  }
+
+  .bss__tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bss__tab {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.65rem 1.1rem;
+    background: #f3f3f3;
+    color: #111111;
+    font-size: 0.875rem;
+    font-weight: 400;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .bss__tab.is-active {
+    background: #111111;
+    color: #ffffff;
+  }
+
+  .bss__panel {
+    position: relative;
+  }
+
+  .bss__panel[hidden] {
+    display: none;
+  }
+
+  .bss__nav {
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.5rem;
+  }
+
+  .bss__arrow {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid #dddddd;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #111111;
+    cursor: pointer;
+  }
+
+  .bss__arrow:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .bss__arrow svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .bss__track {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-inline: contain;
+  }
+
+  .bss__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bss__empty {
+    margin: 0;
+    padding: 2rem 0.5rem;
+    color: #777777;
+    font-size: 0.95rem;
+  }
+
+  .bss-card {
+    flex: 0 0 min(80vw, 21.5rem);
+    align-self: stretch;
+    scroll-snap-align: start;
+  }
+
+  @media screen and (min-width: 750px) {
+    .bss-card {
+      flex-basis: calc((100% - 3rem) / 4);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .bss__nav {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Best sellers showcase",
+  "tag": "section",
+  "class": "best-sellers-showcase-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Best Sellers"
+    },
+    {
+      "type": "header",
+      "content": "Collections"
+    },
+    {
+      "type": "text",
+      "id": "tab_1_label",
+      "label": "Tab 1 label",
+      "default": "Headphones"
+    },
+    {
+      "type": "collection",
+      "id": "collection_1",
+      "label": "Tab 1 collection"
+    },
+    {
+      "type": "text",
+      "id": "tab_2_label",
+      "label": "Tab 2 label",
+      "default": "Earphones"
+    },
+    {
+      "type": "collection",
+      "id": "collection_2",
+      "label": "Tab 2 collection"
+    },
+    {
+      "type": "text",
+      "id": "tab_3_label",
+      "label": "Tab 3 label",
+      "default": "Speakers"
+    },
+    {
+      "type": "collection",
+      "id": "collection_3",
+      "label": "Tab 3 collection"
+    },
+    {
+      "type": "text",
+      "id": "tab_4_label",
+      "label": "Tab 4 label",
+      "default": "Accessories"
+    },
+    {
+      "type": "collection",
+      "id": "collection_4",
+      "label": "Tab 4 collection"
+    },
+    {
+      "type": "range",
+      "id": "max_products",
+      "label": "Products per tab",
+      "min": 4,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Product button",
+      "default": "Choose options"
+    },
+    {
+      "type": "header",
+      "content": "Specification fallbacks"
+    },
+    {
+      "type": "paragraph",
+      "content": "Uses custom.driver_size, custom.product_weight, custom.battery_life, custom.bluetooth_version, custom.charging_time, and custom.wireless_range metafields when available."
+    },
+    {
+      "type": "text",
+      "id": "fallback_driver_size",
+      "label": "Driver size",
+      "default": "40mm"
+    },
+    {
+      "type": "text",
+      "id": "fallback_weight",
+      "label": "Product weight",
+      "default": "285 g"
+    },
+    {
+      "type": "text",
+      "id": "fallback_battery",
+      "label": "Battery life",
+      "default": "35h"
+    },
+    {
+      "type": "text",
+      "id": "fallback_bluetooth",
+      "label": "Bluetooth",
+      "default": "v5.1"
+    },
+    {
+      "type": "text",
+      "id": "fallback_charging",
+      "label": "Charging time",
+      "default": "2h"
+    },
+    {
+      "type": "text",
+      "id": "fallback_range",
+      "label": "Wireless range",
+      "default": "10m"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card image background",
+      "default": "#f7f7f7"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#4b8f18"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Best sellers showcase",
+      "category": "t:categories.products"
+    }
+  ]
+}
+{% endschema %}

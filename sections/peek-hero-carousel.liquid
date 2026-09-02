@@ -1,0 +1,457 @@
+{% liquid
+  assign slide_count = section.blocks.size
+  assign autoplay = section.settings.autoplay
+  if slide_count <= 1
+    assign autoplay = false
+  endif
+
+  assign show_arrows = true
+  if section.settings.icons_style == 'none' or slide_count <= 1
+    assign show_arrows = false
+  endif
+
+  assign peek_percent = section.settings.side_peek
+  assign center_width = 100 | minus: peek_percent | minus: peek_percent
+
+  assign initial_slide = 0
+%}
+
+{% if slide_count > 1 %}
+  {% capture controls %}
+    {%- render 'slideshow-controls',
+      style: section.settings.slideshow_controls_style,
+      autoplay: autoplay,
+      item_count: slide_count,
+      show_arrows: false,
+      arrows_on_media: true,
+      controls_on_media: true,
+      pagination_position: 'center',
+      icon_style: section.settings.icons_style
+    -%}
+  {% endcapture %}
+{% endif %}
+
+{% capture slides %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+{% liquid
+  assign slideshow_class = 'peek-hero-carousel__slideshow'
+  if slide_count == 1
+    assign slideshow_class = slideshow_class | append: ' slideshow--single-media'
+  endif
+%}
+
+<script
+  src="{{ 'peek-hero-carousel.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+<peek-hero-carousel
+  class="peek-hero-carousel section section--full-width hp-inner-pad"
+  style="
+    --peek-side: {{ peek_percent }}%;
+    --peek-center-width: {{ center_width }}%;
+    --peek-gap: {{ section.settings.slideshow_gap }}px;
+    --peek-corner-radius: {{ section.settings.corner_radius }}px;
+    --peek-panel-radius: var(--section-panel-radius, var(--peek-corner-radius));
+    --peek-section-bg: {{ section.settings.background_color }};
+    --hp-pad-x-mobile: 0px;
+    --hp-pad-x-desktop: 0px;
+    {% render 'spacing-padding', settings: section.settings %}
+  "
+>
+  <h2 class="visually-hidden">{{ 'accessibility.slideshow' | t }}</h2>
+
+  {% render 'slideshow',
+    class: slideshow_class,
+    controls: controls,
+    show_arrows: show_arrows,
+    icon_style: section.settings.icons_style,
+    icon_shape: 'none',
+    autoplay: autoplay,
+    autoplay_speed: section.settings.autoplay_speed,
+    slides: slides,
+    slide_count: slide_count,
+    slide_size: section.settings.slide_height,
+    initial_slide: initial_slide,
+    infinite: true
+  %}
+</peek-hero-carousel>
+
+{% stylesheet %}
+  /* Outside: X 0 (edge-to-edge in shell). Inside: side peek via --peek-side. Y via theme editor. */
+  .peek-hero-carousel-section {
+    --hp-shell-pad-x-mobile: 0px;
+    --hp-shell-pad-x-desktop: 0px;
+    --hp-shell-pad-x-lg: 0px;
+  }
+
+  /* When first on the page, sit flush under the sticky navbar/frame with no reveal gap.
+     Selector is deliberately over-specific (class repeated) to beat
+     `.shopify-section:first-of-type` in base.css regardless of stylesheet load order. */
+  body.template-index #MainContent.homepage-shell > .peek-hero-carousel-section.peek-hero-carousel-section:first-of-type {
+    margin-top: 0;
+  }
+
+  .peek-hero-carousel {
+    background: var(--peek-section-bg, transparent);
+    overflow: hidden;
+    margin-inline: 0;
+    --peek-content-inset-x: max(
+      1.25rem,
+      calc(var(--homepage-content-x-mobile, 20px) - var(--peek-side, 3%) - var(--peek-gap, 12px))
+    );
+    --peek-nav-bottom: clamp(2.75rem, 5vw, 3.75rem);
+    --peek-nav-gap: clamp(1.5rem, 3vw, 2.25rem);
+    --peek-nav-row-height: 1.25rem;
+    --peek-arrow-width: 9.5rem;
+    --peek-arrow-height: 3.25rem;
+    --peek-bottom-pad: calc(var(--peek-nav-bottom) + var(--peek-nav-row-height) + var(--peek-nav-gap));
+  }
+
+  @media screen and (min-width: 750px) {
+    .peek-hero-carousel {
+      --peek-content-inset-x: max(
+        1.25rem,
+        calc(var(--homepage-content-x-desktop, 128px) - var(--peek-side, 3%) - var(--peek-gap, 12px))
+      );
+    }
+  }
+
+  .peek-hero-carousel__slideshow {
+    gap: 0;
+    grid-column: 1 / -1;
+  }
+
+  .peek-hero-carousel slideshow-slides {
+    gap: var(--peek-gap, 32px);
+    scroll-padding-inline: var(--peek-side);
+    scroll-snap-type: x mandatory;
+  }
+
+  .peek-hero-carousel slideshow-slide {
+    width: calc(var(--peek-center-width) - (var(--peek-gap, 32px) * 2));
+    min-height: var(--slide-min-height, 20rem);
+    scroll-snap-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .peek-hero-carousel slideshow-slide {
+      min-height: var(--slide-min-height-desktop, 32rem);
+    }
+  }
+
+  .peek-hero-carousel slideshow-slide.peek-slide {
+    --peek-r: var(--peek-panel-radius, var(--peek-corner-radius, 17px));
+    overflow: hidden;
+    transition: border-radius 0.28s ease;
+  }
+
+  .peek-hero-carousel slideshow-slide.peek-slide.peek-slide--center {
+    border-radius: var(--peek-r);
+  }
+
+  /* Left peek: square outer-left, rounded inner-right */
+  .peek-hero-carousel slideshow-slide.peek-slide.peek-slide--peek-left {
+    border-radius: 0 var(--peek-r) var(--peek-r) 0;
+  }
+
+  /* Right peek: rounded inner-left, square outer-right */
+  .peek-hero-carousel slideshow-slide.peek-slide.peek-slide--peek-right {
+    border-radius: var(--peek-r) 0 0 var(--peek-r);
+  }
+
+  .peek-hero-carousel slideshow-arrows {
+    position: absolute;
+    inset: auto 0 var(--peek-nav-bottom) 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--peek-nav-row-height);
+    padding-inline: var(--peek-content-inset-x);
+    padding-block: 0;
+    mix-blend-mode: normal;
+    width: 100%;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: calc(var(--layer-raised) + 1);
+  }
+
+  .peek-hero-carousel slideshow-arrows .slideshow-control {
+    opacity: 1;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--peek-arrow-width);
+    min-width: var(--peek-arrow-width);
+    height: var(--peek-arrow-height);
+    min-height: var(--peek-arrow-height);
+    padding: 0;
+    pointer-events: auto;
+    --icon-stroke-width: 1px;
+  }
+
+  .peek-hero-carousel slideshow-arrows .slideshow-control .svg-wrapper,
+  .peek-hero-carousel slideshow-arrows .slideshow-control .svg-wrapper > svg {
+    width: var(--peek-arrow-width);
+    height: var(--peek-arrow-height);
+  }
+
+  .peek-hero-carousel slideshow-controls[controls-on-media] {
+    position: absolute;
+    inset: auto 0 var(--peek-nav-bottom) 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--peek-nav-row-height);
+    padding-inline: var(--peek-content-inset-x);
+    padding-block: 0;
+    z-index: var(--layer-raised);
+    pointer-events: none;
+    mix-blend-mode: normal;
+  }
+
+  .peek-hero-carousel slideshow-controls .slideshow-controls__dots {
+    pointer-events: auto;
+    gap: 0.5rem;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border-radius: 0;
+  }
+
+  .peek-hero-carousel slideshow-controls .slideshow-controls__dots button {
+    --size: 0.45rem;
+    margin: 0;
+    width: calc(var(--size) * 2.4);
+    height: calc(var(--size) * 2.4);
+  }
+
+  .peek-hero-carousel slideshow-controls .slideshow-controls__dots button::after {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.7);
+  }
+
+  .peek-hero-carousel slideshow-controls .slideshow-control {
+    color: #ffffff;
+  }
+
+  .peek-hero-carousel slideshow-controls button[aria-selected='true'] {
+    transform: none;
+    opacity: 1;
+  }
+
+  .peek-hero-carousel slideshow-controls button[aria-selected='true']::after {
+    background-color: #ffffff;
+    box-shadow: none;
+  }
+
+  .peek-hero-carousel slideshow-controls button:not([aria-selected='true']) {
+    opacity: 1;
+  }
+
+  .peek-hero-carousel slideshow-arrows .slideshow-control--previous {
+    justify-content: flex-start;
+  }
+
+  .peek-hero-carousel slideshow-arrows .slideshow-control--next {
+    justify-content: flex-end;
+  }
+
+  @media screen and (max-width: 749px) {
+    .peek-hero-carousel {
+      --peek-arrow-width: 3.25rem;
+      --peek-nav-gap: 1.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .peek-hero-carousel slideshow-slides {
+      scroll-behavior: auto;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Peek hero carousel",
+  "tag": "section",
+  "class": "peek-hero-carousel-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "_peek-slide"
+    }
+  ],
+  "settings": [
+    {
+      "type": "range",
+      "id": "side_peek",
+      "label": "Side peek",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "unit": "%",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "slideshow_gap",
+      "label": "Gap between slides",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "select",
+      "id": "slide_height",
+      "label": "Slide height",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "select",
+      "id": "icons_style",
+      "label": "Icons",
+      "options": [
+        { "value": "chevron", "label": "Chevrons" },
+        { "value": "arrow", "label": "Arrows" },
+        { "value": "chevron_large", "label": "Large chevrons" },
+        { "value": "arrows_large", "label": "Large arrows" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "arrow"
+    },
+    {
+      "type": "select",
+      "id": "slideshow_controls_style",
+      "label": "Pagination",
+      "options": [
+        { "value": "dots", "label": "Dots" },
+        { "value": "counter", "label": "Counter" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "dots"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-rotate slides",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay speed",
+      "min": 3,
+      "max": 9,
+      "step": 1,
+      "unit": "s",
+      "default": 5,
+      "visible_if": "{{ section.settings.autoplay }}"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Peek hero carousel",
+      "category": "Banners",
+      "blocks": {
+        "slide_1": {
+          "type": "_peek-slide",
+          "settings": {
+            "heading": "Experience unparalleled audio elegance.",
+            "button_label": "Shop Headphones",
+            "toggle_overlay": true,
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        },
+        "slide_2": {
+          "type": "_peek-slide",
+          "settings": {
+            "heading": "Crafted for immersive listening.",
+            "button_label": "Shop Collection",
+            "toggle_overlay": true,
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        },
+        "slide_3": {
+          "type": "_peek-slide",
+          "settings": {
+            "heading": "Premium sound. Timeless design.",
+            "button_label": "Explore Now",
+            "toggle_overlay": true,
+            "overlay_style": "gradient",
+            "gradient_direction": "to top"
+          }
+        }
+      },
+      "block_order": ["slide_1", "slide_2", "slide_3"],
+      "settings": {
+        "side_peek": 3,
+        "slideshow_gap": 12,
+        "corner_radius": 17,
+        "slide_height": "large",
+        "icons_style": "arrow",
+        "slideshow_controls_style": "dots"
+      }
+    }
+  ]
+}
+{% endschema %}

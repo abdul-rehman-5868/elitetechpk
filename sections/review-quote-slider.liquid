@@ -1,0 +1,497 @@
+{% liquid
+  assign image = section.settings.image
+  assign overlay_opacity = section.settings.overlay_opacity | times: 0.01
+
+  case section.settings.height
+    when 'small'
+      assign min_height = '28rem'
+    when 'medium'
+      assign min_height = '36rem'
+    when 'large'
+      assign min_height = '44rem'
+    else
+      assign min_height = '36rem'
+  endcase
+%}
+
+<script
+  src="{{ 'review-quote-slider.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+<review-quote-slider
+  class="review-quote-slider"
+  style="
+    --rqs-min-height: {{ min_height }};
+    --rqs-overlay: rgb(0 0 0 / {{ overlay_opacity }});
+    --rqs-text: {{ section.settings.text_color }};
+    --rqs-radius: {{ section.settings.corner_radius }}px;
+    --rqs-panel-radius: var(--section-panel-radius, var(--rqs-radius));
+    --rqs-content-max: {{ section.settings.content_max_width }}rem;
+  "
+  data-active-index="0"
+  {{ section.shopify_attributes }}
+>
+  <div class="rqs__media" aria-hidden="true">
+    {% if image != blank %}
+      {{
+        image
+        | image_url: width: 3840
+        | image_tag:
+          widths: '832, 1200, 1600, 1920, 2560, 3840',
+          sizes: '100vw',
+          class: 'rqs__image',
+          loading: 'lazy',
+          alt: ''
+      }}
+    {% else %}
+      {{ 'hero-apparel-3' | placeholder_svg_tag: 'rqs__image rqs__placeholder' }}
+    {% endif %}
+    <div class="rqs__overlay"></div>
+  </div>
+
+  <div class="rqs__content">
+    <div class="rqs__quote-mark" aria-hidden="true">“</div>
+
+    <div class="rqs__viewport" data-rqs-viewport>
+      <span class="visually-hidden" data-rqs-live aria-live="polite"></span>
+
+      {% if section.blocks.size > 0 %}
+        {% for block in section.blocks limit: 3 %}
+          <article
+            class="rqs__slide{% if forloop.first %} is-active{% endif %}"
+            data-rqs-slide
+            {% unless forloop.first %}
+              hidden
+            {% endunless %}
+            aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {% if block.settings.quote != blank %}
+              <p class="rqs__quote" data-rqs-quote>{{ block.settings.quote }}</p>
+            {% endif %}
+
+            <div class="rqs__attribution">
+              {% if block.settings.source != blank %}
+                <p class="rqs__source">{{ block.settings.source }}</p>
+              {% endif %}
+
+              {% if block.settings.reviewer != blank or block.settings.detail != blank %}
+                <p class="rqs__reviewer">
+                  —
+                  {% if block.settings.reviewer != blank %}
+                    {{ block.settings.reviewer }}{% if block.settings.detail != blank %},{% endif %}
+                  {% endif %}
+                  {% if block.settings.detail != blank %}
+                    {{ block.settings.detail }}
+                  {% endif %}
+                </p>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      {% else %}
+        <article class="rqs__slide is-active" data-rqs-slide aria-hidden="false">
+          <p class="rqs__quote" data-rqs-quote>
+            Harmony Sound's meticulous curation of premium audio tech truly stands out. Their offerings, from headphones
+            to expansive home theaters, consistently raise the bar.
+          </p>
+          <div class="rqs__attribution">
+            <p class="rqs__source">Rolling Stone</p>
+            <p class="rqs__reviewer">— Nathan Wright, Rolling Stone</p>
+          </div>
+        </article>
+      {% endif %}
+    </div>
+
+    {% if section.blocks.size > 1 %}
+      <div class="rqs__dots" role="group" aria-label="Reviews">
+        {% for block in section.blocks limit: 3 %}
+          <button
+            type="button"
+            class="rqs__dot{% if forloop.first %} is-active{% endif %}"
+            data-rqs-dot
+            aria-label="Show review {{ forloop.index }}"
+            aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+            aria-current="{% if forloop.first %}true{% else %}false{% endif %}"
+          ></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</review-quote-slider>
+
+<script type="module">
+  const root = document.currentScript?.previousElementSibling?.tagName === 'REVIEW-QUOTE-SLIDER'
+    ? document.currentScript.previousElementSibling
+    : document.querySelector('review-quote-slider');
+
+  if (root && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    root.setAttribute('data-reduced-motion', '');
+  }
+</script>
+
+{% stylesheet %}
+  /* Edge-to-end panel; white shell owns vertical gap above/below */
+  .review-quote-slider-section {
+    --hp-shell-pad-x-mobile: 0px;
+    --hp-shell-pad-x-desktop: 0px;
+    --hp-shell-pad-x-lg: 0px;
+  }
+
+  .review-quote-slider {
+    position: relative;
+    display: grid;
+    min-height: var(--rqs-min-height, 36rem);
+    border-radius: var(--rqs-panel-radius, var(--rqs-radius, 17px))
+      var(--rqs-panel-radius, var(--rqs-radius, 17px)) 0 0;
+    overflow: hidden;
+    color: var(--rqs-text, #ffffff);
+    background: #111111;
+    isolation: isolate;
+    transition: border-radius 0.28s ease;
+  }
+
+  .rqs__media,
+  .rqs__content {
+    grid-area: 1 / 1;
+  }
+
+  .rqs__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .rqs__image,
+  .rqs__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .rqs__placeholder {
+    background: #2a2a2a;
+  }
+
+  .rqs__overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--rqs-overlay, rgb(0 0 0 / 0.55));
+    pointer-events: none;
+  }
+
+  .rqs__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1.25rem;
+    width: min(calc(100% - 2rem), calc(var(--rqs-content-max, 42) * 1rem));
+    margin-inline: auto;
+    padding: 0;
+  }
+
+  .rqs__quote-mark {
+    font-size: clamp(3.5rem, 8vw, 5.5rem);
+    line-height: 0.8;
+    font-weight: 500;
+    opacity: 0.95;
+    user-select: none;
+  }
+
+  .rqs__viewport {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    min-height: 12rem;
+  }
+
+  .rqs__slide {
+    display: grid;
+    gap: 1.35rem;
+    width: 100%;
+    will-change: transform, opacity;
+    transition:
+      transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.42s ease;
+  }
+
+  .rqs__slide[hidden] {
+    display: none;
+  }
+
+  .rqs__slide.is-active {
+    position: relative;
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  .rqs__slide.is-enter {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    transform: translate3d(110%, 0, 0);
+    opacity: 0.35;
+  }
+
+  .rqs__slide.is-exit {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    transform: translate3d(-28%, 0, 0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .review-quote-slider[data-reduced-motion] .rqs__slide {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rqs__slide {
+      transition: none;
+    }
+  }
+
+  .rqs__quote {
+    margin: 0;
+    font-size: clamp(1.35rem, 2.8vw, 2.15rem);
+    line-height: 1.28;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  .rqs__attribution {
+    display: grid;
+    gap: 0.35rem;
+    justify-items: center;
+  }
+
+  .rqs__source {
+    margin: 0;
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  .rqs__reviewer {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    opacity: 0.92;
+    font-weight: 400;
+  }
+
+  .rqs__dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    margin-top: 0.35rem;
+  }
+
+  .rqs__dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.7;
+    transition:
+      width 0.2s ease,
+      height 0.2s ease,
+      background 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  .rqs__dot.is-active {
+    width: 0.6rem;
+    height: 0.6rem;
+    background: currentColor;
+    opacity: 1;
+  }
+
+  .rqs__dot:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .rqs__viewport {
+      min-height: 14rem;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Review quote slider",
+  "tag": "section",
+  "class": "review-quote-slider-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote",
+          "default": "Harmony Sound's meticulous curation of premium audio tech truly stands out. Their offerings, from headphones to expansive home theaters, consistently raise the bar."
+        },
+        {
+          "type": "text",
+          "id": "source",
+          "label": "Publication / source",
+          "default": "Rolling Stone"
+        },
+        {
+          "type": "text",
+          "id": "reviewer",
+          "label": "Reviewer name",
+          "default": "Nathan Wright"
+        },
+        {
+          "type": "text",
+          "id": "detail",
+          "label": "Reviewer detail",
+          "default": "Rolling Stone"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background image"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 20,
+      "max": 80,
+      "step": 1,
+      "unit": "%",
+      "default": 55
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Section height",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 28,
+      "max": 56,
+      "step": 1,
+      "unit": "rem",
+      "default": 42
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Review quote slider",
+      "category": "t:categories.text",
+      "blocks": [
+        {
+          "type": "review",
+          "settings": {
+            "quote": "Harmony Sound's meticulous curation of premium audio tech truly stands out. Their offerings, from headphones to expansive home theaters, consistently raise the bar.",
+            "source": "Rolling Stone",
+            "reviewer": "Nathan Wright",
+            "detail": "Rolling Stone"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "quote": "From studio monitors to living-room systems, every pick feels intentional. It's rare to find a store that understands both performance and design this well.",
+            "source": "Wired",
+            "reviewer": "Ava Chen",
+            "detail": "Wired"
+          }
+        },
+        {
+          "type": "review",
+          "settings": {
+            "quote": "The listening experience is elevated at every price point. Clear guidance, premium curation, and products that actually sound as good as they look.",
+            "source": "Pitchfork",
+            "reviewer": "Jordan Miles",
+            "detail": "Pitchfork"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

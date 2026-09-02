@@ -1,0 +1,50 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "footer",
+  "name": "t:names.footer",
+  "sections": {
+    "reference_footer": {
+      "type": "reference-footer",
+      "name": "Reference footer",
+      "settings": {
+        "feature_1_title": "Customer service",
+        "feature_1_text": "It's not actually free, we just price it into the products.",
+        "feature_2_title": "Fast Free Shipping",
+        "feature_2_text": "Get free shipping on orders of $150 or more",
+        "feature_3_title": "Refer a friend",
+        "feature_3_text": "Refer a friend and get 15% off each other.",
+        "feature_4_title": "Secure payment",
+        "feature_4_text": "Your payment information is processed securely",
+        "collections_heading": "Collections",
+        "collections_menu": "footer",
+        "information_heading": "Information",
+        "phone": "+21 (0) 987 6543 21",
+        "email": "hello@domain.com",
+        "newsletter_heading": "Stay in the loop with our weekly newsletter",
+        "email_placeholder": "Enter your email",
+        "facebook_url": "https://facebook.com",
+        "twitter_url": "https://x.com",
+        "instagram_url": "https://instagram.com",
+        "youtube_url": "https://youtube.com",
+        "corner_radius": 17,
+        "features_background": "#ffffff",
+        "features_text_color": "#111111",
+        "background": "#1c1c1c",
+        "text_color": "#ffffff",
+        "input_background": "#272727",
+        "copyright_suffix": "Powered by Shopify"
+      }
+    }
+  },
+  "order": [
+    "reference_footer"
+  ]
+}

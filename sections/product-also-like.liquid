@@ -1,0 +1,303 @@
+<script
+  src="{{ 'product-recommendations.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+<script
+  src="{{ 'product-also-like.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+<script
+  src="{{ 'bss-product-card.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+{% render 'bss-product-card-styles' %}
+{% render 'quick-add-styles' %}
+{% render 'quick-add-modal-styles' %}
+
+{% liquid
+  assign heading = section.settings.heading
+  assign max_products = section.settings.max_products | default: 8
+  assign product_id = product.id
+%}
+
+<product-recommendations
+  id="product-recommendations-{{ section.id }}"
+  class="product-also-like-section"
+  data-url="{{ routes.product_recommendations_url }}?limit={{ max_products }}"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ product_id }}"
+  data-intent="related"
+  data-recommendations-performed="{{ recommendations.performed }}"
+  data-hydration-key="product-also-like-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <product-also-like
+    class="product-also-like section spacing-style"
+    style="
+      --bss-card-bg: {{ section.settings.card_background }};
+      --bss-accent: {{ section.settings.badge_color }};
+      --pal-gap: {{ section.settings.columns_gap }}px;
+      {% render 'spacing-style', settings: section.settings %}
+    "
+  >
+    <div class="pal__header">
+      {% if heading != blank %}
+        <h2 class="pal__heading">{{ heading | escape }}</h2>
+      {% endif %}
+      <div class="pal__nav">
+        <button type="button" class="pal__arrow" data-pal-previous aria-label="Previous products">
+          {{- 'icon-chevron-left.svg' | inline_asset_content -}}
+        </button>
+        <button type="button" class="pal__arrow" data-pal-next aria-label="Next products">
+          {{- 'icon-chevron-right.svg' | inline_asset_content -}}
+        </button>
+      </div>
+    </div>
+
+    {% liquid
+      if recommendations.performed or product_id == blank
+        if product_id == blank
+          assign products = collections.all.products
+        elsif recommendations.performed and recommendations.products_count == 0
+          assign products = collections.all.products | reject: 'id', product_id
+        else
+          assign products = recommendations.products
+        endif
+      else
+        assign products = null
+      endif
+    %}
+
+    {% if products != blank and products.size > 0 %}
+      <bss-product-cards class="pal__cards">
+        <div class="pal__track" data-pal-track>
+          {% for item in products limit: max_products %}
+            {% render 'bss-product-card',
+              product: item,
+              button_label: 'Choose options',
+              image_sizes: '(min-width: 990px) 22vw, 70vw'
+            %}
+          {% endfor %}
+        </div>
+      </bss-product-cards>
+    {% elsif recommendations.performed == false and product_id != blank %}
+      <div class="pal__skeleton" aria-label="Loading product recommendations">
+        {% for i in (1..4) %}
+          <div class="pal__skeleton-card"></div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="pal__empty">No recommendations available yet.</p>
+    {% endif %}
+  </product-also-like>
+</product-recommendations>
+
+{% stylesheet %}
+  .product-also-like-section {
+    display: block;
+  }
+
+  .product-also-like {
+    display: block;
+    background: #ffffff;
+    color: #111111;
+  }
+
+  .pal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .pal__heading {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-weight: 700;
+    color: #111111;
+  }
+
+  .pal__nav {
+    display: flex;
+    flex-shrink: 0;
+    gap: 0.5rem;
+  }
+
+  .pal__arrow {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid #111111;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #111111;
+    cursor: pointer;
+  }
+
+  .pal__arrow svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    display: block;
+  }
+
+  .pal__arrow.is-disabled,
+  .pal__arrow:disabled {
+    border-color: #e0e0e0;
+    color: #c8c8c8;
+    cursor: default;
+  }
+
+  .pal__track {
+    display: flex;
+    align-items: stretch;
+    gap: var(--pal-gap, 16px);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-inline: contain;
+    padding-bottom: 0.25rem;
+  }
+
+  .pal__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pal__cards {
+    display: block;
+  }
+
+  .pal__track .bss-card {
+    flex: 0 0 min(80vw, 21.5rem);
+    align-self: stretch;
+    scroll-snap-align: start;
+  }
+
+  .pal__skeleton {
+    display: flex;
+    gap: var(--pal-gap, 16px);
+    overflow: hidden;
+  }
+
+  .pal__skeleton-card {
+    flex: 0 0 min(80vw, 21.5rem);
+    aspect-ratio: 3 / 4;
+    border-radius: 1.35rem;
+    background: #f0f0f0;
+  }
+
+  .pal__empty {
+    margin: 0;
+    color: #6b6b6b;
+  }
+
+  @media screen and (min-width: 990px) {
+    .pal__track .bss-card {
+      flex-basis: calc((100% - (3 * var(--pal-gap, 16px))) / 4);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "You may also like",
+  "tag": "section",
+  "class": "product-also-like-outer",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "range",
+      "id": "max_products",
+      "label": "Maximum products",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "columns_gap",
+      "label": "Card gap",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#F7F7F7"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "New badge",
+      "default": "#4B8F18"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-start",
+      "label": "Left padding",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-inline-end",
+      "label": "Right padding",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    }
+  ],
+  "presets": [
+    {
+      "name": "You may also like",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}

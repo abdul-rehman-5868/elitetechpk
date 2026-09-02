@@ -1,0 +1,194 @@
+{%- doc -%}
+  Shared buy-button colors, layout, and hover animations for the quick-add modal
+  and the PDP reference-layout product details column.
+
+  @example
+  {% render 'reference-buy-buttons-styles' %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  :is(.quick-add-modal, .product-information--reference-layout) .product-form-buttons {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.65rem;
+    align-items: center;
+    width: 100%;
+  }
+
+  :is(.quick-add-modal, .product-information--reference-layout) .product-form-buttons .quantity-selector-wrapper {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  :is(.quick-add-modal, .product-information--reference-layout) .product-form-buttons .add-to-cart-button {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  :is(.quick-add-modal, .product-information--reference-layout) .product-form-buttons shopify-accelerated-checkout,
+  :is(.quick-add-modal, .product-information--reference-layout) .product-form-buttons .shopify-payment-button,
+  :is(.quick-add-modal, .product-information--reference-layout) .accelerated-checkout-block,
+  :is(.quick-add-modal, .product-information--reference-layout) .product-form-text__error,
+  :is(.quick-add-modal, .product-information--reference-layout) .quantity-label,
+  :is(.quick-add-modal, .product-information--reference-layout) .quantity-rules,
+  :is(.quick-add-modal, .product-information--reference-layout) .volume-pricing,
+  :is(.quick-add-modal, .product-information--reference-layout) .product__pickup-availabilities {
+    grid-column: 1 / -1;
+  }
+
+  :is(.quick-add-modal, .product-information--reference-layout) .buy-buttons-block shopify-accelerated-checkout,
+  :is(.quick-add-modal, .product-information--reference-layout) .buy-buttons-block .accelerated-checkout-block {
+    width: 100%;
+    margin-top: 0.65rem;
+  }
+
+  /* ATC: black pill + slow oval eclipse */
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-secondary,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-custom {
+    width: 100%;
+    min-height: 3.15rem;
+    border-radius: 999px;
+    justify-content: center;
+    isolation: isolate;
+    overflow: hidden;
+    position: relative;
+    color: #ffffff;
+    background: #111111;
+    box-shadow: inset 0 0 0 1px #111111;
+    transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    --text-speed: 0.55;
+    --base-delay: calc(var(--text-speed) * 0.25);
+    --tick-speed: 0.18;
+    --ring-speed: 0.32;
+    --check-speed: 0.32;
+    --burst-speed: 0.48;
+  }
+
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-secondary::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-custom::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    width: 175%;
+    height: 280%;
+    aspect-ratio: auto;
+    border-radius: 50%;
+    background: #ffffff;
+    transform: translate(-50%, 85%);
+    pointer-events: none;
+    animation: none;
+  }
+
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button:hover,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-secondary:hover,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-custom:hover {
+    color: #111111;
+    background: #111111;
+    box-shadow: inset 0 0 0 1px #111111;
+  }
+
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button:hover::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-secondary:hover::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-custom:hover::before {
+    animation: button-circle-enter 450ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button.is-fill-leaving,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-secondary.is-fill-leaving,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-custom.is-fill-leaving {
+    color: #111111;
+  }
+
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button.is-fill-leaving::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-secondary.is-fill-leaving::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-custom.is-fill-leaving::before {
+    animation: button-circle-leave 450ms cubic-bezier(0.64, 0, 0.78, 0) forwards;
+  }
+
+  :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-text {
+    clip-path: ellipse(140% 100% at 50% 50%);
+  }
+
+  :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button[data-added='true'] .add-to-cart-text {
+    clip-path: ellipse(0% 0% at 50% 50%);
+    transition-duration: calc((var(--text-speed) * 1.15s)), calc((var(--text-speed) * 1.35s));
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Buy it now: outline pill + fade hover (no eclipse) */
+  :is(.quick-add-modal, .product-information--reference-layout) shopify-accelerated-checkout,
+  :is(.quick-add-modal, .product-information--reference-layout) .shopify-payment-button,
+  :is(.quick-add-modal, .product-information--reference-layout) .shopify-payment-button__button {
+    width: 100%;
+  }
+
+  html :is(.quick-add-modal, .product-information--reference-layout) .shopify-payment-button__button--unbranded,
+  html :is(.quick-add-modal, .product-information--reference-layout) more-payment-options-link a,
+  html :is(.quick-add-modal, .product-information--reference-layout) .accelerated-checkout-block .button,
+  html :is(.quick-add-modal, .product-information--reference-layout) .buy-buttons-block > .button-secondary:not(.add-to-cart-button),
+  html :is(.quick-add-modal, .product-information--reference-layout) .product-form-buttons > .button-secondary:not(.add-to-cart-button) {
+    border-radius: 999px !important;
+    min-height: 3.15rem;
+    color: #111111 !important;
+    background: #ffffff !important;
+    box-shadow: inset 0 0 0 1px #111111 !important;
+    transition: color 0.4s ease, background-color 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  html :is(.quick-add-modal, .product-information--reference-layout) .shopify-payment-button__button--unbranded::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) more-payment-options-link a::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) .accelerated-checkout-block .button::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) .buy-buttons-block > .button-secondary:not(.add-to-cart-button)::before,
+  html :is(.quick-add-modal, .product-information--reference-layout) .product-form-buttons > .button-secondary:not(.add-to-cart-button)::before {
+    content: none !important;
+    display: none !important;
+    animation: none !important;
+  }
+
+  html :is(.quick-add-modal, .product-information--reference-layout) .shopify-payment-button__button--unbranded:hover,
+  html :is(.quick-add-modal, .product-information--reference-layout) more-payment-options-link a:hover,
+  html :is(.quick-add-modal, .product-information--reference-layout) .accelerated-checkout-block .button:hover,
+  html :is(.quick-add-modal, .product-information--reference-layout) .buy-buttons-block > .button-secondary:not(.add-to-cart-button):hover,
+  html :is(.quick-add-modal, .product-information--reference-layout) .product-form-buttons > .button-secondary:not(.add-to-cart-button):hover {
+    opacity: 1;
+    color: #ffffff !important;
+    background: #111111 !important;
+    box-shadow: inset 0 0 0 1px #111111 !important;
+  }
+
+  :is(.quick-add-modal, .product-information--reference-layout) .quantity-selector {
+    border-radius: 999px;
+    min-height: 3.15rem;
+    background: #f3f3f3;
+    box-shadow: none;
+    border: 0;
+  }
+
+  :is(.quick-add-modal, .product-information--reference-layout) .quantity-selector :is(.quantity-minus, .quantity-plus) {
+    color: #6b6b6b;
+  }
+
+  :is(.quick-add-modal, .product-information--reference-layout) shopify-accelerated-checkout {
+    --shopify-accelerated-checkout-button-border-radius: 999px;
+    --shopify-accelerated-checkout-button-block-size: 3.15rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button:hover::before,
+    html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-secondary:hover::before,
+    html :is(.quick-add-modal, .product-information--reference-layout) .add-to-cart-button.button-custom:hover::before {
+      animation: none;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    :is(.quick-add-modal, .product-information--reference-layout) .product-form-buttons {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}

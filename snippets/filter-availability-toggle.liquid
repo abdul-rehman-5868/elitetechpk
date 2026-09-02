@@ -1,0 +1,122 @@
+{% doc %}
+  Availability "In stock only" toggle for the filters drawer.
+
+  @param {object} filter - Availability filter object
+  @param {string} section_id - Section id for unique input ids
+{% enddoc %}
+
+{% liquid
+  assign in_stock_value = blank
+  assign in_stock_active = false
+  for value in filter.values
+    if value.value == '1' or value.label == 'In stock' or value.label == 'In Stock'
+      assign in_stock_value = value
+      if value.active
+        assign in_stock_active = true
+      endif
+      break
+    endif
+  endfor
+
+  if in_stock_value == blank
+    for value in filter.values
+      unless value.value == '0' or value.label == 'Out of stock' or value.label == 'Out of Stock'
+        assign in_stock_value = value
+        if value.active
+          assign in_stock_active = true
+        endif
+        break
+      endunless
+    endfor
+  endif
+%}
+
+{% if in_stock_value != blank %}
+  <div class="filter-stock-toggle">
+    <span class="filter-stock-toggle__label">In stock only</span>
+    <label class="filter-stock-toggle__control">
+      <input
+        type="checkbox"
+        class="filter-stock-toggle__input"
+        name="{{ in_stock_value.param_name }}"
+        value="{{ in_stock_value.value }}"
+        id="Filter-stock-{{ section_id }}"
+        {% if in_stock_active %}
+          checked
+        {% endif %}
+        {% if in_stock_value.count == 0 and in_stock_active == false %}
+          disabled
+        {% endif %}
+      >
+      <span class="filter-stock-toggle__track" aria-hidden="true">
+        <span class="filter-stock-toggle__thumb"></span>
+      </span>
+      <span class="visually-hidden">In stock only</span>
+    </label>
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .filter-stock-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.35rem;
+  }
+
+  .filter-stock-toggle__label {
+    color: #171717;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .filter-stock-toggle__control {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .filter-stock-toggle__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .filter-stock-toggle__track {
+    display: block;
+    width: 2.75rem;
+    height: 1.55rem;
+    border-radius: 999px;
+    background: #d9d9d9;
+    transition: background-color 0.2s ease;
+  }
+
+  .filter-stock-toggle__thumb {
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 18%);
+    transition: transform 0.2s ease;
+  }
+
+  .filter-stock-toggle__input:checked + .filter-stock-toggle__track {
+    background: #171717;
+  }
+
+  .filter-stock-toggle__input:checked + .filter-stock-toggle__track .filter-stock-toggle__thumb {
+    transform: translateX(1.2rem);
+  }
+
+  .filter-stock-toggle__input:disabled + .filter-stock-toggle__track {
+    opacity: 0.45;
+  }
+{% endstylesheet %}

@@ -1,0 +1,75 @@
+{% doc %}
+  Cart drawer empty-state collection suggestion cards.
+{% enddoc %}
+
+{% liquid
+  assign collections_list = ''
+  if settings.cart_empty_collection_1 != blank
+    assign collections_list = collections_list | append: settings.cart_empty_collection_1.handle | append: ','
+  endif
+  if settings.cart_empty_collection_2 != blank
+    assign collections_list = collections_list | append: settings.cart_empty_collection_2.handle | append: ','
+  endif
+  if settings.cart_empty_collection_3 != blank
+    assign collections_list = collections_list | append: settings.cart_empty_collection_3.handle | append: ','
+  endif
+  if settings.cart_empty_collection_4 != blank
+    assign collections_list = collections_list | append: settings.cart_empty_collection_4.handle | append: ','
+  endif
+%}
+
+<div class="cart-drawer-empty">
+  <h2 class="cart-drawer-empty__heading" id="cart-drawer-heading">
+    Your cart is currently empty.
+  </h2>
+  <p class="cart-drawer-empty__subtext">Not sure where to start? Try these collections:</p>
+
+  <div class="cart-drawer-empty__collections" role="list">
+    {% if collections_list != blank %}
+      {% assign handles = collections_list | split: ',' %}
+      {% for handle in handles %}
+        {% if handle != blank %}
+          {% assign collection = collections[handle] %}
+          {% if collection != blank %}
+            <a class="cart-drawer-empty__card" href="{{ collection.url }}" role="listitem">
+              <span class="cart-drawer-empty__icon" aria-hidden="true">
+                {% case forloop.index %}
+                  {% when 1 %}
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 14c0-2.5 2-6 8-6s8 3.5 8 6v2H4v-2Z" stroke="currentColor" stroke-width="1.5"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.5"/></svg>
+                  {% when 2 %}
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="12" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="12" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M11.5 12h1" stroke="currentColor" stroke-width="1.5"/></svg>
+                  {% when 3 %}
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 8V7a4 4 0 0 1 8 0v1" stroke="currentColor" stroke-width="1.5"/></svg>
+                  {% else %}
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 8h14l-1.2 10.2A2 2 0 0 1 15.8 20H8.2a2 2 0 0 1-2-1.8L5 8Z" stroke="currentColor" stroke-width="1.5"/><path d="M9 8V7a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="1.5"/></svg>
+                {% endcase %}
+              </span>
+              <span class="cart-drawer-empty__label">{{ collection.title }}</span>
+              <span class="cart-drawer-empty__arrow" aria-hidden="true">→</span>
+            </a>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      {% assign fallback_titles = 'Headphones,Earphones,Speakers,Accessories' | split: ',' %}
+      {% for title in fallback_titles %}
+        <a class="cart-drawer-empty__card" href="{{ routes.all_products_collection_url }}" role="listitem">
+          <span class="cart-drawer-empty__icon" aria-hidden="true">
+            {% case forloop.index %}
+              {% when 1 %}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 14c0-2.5 2-6 8-6s8 3.5 8 6v2H4v-2Z" stroke="currentColor" stroke-width="1.5"/><path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="1.5"/></svg>
+              {% when 2 %}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="12" r="3.5" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="12" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M11.5 12h1" stroke="currentColor" stroke-width="1.5"/></svg>
+              {% when 3 %}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="5" y="8" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 8V7a4 4 0 0 1 8 0v1" stroke="currentColor" stroke-width="1.5"/></svg>
+              {% else %}
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 8h14l-1.2 10.2A2 2 0 0 1 15.8 20H8.2a2 2 0 0 1-2-1.8L5 8Z" stroke="currentColor" stroke-width="1.5"/><path d="M9 8V7a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="1.5"/></svg>
+            {% endcase %}
+          </span>
+          <span class="cart-drawer-empty__label">{{ title }}</span>
+          <span class="cart-drawer-empty__arrow" aria-hidden="true">→</span>
+        </a>
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>

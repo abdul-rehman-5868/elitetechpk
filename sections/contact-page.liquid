@@ -1,0 +1,641 @@
+{% liquid
+  assign social_platforms = 'facebook,twitter,instagram,youtube' | split: ','
+  assign form_id = section.id | prepend: 'ContactPage-'
+  assign map_query = section.settings.map_query | default: 'Hafeez Center, Gulberg III, Lahore, Pakistan'
+  assign map_embed_url = section.settings.map_embed_url
+  if map_embed_url == blank
+    assign encoded_map_query = map_query | url_encode
+    assign map_embed_url = 'https://maps.google.com/maps?q=' | append: encoded_map_query | append: '&z=16&output=embed'
+  endif
+%}
+
+<section
+  class="contact-page"
+  style="
+    --cp-shell-radius: {{ section.settings.shell_radius }}px;
+    --cp-input-bg: {{ section.settings.input_background }};
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="contact-page__inner">
+    <div class="contact-page__hero">
+      <div class="contact-page__main">
+        <header class="contact-page__header">
+          <h1 class="contact-page__title">{{ section.settings.heading | default: page.title }}</h1>
+          {% if section.settings.intro != blank %}
+            <div class="contact-page__intro">{{ section.settings.intro }}</div>
+          {% endif %}
+        </header>
+
+        {%- form 'contact', id: form_id, class: 'contact-page__form' -%}
+          <input name="contact[id]" type="hidden" value="{{ form_id }}">
+
+          {% liquid
+            assign form_matches = false
+            if form.id == form_id or form.id == blank
+              assign form_matches = true
+            endif
+          %}
+
+          {%- if form.errors and form_matches -%}
+            <div class="contact-page__message contact-page__message--error" tabindex="-1" autofocus>
+              {{- 'icon-error.svg' | inline_asset_content -}}
+              {{- form.errors.translated_fields.email | capitalize }}
+              {{ form.errors.messages.email -}}
+            </div>
+          {%- endif -%}
+
+          {%- if form.posted_successfully? and form_matches -%}
+            <div class="contact-page__message contact-page__message--success" tabindex="-1" autofocus>
+              {{- 'icon-checkmark.svg' | inline_asset_content -}}
+              {{- section.settings.success_message | default: 'Thanks for contacting us. We will get back to you as soon as possible.' -}}
+            </div>
+          {%- endif -%}
+
+          <div class="contact-page__field-row">
+            <label class="visually-hidden" for="ContactPage-name-{{ section.id }}">Name</label>
+            <input
+              type="text"
+              id="ContactPage-name-{{ section.id }}"
+              class="contact-page__input"
+              autocomplete="name"
+              name="contact[name]"
+              value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+              placeholder="Name"
+            >
+
+            <label class="visually-hidden" for="ContactPage-email-{{ section.id }}">Email</label>
+            <input
+              type="email"
+              id="ContactPage-email-{{ section.id }}"
+              class="contact-page__input"
+              autocomplete="email"
+              name="contact[email]"
+              spellcheck="false"
+              autocapitalize="off"
+              value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+              aria-required="true"
+              {% if form.errors contains 'email' and form_matches %}
+                aria-invalid="true"
+              {% endif %}
+              placeholder="Email"
+            >
+          </div>
+
+          <div class="contact-page__field-row">
+            <label class="visually-hidden" for="ContactPage-phone-{{ section.id }}">Phone number</label>
+            <input
+              type="tel"
+              id="ContactPage-phone-{{ section.id }}"
+              class="contact-page__input"
+              autocomplete="tel"
+              name="contact[phone]"
+              pattern="[0-9\-]*"
+              value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+              placeholder="Phone number"
+            >
+
+            <label class="visually-hidden" for="ContactPage-subject-{{ section.id }}">Subject</label>
+            <div class="contact-page__select-wrap">
+              <select
+                id="ContactPage-subject-{{ section.id }}"
+                class="contact-page__input contact-page__select"
+                name="contact[subject]"
+              >
+                <option value="" disabled selected hidden>Subject</option>
+                {% assign subject_options = section.settings.subject_options | newline_to_br | split: '<br />' %}
+                {% for option in subject_options %}
+                  {% assign option_trimmed = option | strip %}
+                  {% if option_trimmed != blank %}
+                    <option value="{{ option_trimmed }}">{{ option_trimmed }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <span class="contact-page__select-icon" aria-hidden="true">
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="none">
+                  <path d="m5 8 5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+          </div>
+
+          <label class="visually-hidden" for="ContactPage-body-{{ section.id }}">Message</label>
+          <textarea
+            rows="8"
+            id="ContactPage-body-{{ section.id }}"
+            class="contact-page__input contact-page__textarea"
+            name="contact[body]"
+            placeholder="Message"
+          >{{- form.body -}}</textarea>
+
+          <button type="submit" class="contact-page__submit">
+            {{ section.settings.button_label | default: 'Send message' }}
+          </button>
+
+          {% if section.settings.show_captcha_note %}
+            <p class="contact-page__captcha">
+              {{ section.settings.captcha_note }}
+            </p>
+          {% endif %}
+        {%- endform -%}
+      </div>
+
+      <div class="contact-page__map-wrap">
+        <div class="contact-page__map" aria-label="Store location map">
+          <iframe
+            class="contact-page__map-frame"
+            title="Hafeez Center Lahore location"
+            src="{{ map_embed_url }}"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+          ></iframe>
+          <div class="contact-page__map-pin" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-page__info-grid">
+      {% if section.settings.address != blank %}
+        <div class="contact-page__info-card">
+          <span class="contact-page__info-label">Address</span>
+          <p class="contact-page__info-value">{{ section.settings.address | newline_to_br }}</p>
+        </div>
+      {% endif %}
+
+      {% if section.settings.email_primary != blank or section.settings.email_secondary != blank %}
+        <div class="contact-page__info-card">
+          <span class="contact-page__info-label">Email</span>
+          <div class="contact-page__info-value">
+            {% if section.settings.email_primary != blank %}
+              <a href="mailto:{{ section.settings.email_primary }}">{{ section.settings.email_primary }}</a>
+            {% endif %}
+            {% if section.settings.email_secondary != blank %}
+              <a href="mailto:{{ section.settings.email_secondary }}">{{ section.settings.email_secondary }}</a>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if section.settings.phone != blank %}
+        <div class="contact-page__info-card">
+          <span class="contact-page__info-label">Phone</span>
+          <div class="contact-page__info-value">
+            <a href="tel:{{ section.settings.phone | replace: ' ', '' }}">{{ section.settings.phone }}</a>
+            {% if section.settings.hours != blank %}
+              <span>{{ section.settings.hours }}</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% assign has_social = false %}
+      {% for platform in social_platforms %}
+        {% assign url_key = platform | append: '_url' %}
+        {% if section.settings[url_key] != blank %}
+          {% assign has_social = true %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+
+      {% if has_social %}
+        <div class="contact-page__info-card">
+          <span class="contact-page__info-label">Follow us</span>
+          <div class="contact-page__socials">
+            {% for platform in social_platforms %}
+              {% assign url_key = platform | append: '_url' %}
+              {% assign social_url = section.settings[url_key] %}
+              {% if social_url != blank %}
+                <a href="{{ social_url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ platform | capitalize }}">
+                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                    {% render 'icon', icon: platform %}
+                  </svg>
+                </a>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .contact-page {
+    background: #ffffff;
+    color: #111111;
+  }
+
+  .contact-page__inner {
+    display: grid;
+    gap: clamp(1.75rem, 3vw, 2.75rem);
+    padding: clamp(2rem, 4vw, 3.5rem) clamp(1.5rem, 4vw, 3.5rem) clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .contact-page__hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    align-items: start;
+  }
+
+  .contact-page__title {
+    margin: 0;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  .contact-page__intro {
+    max-width: 44rem;
+    margin-top: 0.85rem;
+    font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+    line-height: 1.55;
+  }
+
+  .contact-page__intro p {
+    margin: 0;
+  }
+
+  .contact-page__form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .contact-page__field-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .contact-page__input {
+    width: 100%;
+    padding: 0.95rem 1rem;
+    border: 0;
+    border-radius: 10px;
+    background: var(--cp-input-bg, #f3f3f3);
+    color: #111111;
+    font: inherit;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .contact-page__input::placeholder {
+    color: #8a8a8a;
+  }
+
+  .contact-page__select-wrap {
+    position: relative;
+  }
+
+  .contact-page__select {
+    appearance: none;
+    padding-right: 2.25rem;
+    cursor: pointer;
+  }
+
+  .contact-page__select:invalid {
+    color: #8a8a8a;
+  }
+
+  .contact-page__select-icon {
+    position: absolute;
+    top: 50%;
+    right: 0.85rem;
+    color: #666666;
+    pointer-events: none;
+    translate: 0 -50%;
+  }
+
+  .contact-page__textarea {
+    min-height: 11rem;
+    resize: vertical;
+  }
+
+  .contact-page__submit {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    padding: 0.85rem 1.65rem;
+    border: 0;
+    border-radius: 999px;
+    background: #111111;
+    color: #ffffff;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 180ms ease;
+  }
+
+  .contact-page__submit:hover {
+    opacity: 0.86;
+  }
+
+  .contact-page__captcha {
+    margin: 0.35rem 0 0;
+    max-width: 34rem;
+    color: #777777;
+    font-size: 0.72rem;
+    line-height: 1.45;
+  }
+
+  .contact-page__message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+
+  .contact-page__message--error {
+    background: rgb(220 38 38 / 8%);
+    color: #991b1b;
+  }
+
+  .contact-page__message--success {
+    background: rgb(22 163 74 / 8%);
+    color: #166534;
+  }
+
+  .contact-page__map-wrap {
+    position: sticky;
+    top: calc(var(--header-height, 96px) + 1.5rem);
+    min-height: clamp(22rem, 52vh, 34rem);
+  }
+
+  .contact-page__map {
+    position: relative;
+    height: 100%;
+    min-height: inherit;
+    overflow: hidden;
+    border-radius: var(--cp-shell-radius, 24px);
+    background: #111111;
+  }
+
+  .contact-page__map-frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    border: 0;
+    filter: grayscale(1) invert(1) contrast(1.08) brightness(0.92);
+  }
+
+  .contact-page__map-pin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    width: 1rem;
+    height: 1rem;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    background: #111111;
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 35%);
+    pointer-events: none;
+    translate: -50% -50%;
+  }
+
+  .contact-page__info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.75rem, 1.5vw, 1rem);
+  }
+
+  .contact-page__info-card {
+    padding: clamp(1rem, 2vw, 1.35rem);
+    border: 1px solid rgb(0 0 0 / 8%);
+    border-radius: 16px;
+    background: #ffffff;
+  }
+
+  .contact-page__info-label {
+    display: block;
+    margin-bottom: 0.55rem;
+    color: #9a9a9a;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .contact-page__info-value {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .contact-page__info-value a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .contact-page__socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .contact-page__socials a {
+    display: grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    color: #111111;
+  }
+
+  .contact-page__socials svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  body.template-page:has(.contact-page-section) .reference-footer .rf-features {
+    margin-top: 0;
+    border-radius: 0 0 var(--rf-radius, 17px) var(--rf-radius, 17px);
+  }
+
+  @media screen and (max-width: 1100px) {
+    .contact-page__hero {
+      grid-template-columns: 1fr;
+    }
+
+    .contact-page__map-wrap {
+      position: relative;
+      top: auto;
+      min-height: 20rem;
+    }
+
+    .contact-page__info-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .contact-page__field-row,
+    .contact-page__info-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Contact page",
+  "tag": "section",
+  "class": "contact-page-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Contact Us"
+    },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "Intro text",
+      "default": "<p>We'd love to hear from you. Our team is here to help. Let your customers get in touch with you by filling out the email form below.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Send message"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Thanks for contacting us. We'll get back to you as soon as possible."
+    },
+    {
+      "type": "textarea",
+      "id": "subject_options",
+      "label": "Subject options",
+      "default": "General inquiry\nProduct support\nOrder status\nReturns",
+      "info": "One option per line."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_captcha_note",
+      "label": "Show captcha note",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "captcha_note",
+      "label": "Captcha note",
+      "default": "This site is protected by hCaptcha and the hCaptcha Privacy Policy and Terms of Service apply."
+    },
+    {
+      "type": "header",
+      "content": "Contact details"
+    },
+    {
+      "type": "textarea",
+      "id": "address",
+      "label": "Address",
+      "default": "Hafeez Center, Gulberg III,\nLahore, Pakistan"
+    },
+    {
+      "type": "text",
+      "id": "email_primary",
+      "label": "Primary email",
+      "default": "contact@yourstore.com"
+    },
+    {
+      "type": "text",
+      "id": "email_secondary",
+      "label": "Secondary email",
+      "default": "sales@yourstore.com"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Phone",
+      "default": "+92 42 1234567"
+    },
+    {
+      "type": "text",
+      "id": "hours",
+      "label": "Hours",
+      "default": "mo - fri: 09:00 – 17:00"
+    },
+    {
+      "type": "header",
+      "content": "Social links"
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "Facebook"
+    },
+    {
+      "type": "url",
+      "id": "twitter_url",
+      "label": "X / Twitter"
+    },
+    {
+      "type": "url",
+      "id": "instagram_url",
+      "label": "Instagram"
+    },
+    {
+      "type": "url",
+      "id": "youtube_url",
+      "label": "YouTube"
+    },
+    {
+      "type": "header",
+      "content": "Map"
+    },
+    {
+      "type": "text",
+      "id": "map_query",
+      "label": "Map location query",
+      "default": "Hafeez Center, Gulberg III, Lahore, Pakistan"
+    },
+    {
+      "type": "url",
+      "id": "map_embed_url",
+      "label": "Custom map embed URL",
+      "info": "Leave blank to auto-generate from the location query."
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "range",
+      "id": "shell_radius",
+      "label": "Map corner radius",
+      "min": 8,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "color",
+      "id": "input_background",
+      "label": "Input background",
+      "default": "#f3f3f3"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact page"
+    }
+  ]
+}
+{% endschema %}

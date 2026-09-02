@@ -1,0 +1,124 @@
+{
+  "_comment": "After CSV import, set product-reference metafields in Admin using these handles. Spec values below match the CSV for reference.",
+  "products": {
+    "ritual-overear-pro": {
+      "title": "Ritual Over-Ear Pro",
+      "specs": {
+        "custom.driver_size": "40mm",
+        "custom.product_weight": "285 g",
+        "custom.battery_life": "35h",
+        "custom.bluetooth_version": "v5.3",
+        "custom.charging_time": "2h",
+        "custom.wireless_range": "10m"
+      },
+      "custom.pdp_upgrades": [
+        "ritual-travel-case",
+        "ritual-cable-premium"
+      ],
+      "custom.pdp_pairs_well_with": [
+        "ritual-earbuds-pulse",
+        "ritual-desk-stand"
+      ]
+    },
+    "ritual-overear-lite": {
+      "title": "Ritual Over-Ear Lite",
+      "specs": {
+        "custom.driver_size": "40mm",
+        "custom.product_weight": "220 g",
+        "custom.battery_life": "28h",
+        "custom.bluetooth_version": "v5.2",
+        "custom.charging_time": "1.5h",
+        "custom.wireless_range": "10m"
+      },
+      "custom.pdp_upgrades": [
+        "ritual-travel-case",
+        "ritual-cable-premium"
+      ],
+      "custom.pdp_pairs_well_with": [
+        "ritual-earbuds-air",
+        "ritual-desk-stand"
+      ]
+    },
+    "ritual-earbuds-pulse": {
+      "title": "Ritual Earbuds Pulse",
+      "specs": {
+        "custom.driver_size": "11mm",
+        "custom.product_weight": "52 g",
+        "custom.battery_life": "24h",
+        "custom.bluetooth_version": "v5.3",
+        "custom.charging_time": "1h",
+        "custom.wireless_range": "10m"
+      },
+      "custom.pdp_upgrades": [
+        "ritual-charging-dock"
+      ],
+      "custom.pdp_pairs_well_with": [
+        "ritual-overear-pro",
+        "ritual-cable-premium"
+      ]
+    },
+    "ritual-earbuds-air": {
+      "title": "Ritual Earbuds Air",
+      "specs": {
+        "custom.driver_size": "10mm",
+        "custom.product_weight": "48 g",
+        "custom.battery_life": "20h",
+        "custom.bluetooth_version": "v5.2",
+        "custom.charging_time": "1h",
+        "custom.wireless_range": "10m"
+      },
+      "custom.pdp_upgrades": [
+        "ritual-charging-dock"
+      ],
+      "custom.pdp_pairs_well_with": [
+        "ritual-overear-lite"
+      ]
+    },
+    "ritual-travel-case": {
+      "title": "Ritual Travel Case",
+      "specs": {},
+      "custom.pdp_upgrades": [],
+      "custom.pdp_pairs_well_with": [
+        "ritual-cable-premium",
+        "ritual-overear-pro"
+      ]
+    },
+    "ritual-cable-premium": {
+      "title": "Ritual Premium Cable",
+      "specs": {},
+      "custom.pdp_upgrades": [],
+      "custom.pdp_pairs_well_with": [
+        "ritual-travel-case",
+        "ritual-overear-pro"
+      ]
+    },
+    "ritual-desk-stand": {
+      "title": "Ritual Desk Stand",
+      "specs": {},
+      "custom.pdp_upgrades": [],
+      "custom.pdp_pairs_well_with": [
+        "ritual-overear-pro",
+        "ritual-overear-lite"
+      ]
+    },
+    "ritual-charging-dock": {
+      "title": "Ritual Charging Dock",
+      "specs": {},
+      "custom.pdp_upgrades": [],
+      "custom.pdp_pairs_well_with": [
+        "ritual-earbuds-pulse",
+        "ritual-earbuds-air"
+      ]
+    }
+  },
+  "collections_created_by_csv": [
+    "Best Sellers",
+    "Headphones",
+    "Accessories"
+  ],
+  "notes": [
+    "CSV Collection column assigns each product to only one collection. Add products to extra collections in Admin if needed.",
+    "ritual-overear-pro Silver variant has inventory qty 6 so the PDP inventory block can show low stock (threshold 8).",
+    "Star ratings require a reviews app (reviews.rating / reviews.rating_count)."
+  ]
+}

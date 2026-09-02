@@ -1,0 +1,27 @@
+{
+  "sections": {
+    "contact_page": {
+      "type": "contact-page",
+      "settings": {
+        "heading": "Contact Us",
+        "intro": "<p>We'd love to hear from you. Our team is here to help. Let your customers get in touch with you by filling out the email form below.</p>",
+        "button_label": "Send message",
+        "address": "Hafeez Center, Gulberg III,\nLahore, Pakistan",
+        "email_primary": "contact@yourstore.com",
+        "email_secondary": "sales@yourstore.com",
+        "phone": "+92 42 1234567",
+        "hours": "mo - fri: 09:00 – 17:00",
+        "facebook_url": "https://facebook.com",
+        "twitter_url": "https://twitter.com",
+        "instagram_url": "https://instagram.com",
+        "youtube_url": "https://youtube.com",
+        "map_query": "Hafeez Center, Gulberg III, Lahore, Pakistan",
+        "shell_radius": 24,
+        "input_background": "#f3f3f3"
+      }
+    }
+  },
+  "order": [
+    "contact_page"
+  ]
+}

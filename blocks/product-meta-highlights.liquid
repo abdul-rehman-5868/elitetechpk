@@ -1,0 +1,236 @@
+{% liquid
+  assign product = closest.product
+  assign driver_size = product.metafields.custom.driver_size.value | default: block.settings.fallback_driver_size
+  assign product_weight = product.metafields.custom.product_weight.value | default: block.settings.fallback_product_weight
+  assign battery_life = product.metafields.custom.battery_life.value | default: block.settings.fallback_battery_life
+  assign bluetooth_version = product.metafields.custom.bluetooth_version.value | default: block.settings.fallback_bluetooth
+  assign charging_time = product.metafields.custom.charging_time.value | default: block.settings.fallback_charging_time
+  assign wireless_range = product.metafields.custom.wireless_range.value | default: block.settings.fallback_wireless_range
+  assign noise_cancellation = product.metafields.custom.noise_cancellation.value | default: block.settings.fallback_noise_cancellation
+
+  assign has_specs = false
+  if driver_size != blank or product_weight != blank or battery_life != blank or bluetooth_version != blank or charging_time != blank or wireless_range != blank or noise_cancellation != blank
+    assign has_specs = true
+  endif
+%}
+
+{% if has_specs %}
+  <section
+    id="ProductHighlights"
+    class="product-meta-highlights"
+    {{ block.shopify_attributes }}
+  >
+    {% if block.settings.heading != blank %}
+      <h2 class="product-meta-highlights__heading">{{ block.settings.heading }}</h2>
+    {% endif %}
+
+    <div class="product-meta-highlights__grid">
+      {% if driver_size != blank %}
+        <article class="product-meta-highlights__item">
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'ruler' %}</svg></span>
+          <div class="product-meta-highlights__copy">
+            <strong>{{ driver_size }}</strong>
+            <small>Driver size</small>
+          </div>
+        </article>
+      {% endif %}
+      {% if product_weight != blank %}
+        <article class="product-meta-highlights__item">
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'box' %}</svg></span>
+          <div class="product-meta-highlights__copy">
+            <strong>{{ product_weight }}</strong>
+            <small>Product weight</small>
+          </div>
+        </article>
+      {% endif %}
+      {% if battery_life != blank %}
+        <article class="product-meta-highlights__item">
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'lightning_bolt' %}</svg></span>
+          <div class="product-meta-highlights__copy">
+            <strong>{{ battery_life }}</strong>
+            <small>Battery life</small>
+          </div>
+        </article>
+      {% endif %}
+      {% if bluetooth_version != blank %}
+        <article class="product-meta-highlights__item">
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'star' %}</svg></span>
+          <div class="product-meta-highlights__copy">
+            <strong>{{ bluetooth_version }}</strong>
+            <small>Bluetooth</small>
+          </div>
+        </article>
+      {% endif %}
+      {% if noise_cancellation != blank %}
+        <article class="product-meta-highlights__item">
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'eye' %}</svg></span>
+          <div class="product-meta-highlights__copy">
+            <strong>{{ noise_cancellation }}</strong>
+            <small>Noise cancellation</small>
+          </div>
+        </article>
+      {% endif %}
+      {% if charging_time != blank %}
+        <article class="product-meta-highlights__item">
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'check_box' %}</svg></span>
+          <div class="product-meta-highlights__copy">
+            <strong>{{ charging_time }}</strong>
+            <small>Connector</small>
+          </div>
+        </article>
+      {% endif %}
+      {% if wireless_range != blank %}
+        <article class="product-meta-highlights__item">
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'lock' %}</svg></span>
+          <div class="product-meta-highlights__copy">
+            <strong>{{ wireless_range }}</strong>
+            <small>Wireless range</small>
+          </div>
+        </article>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+
+{% stylesheet %}
+  .product-meta-highlights {
+    margin-top: 0;
+    padding: 0;
+  }
+
+  .product-meta-highlights__heading {
+    margin: 0 0 1.1rem;
+    font-size: 1.35rem;
+    font-weight: 650;
+    color: #111111;
+  }
+
+  .product-meta-highlights__grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .product-meta-highlights__item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    border-radius: 14px;
+    background: #ffffff;
+    padding: 0.95rem 1rem;
+  }
+
+  .product-meta-highlights__icon {
+    display: inline-flex;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #737373;
+    flex: 0 0 auto;
+  }
+
+  .product-meta-highlights__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .product-meta-highlights__copy {
+    display: grid;
+    min-width: 0;
+    line-height: 1.1;
+  }
+
+  .product-meta-highlights__copy strong {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #111111;
+  }
+
+  .product-meta-highlights__copy small {
+    margin-top: 0.2rem;
+    color: #767676;
+    font-size: 0.64rem;
+  }
+
+  @media screen and (max-width: 989px) {
+    .product-meta-highlights__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .product-meta-highlights__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Metafield highlights",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Product highlights"
+    },
+    {
+      "type": "header",
+      "content": "Fallback values"
+    },
+    {
+      "type": "paragraph",
+      "content": "Used when product metafields are empty so the section still appears."
+    },
+    {
+      "type": "text",
+      "id": "fallback_driver_size",
+      "label": "Driver size",
+      "default": "40mm"
+    },
+    {
+      "type": "text",
+      "id": "fallback_product_weight",
+      "label": "Product weight",
+      "default": "285 g"
+    },
+    {
+      "type": "text",
+      "id": "fallback_battery_life",
+      "label": "Battery life",
+      "default": "35h"
+    },
+    {
+      "type": "text",
+      "id": "fallback_bluetooth",
+      "label": "Bluetooth",
+      "default": "v5.1"
+    },
+    {
+      "type": "text",
+      "id": "fallback_noise_cancellation",
+      "label": "Noise cancellation",
+      "default": "Adaptive ANC"
+    },
+    {
+      "type": "text",
+      "id": "fallback_charging_time",
+      "label": "Connector",
+      "default": "USB-C"
+    },
+    {
+      "type": "text",
+      "id": "fallback_wireless_range",
+      "label": "Wireless range",
+      "default": "10m"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Metafield highlights",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

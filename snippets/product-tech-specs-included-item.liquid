@@ -1,0 +1,40 @@
+{%- doc -%}
+  Renders a single "Included in the Box" grid item.
+
+  @param {block} block - included_item section block
+
+  @example
+  {% render 'product-tech-specs-included-item', block: block %}
+{%- enddoc -%}
+
+<li class="product-tech-specs__included-item" {{ block.shopify_attributes }}>
+  <span class="product-tech-specs__included-icon" aria-hidden="true">
+    {% if block.settings.icon != blank %}
+      {{
+        block.settings.icon
+        | image_url: width: 96
+        | image_tag:
+          class: 'product-tech-specs__included-image',
+          widths: '48, 72, 96',
+          loading: 'lazy',
+          alt: ''
+      }}
+    {% else %}
+      <span class="product-tech-specs__included-svg">
+        {% case block.settings.icon_preset %}
+          {% when 'case' %}
+            {{- 'icon-included-case.svg' | inline_asset_content -}}
+          {% when 'usb_cable' %}
+            {{- 'icon-included-usb-cable.svg' | inline_asset_content -}}
+          {% when 'audio_cable' %}
+            {{- 'icon-included-audio-cable.svg' | inline_asset_content -}}
+          {% when 'manual' %}
+            {{- 'icon-included-manual.svg' | inline_asset_content -}}
+          {% else %}
+            {{- 'icon-included-headphones.svg' | inline_asset_content -}}
+        {% endcase %}
+      </span>
+    {% endif %}
+  </span>
+  <span class="product-tech-specs__included-label">{{ block.settings.label | escape }}</span>
+</li>

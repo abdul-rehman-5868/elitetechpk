@@ -1,0 +1,719 @@
+{% liquid
+  assign collection = section.settings.collection
+  assign product_limit = section.settings.product_limit
+  assign minimum = section.settings.minimum_selections
+  assign savings_percent = section.settings.savings_percent
+  assign products = blank
+  if collection != blank
+    assign products = collection.products
+  else
+    assign products = collections.all.products
+  endif
+%}
+
+<script
+  src="{{ 'bundle-builder.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
+
+<bundle-builder
+  class="bundle-builder"
+  id="BundleBuilder-{{ section.id }}"
+  style="
+    --bb-bg: {{ section.settings.background_color }};
+    --bb-heading-color: {{ section.settings.heading_color }};
+    --bb-text-color: {{ section.settings.text_color }};
+    --bb-card-bg: {{ section.settings.card_background }};
+    --bb-summary-border: {{ section.settings.summary_border_color }};
+    --bb-button-bg: {{ section.settings.button_background }};
+    --bb-button-fg: {{ section.settings.button_text_color }};
+    --bb-accent: {{ section.settings.accent_color }};
+    --bb-radius: var(--section-panel-radius, {{ section.settings.corner_radius }}px);
+    --bb-sticky-gap: {{ section.settings.sticky_gap }}px;
+    --bb-pad-block-start: {{ section.settings.padding-block-start }}px;
+    --bb-pad-block-end: {{ section.settings.padding-block-end }}px;
+  "
+  data-minimum="{{ minimum }}"
+  data-savings-percent="{{ savings_percent }}"
+  data-money-format="{{ shop.money_format | escape }}"
+  data-currency="{{ cart.currency.iso_code }}"
+  data-status-template="{{ section.settings.status_text | escape }}"
+  data-ready-template="{{ section.settings.ready_text | escape }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="bundle-builder__intro">
+    {% if section.settings.heading != blank %}
+      <h2 class="bundle-builder__heading">{{ section.settings.heading }}</h2>
+    {% endif %}
+
+    {% if section.settings.description != blank %}
+      <div class="bundle-builder__description rte">{{ section.settings.description }}</div>
+    {% endif %}
+  </div>
+
+  <div class="bundle-builder__layout">
+    <div class="bundle-builder__products" role="list">
+      {% if products != blank and products.size > 0 %}
+        {% for product in products limit: product_limit %}
+          {% liquid
+            assign variant = product.selected_or_first_available_variant
+            assign available = false
+            if variant and variant.available
+              assign available = true
+            endif
+            assign image = product.featured_media.preview_image | default: product.featured_image
+            assign image_alt = product.title
+            if image != blank and image.alt != blank
+              assign image_alt = image.alt
+            endif
+          %}
+          <div class="bundle-builder__product" role="listitem">
+            <button
+              type="button"
+              class="bundle-builder__card{% unless available %} is-disabled{% endunless %}"
+              data-variant-id="{{ variant.id }}"
+              data-product-id="{{ product.id }}"
+              data-title="{{ product.title | escape }}"
+              data-vendor="{{ product.vendor | escape }}"
+              data-price="{{ variant.price }}"
+              {% if image != blank %}
+                data-image="{{ image | image_url: width: 160 }}"
+                data-image-alt="{{ image_alt | escape }}"
+              {% endif %}
+              aria-pressed="false"
+              {% unless available %}
+                disabled
+                aria-disabled="true"
+              {% endunless %}
+              on:click="/toggleProduct"
+            >
+              <span class="bundle-builder__card-media">
+                {% if image != blank %}
+                  {{
+                    image
+                    | image_url: width: 800
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '200, 400, 600, 800',
+                      sizes: '(min-width: 990px) 22vw, (min-width: 750px) 30vw, 45vw',
+                      alt: image_alt,
+                      class: 'bundle-builder__card-image'
+                  }}
+                {% else %}
+                  {{ 'product-apparel-1' | placeholder_svg_tag: 'bundle-builder__card-placeholder' }}
+                {% endif %}
+              </span>
+
+              <span class="bundle-builder__card-meta">
+                {% if product.vendor != blank %}
+                  <span class="bundle-builder__card-vendor">{{ product.vendor }}</span>
+                {% endif %}
+                <span class="bundle-builder__card-row">
+                  <span class="bundle-builder__card-title">{{ product.title }}</span>
+                  <span class="bundle-builder__card-price">
+                    {% if available %}
+                      {{ variant.price | money }}
+                    {% else %}
+                      {{ 'products.product.sold_out' | t }}
+                    {% endif %}
+                  </span>
+                </span>
+              </span>
+            </button>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="bundle-builder__empty">
+          Select a collection with products in the theme editor to build a bundle.
+        </p>
+      {% endif %}
+    </div>
+
+    <aside class="bundle-builder__summary sticky-content--desktop">
+      <div class="bundle-builder__summary-card">
+        <div class="bundle-builder__summary-header">
+          {% if section.settings.summary_heading != blank %}
+            <h3 class="bundle-builder__summary-heading">{{ section.settings.summary_heading }}</h3>
+          {% endif %}
+          <p class="bundle-builder__summary-status" ref="statusText">
+            {{
+              section.settings.status_text
+              | replace: '[count]', minimum
+              | replace: '[percent]', savings_percent
+            }}
+          </p>
+        </div>
+
+        <ul class="bundle-builder__summary-list" ref="summaryList" role="list"></ul>
+
+        <div class="bundle-builder__summary-footer">
+          <div class="bundle-builder__total-row">
+            <span>{{ section.settings.total_label }}</span>
+            <strong ref="totalValue">{{ 0 | money }}</strong>
+          </div>
+
+          <p class="bundle-builder__error" ref="errorText" hidden></p>
+
+          <button
+            type="button"
+            class="bundle-builder__add-button"
+            ref="addButton"
+            disabled
+            aria-disabled="true"
+            on:click="/addBundle"
+          >
+            {{ section.settings.button_label }}
+          </button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <span class="visually-hidden" ref="liveRegion" aria-live="polite"></span>
+
+  <template ref="placeholderTemplate">
+    <li class="bundle-builder__summary-item bundle-builder__summary-item--placeholder" aria-hidden="true">
+      <span class="bundle-builder__summary-thumb"></span>
+      <span class="bundle-builder__summary-copy">
+        <span class="bundle-builder__summary-line"></span>
+        <span class="bundle-builder__summary-line bundle-builder__summary-line--short"></span>
+      </span>
+    </li>
+  </template>
+
+  <template ref="itemTemplate">
+    <li class="bundle-builder__summary-item">
+      <img class="bundle-builder__summary-thumb-image" data-summary-image alt="" width="48" height="48" loading="lazy">
+      <span class="bundle-builder__summary-copy">
+        <span class="bundle-builder__summary-title" data-summary-title></span>
+        <span class="bundle-builder__summary-price" data-summary-price></span>
+      </span>
+      <button
+        type="button"
+        class="bundle-builder__summary-remove"
+        data-summary-remove
+        aria-label="Remove"
+        on:click="/removeProduct"
+      >
+        &times;
+      </button>
+    </li>
+  </template>
+</bundle-builder>
+
+{% stylesheet %}
+  .bundle-builder {
+    display: block;
+    background: var(--bb-bg, #ffffff);
+    color: var(--bb-text-color, #111111);
+    padding-block-start: var(--bb-pad-block-start, 48px);
+    padding-block-end: var(--bb-pad-block-end, 64px);
+  }
+
+  .bundle-builder__intro {
+    max-width: 42rem;
+    margin-block-end: clamp(2rem, 4vw, 3rem);
+  }
+
+  .bundle-builder__heading {
+    margin: 0 0 0.85rem;
+    color: var(--bb-heading-color, #111111);
+    font-size: clamp(2.25rem, 5vw, 3.75rem);
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .bundle-builder__heading em,
+  .bundle-builder__heading i {
+    font-style: normal;
+    position: relative;
+    display: inline-block;
+  }
+
+  .bundle-builder__heading em::after,
+  .bundle-builder__heading i::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.08em;
+    height: 0.28em;
+    background: var(--bb-accent, #f2c9b0);
+    border-radius: 999px;
+    z-index: -1;
+    transform: rotate(-2deg);
+  }
+
+  .bundle-builder__description {
+    margin: 0;
+    max-width: 38rem;
+    color: #555555;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .bundle-builder__description p {
+    margin: 0;
+  }
+
+  .bundle-builder__layout {
+    display: grid;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  @media screen and (min-width: 990px) {
+    .bundle-builder__layout {
+      grid-template-columns: minmax(0, 1.7fr) minmax(16rem, 0.75fr);
+      gap: 1.75rem;
+    }
+  }
+
+  .bundle-builder__products {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .bundle-builder__empty,
+  .bss__empty {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 1.5rem 0.25rem;
+    color: #777777;
+    font-size: 0.95rem;
+  }
+
+  @media screen and (min-width: 750px) {
+    .bundle-builder__products {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+  }
+
+  .bundle-builder__card {
+    display: grid;
+    gap: 0.85rem;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    color: inherit;
+  }
+
+  .bundle-builder__card:focus-visible {
+    outline: 2px solid #111111;
+    outline-offset: 3px;
+  }
+
+  .bundle-builder__card.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  .bundle-builder__card-media {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--bb-radius, 17px);
+    background: var(--bb-card-bg, #f3f3f3);
+    transition:
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .bundle-builder__card.is-selected .bundle-builder__card-media {
+    box-shadow: inset 0 0 0 2px #111111;
+  }
+
+  .bundle-builder__card-image,
+  .bundle-builder__card-placeholder {
+    width: 72%;
+    height: 72%;
+    object-fit: contain;
+  }
+
+  .bundle-builder__card-meta {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .bundle-builder__card-vendor {
+    color: #8a8a8a;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .bundle-builder__card-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .bundle-builder__card-title,
+  .bundle-builder__card-price {
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .bundle-builder__summary {
+    align-self: start;
+  }
+
+  body:has(#header-group #header-component[data-sticky-state='active'])
+    .bundle-builder
+    .bundle-builder__summary.sticky-content--desktop {
+    --sticky-header-offset: calc(var(--header-height, 96px) + var(--bb-sticky-gap, 16px));
+  }
+
+  .bundle-builder__summary-card {
+    display: grid;
+    gap: 1.25rem;
+    padding: 1.35rem 1.25rem 1.25rem;
+    border: 1px solid var(--bb-summary-border, #111111);
+    border-radius: var(--bb-radius, 17px);
+    background: #ffffff;
+  }
+
+  .bundle-builder__summary-heading {
+    margin: 0 0 0.4rem;
+    font-size: clamp(1.6rem, 2.4vw, 2rem);
+    line-height: 1.1;
+    font-weight: 700;
+  }
+
+  .bundle-builder__summary-status {
+    margin: 0;
+    color: #555555;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .bundle-builder__summary-list {
+    display: grid;
+    gap: 0.85rem;
+    margin: 0;
+    padding: 1rem 0 0;
+    list-style: none;
+    border-top: 1px solid #ececec;
+    min-height: 9rem;
+  }
+
+  .bundle-builder__summary-item {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .bundle-builder__summary-item--placeholder {
+    grid-template-columns: 3rem minmax(0, 1fr);
+  }
+
+  .bundle-builder__summary-thumb,
+  .bundle-builder__summary-thumb-image {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+    background: #ececec;
+    object-fit: cover;
+  }
+
+  .bundle-builder__summary-copy {
+    display: grid;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  .bundle-builder__summary-title,
+  .bundle-builder__summary-price {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+  }
+
+  .bundle-builder__summary-price {
+    color: #666666;
+  }
+
+  .bundle-builder__summary-line {
+    display: block;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: #ececec;
+  }
+
+  .bundle-builder__summary-line--short {
+    width: 55%;
+  }
+
+  .bundle-builder__summary-remove {
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #777777;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .bundle-builder__summary-footer {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .bundle-builder__total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .bundle-builder__error {
+    margin: 0;
+    color: #b42318;
+    font-size: 0.85rem;
+  }
+
+  .bundle-builder__add-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.25rem;
+    padding: 0.85rem 1.25rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bb-button-bg, #4b4b4b);
+    color: var(--bb-button-fg, #ffffff);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .bundle-builder__add-button:disabled,
+  .bundle-builder__add-button[aria-disabled='true'] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .bundle-builder__add-button.is-loading {
+    opacity: 0.7;
+  }
+
+  @media screen and (max-width: 989px) {
+    .bundle-builder__summary.sticky-content--desktop {
+      position: relative;
+      top: auto;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Bundle builder",
+  "tag": "section",
+  "class": "bundle-builder-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Build your <em>Bundle</em>"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>The choice is yours. With our bundle builder, you can select any combination from our range of products. The easiest way to keep everyone happy.</p>"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "product_limit",
+      "label": "Products to show",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "minimum_selections",
+      "label": "Minimum selections",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "savings_percent",
+      "label": "Savings percent",
+      "min": 0,
+      "max": 70,
+      "step": 1,
+      "unit": "%",
+      "default": 30,
+      "info": "Shown as an estimate. Configure the real automatic discount in Shopify Admin."
+    },
+    {
+      "type": "text",
+      "id": "summary_heading",
+      "label": "Summary heading",
+      "default": "Your bundle"
+    },
+    {
+      "type": "text",
+      "id": "status_text",
+      "label": "Status text",
+      "default": "Add at least [count] products to proceed and Save [percent]%",
+      "info": "Use [count] and [percent] placeholders."
+    },
+    {
+      "type": "text",
+      "id": "ready_text",
+      "label": "Ready text",
+      "default": "Ready to add — Save [percent]%"
+    },
+    {
+      "type": "text",
+      "id": "total_label",
+      "label": "Total label",
+      "default": "Total"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Add to cart"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent underline",
+      "default": "#f2c9b0"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#f3f3f3"
+    },
+    {
+      "type": "color",
+      "id": "summary_border_color",
+      "label": "Summary border",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Button background",
+      "default": "#4b4b4b"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "sticky_gap",
+      "label": "Sticky gap under navbar",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bundle builder",
+      "category": "t:categories.products",
+      "settings": {
+        "heading": "Build your <em>Bundle</em>",
+        "description": "<p>The choice is yours. With our bundle builder, you can select any combination from our range of products. The easiest way to keep everyone happy.</p>",
+        "minimum_selections": 3,
+        "savings_percent": 30
+      }
+    }
+  ]
+}
+{% endschema %}

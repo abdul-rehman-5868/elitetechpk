@@ -1,0 +1,299 @@
+{% liquid
+  assign heading = section.settings.heading
+  assign eyebrow = section.settings.eyebrow
+%}
+
+<div
+  class="image-compare-showcase hp-inner-pad"
+  style="
+    --ics-bg: {{ section.settings.background_color }};
+    --ics-heading-color: {{ section.settings.heading_color }};
+    --ics-eyebrow-color: {{ section.settings.eyebrow_color }};
+    --ics-accent-start: {{ section.settings.accent_start }};
+    --ics-accent-end: {{ section.settings.accent_end }};
+    --ics-panel-radius: var(--section-panel-radius, {{ section.settings.corner_radius }}px);
+    --ics-pad-block-start: {{ section.settings.padding-block-start }}px;
+    --ics-pad-block-end: {{ section.settings.padding-block-end }}px;
+  "
+  {{ section.shopify_attributes }}
+>
+  <div class="image-compare-showcase__intro">
+    {% if eyebrow != blank %}
+      <p class="image-compare-showcase__eyebrow">{{ eyebrow }}</p>
+    {% endif %}
+
+    {% if heading != blank %}
+      <h2 class="image-compare-showcase__heading">{{ heading }}</h2>
+    {% endif %}
+  </div>
+
+  <div class="image-compare-showcase__media">
+    {% content_for 'block', type: 'comparison-slider', id: 'comparison-slider' %}
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Outside: X 0. Inside: X uses --homepage-gutter (12 / 24 / 36). Y via section settings. */
+  .image-compare-showcase-section {
+    --hp-shell-pad-x-mobile: 0px;
+    --hp-shell-pad-x-desktop: 0px;
+  }
+
+  .image-compare-showcase {
+    background: var(--ics-bg, #ffffff);
+    padding-inline: var(--homepage-gutter);
+    padding-block-start: var(--ics-pad-block-start, 0px);
+    padding-block-end: var(--ics-pad-block-end, 0px);
+  }
+
+  .image-compare-showcase__intro {
+    display: grid;
+    gap: 0.65rem;
+    justify-items: center;
+    text-align: center;
+    margin-block-end: clamp(1.5rem, 3vw, 2.25rem);
+  }
+
+  .image-compare-showcase__eyebrow {
+    margin: 0;
+    color: var(--ics-eyebrow-color, #111111);
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
+  }
+
+  .image-compare-showcase__heading {
+    margin: 0;
+    color: var(--ics-heading-color, #111111);
+    font-size: clamp(2rem, 4.5vw, 3.5rem);
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    max-width: 16ch;
+  }
+
+  .image-compare-showcase__heading em,
+  .image-compare-showcase__heading i {
+    font-style: normal;
+    background: linear-gradient(
+      105deg,
+      var(--ics-accent-start, #c4a574) 0%,
+      var(--ics-accent-end, #8b6914) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .image-compare-showcase__media {
+    width: 100%;
+  }
+
+  .image-compare-showcase__media .comparison-slider {
+    width: 100%;
+    max-width: none;
+    border-radius: var(--ics-panel-radius, 17px);
+    overflow: hidden;
+  }
+
+  .image-compare-showcase__media .comparison-slider__media-wrapper {
+    --color-background: #ffffff;
+    --handle-color: #777777;
+  }
+
+  .image-compare-showcase__media .cs-slider__handle {
+    width: 1.75rem;
+    height: 3rem;
+    border-radius: 999px;
+    gap: 0.2rem;
+    flex-direction: column;
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
+  }
+
+  .image-compare-showcase__media .cs-slider__chevron {
+    display: none;
+  }
+
+  .image-compare-showcase__media .cs-slider__handle::before,
+  .image-compare-showcase__media .cs-slider__handle::after,
+  .image-compare-showcase__media .cs-slider__handle {
+    background: #ffffff;
+  }
+
+  .image-compare-showcase__media .cs-slider__handle {
+    background-image:
+      linear-gradient(#bdbdbd, #bdbdbd),
+      linear-gradient(#bdbdbd, #bdbdbd),
+      linear-gradient(#bdbdbd, #bdbdbd);
+    background-size: 2px 0.85rem;
+    background-repeat: no-repeat;
+    background-position:
+      calc(50% - 5px) 50%,
+      50% 50%,
+      calc(50% + 5px) 50%;
+  }
+
+  .image-compare-showcase__media .comparison-slider__text {
+    color: #ffffff;
+    padding: 1rem;
+  }
+
+  .image-compare-showcase__media .comparison-slider__text > div {
+    display: grid;
+    gap: 0.2rem;
+    line-height: 1.15;
+  }
+
+  .image-compare-showcase__media .comparison-slider__text--before {
+    text-align: left;
+  }
+
+  .image-compare-showcase__media .comparison-slider__text--after {
+    text-align: right;
+  }
+
+  .image-compare-showcase__media .comparison-slider__label-kicker {
+    font-size: 0.8rem;
+    font-weight: 400;
+    opacity: 0.95;
+  }
+
+  .image-compare-showcase__media .comparison-slider__label-title {
+    font-size: clamp(1.15rem, 2vw, 1.5rem);
+    font-weight: 700;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Image compare showcase",
+  "tag": "section",
+  "class": "image-compare-showcase-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "blocks": [
+    {
+      "type": "comparison-slider"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Sound in Spectrum"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "<em>Vibrant</em> Headphone Choices"
+    },
+    {
+      "type": "color",
+      "id": "eyebrow_color",
+      "label": "Eyebrow color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "accent_start",
+      "label": "Accent start",
+      "default": "#c4a574"
+    },
+    {
+      "type": "color",
+      "id": "accent_end",
+      "label": "Accent end",
+      "default": "#8b6914"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "corner_radius",
+      "label": "Panel corner radius",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "range",
+      "id": "padding_inline_mobile",
+      "label": "Mobile side padding",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image compare showcase",
+      "category": "t:categories.storytelling",
+      "blocks": {
+        "comparison-slider": {
+          "type": "comparison-slider",
+          "static": true,
+          "settings": {
+            "slider_style": "horizontal",
+            "show_text": true,
+            "before_text": "Flow Harmony|Gold Tone",
+            "after_text": "Flow Harmony|Crimson Shadow",
+            "text_preset": "h6",
+            "text_position_horizontal": "end",
+            "text_color": "#ffffff",
+            "image_ratio": "landscape",
+            "width": "fill",
+            "width_mobile": "fill",
+            "slider_bg_color": "#ffffff",
+            "slider_handle_color": "#777777",
+            "border_radius": 17,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          }
+        }
+      },
+      "settings": {
+        "eyebrow": "Sound in Spectrum",
+        "heading": "<em>Vibrant</em> Headphone Choices"
+      }
+    }
+  ]
+}
+{% endschema %}

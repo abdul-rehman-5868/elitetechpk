@@ -1,0 +1,666 @@
+{%- doc -%}
+  Primary navbar routes: Shop, Collections, Contact.
+  Logo home link lives in the header logo block.
+
+  @param {string} variant - One of: desktop, mobile_bar, drawer
+  @param {object} [menu_settings] - Header menu block settings
+{%- enddoc -%}
+
+{% liquid
+  assign shop_url = routes.all_products_collection_url
+  assign collection_url = routes.collections_url
+  if pages.contact != blank
+    assign contact_url = pages.contact.url
+  else
+    assign contact_url = '/pages/contact'
+  endif
+
+  assign shop_current = false
+  assign collection_current = false
+  assign contact_current = false
+  assign show_shop_dropdown = true
+  assign show_collections_dropdown = true
+  if menu_settings.show_shop_dropdown == false
+    assign show_shop_dropdown = false
+  endif
+  if menu_settings.show_collections_dropdown == false
+    assign show_collections_dropdown = false
+  endif
+
+  if request.path == shop_url or request.path == '/collections/all'
+    assign shop_current = true
+  endif
+  if request.path == collection_url or request.path == '/collections'
+    assign collection_current = true
+  elsif template.name == 'collection' and shop_current == false
+    assign collection_current = true
+  endif
+  if request.path == contact_url or request.path contains '/pages/contact'
+    assign contact_current = true
+  endif
+%}
+
+{%- case variant -%}
+  {%- when 'desktop' -%}
+    <li
+      role="presentation"
+      class="menu-list__list-item menu-list__list-item--shop menu-list__list-item--nav-pill"
+      on:focus="/activate"
+      on:blur="/deactivate"
+      on:pointerenter="/activate"
+      on:pointerleave="/deactivate"
+    >
+      <a
+        href="{{ shop_url }}"
+        data-skip-node-update="true"
+        data-nav-label="Shop"
+        class="menu-list__link"
+        {% if show_shop_dropdown %}
+          aria-controls="submenu-shop"
+          aria-haspopup="true"
+          aria-expanded="false"
+        {% endif %}
+        {% if shop_current %}aria-current="page"{% endif %}
+        ref="menuitem"
+      >
+        <span class="menu-list__link-title">Shop</span>
+      </a>
+      {% if show_shop_dropdown %}
+        <div class="menu-list__submenu shop-mega-menu" ref="submenu[]">
+          <shop-mega-menu
+            id="submenu-shop"
+            class="menu-list__submenu-inner shop-mega-menu__inner"
+          >
+            {% liquid
+              assign mega_category_count = 0
+              for index in (1..4)
+                assign category_key = 'mega_category_' | append: index
+                assign picked = menu_settings[category_key]
+                if picked != blank
+                  assign mega_category_count = mega_category_count | plus: 1
+                endif
+              endfor
+
+              assign featured_category = menu_settings.mega_category_1
+              if featured_category == blank
+                for collection in collections
+                  if collection.handle == 'frontpage' or collection.handle == 'all'
+                    continue
+                  endif
+                  assign featured_category = collection
+                  break
+                endfor
+              endif
+
+              assign featured_category_title = featured_category.title | default: 'Products'
+              assign featured_category_url = featured_category.url | default: shop_url
+              assign featured_category_count = featured_category.all_products_count | default: featured_category.products_count
+              assign mega_products = menu_settings.mega_products
+            %}
+
+            <div class="shop-mega-menu__categories">
+              <p class="shop-mega-menu__eyebrow">Collections</p>
+              <ul
+                class="shop-mega-menu__category-list list-unstyled"
+                role="tablist"
+                aria-label="Collections"
+              >
+                {% if mega_category_count > 0 %}
+                  {% assign tab_render_index = 0 %}
+                  {% for index in (1..4) %}
+                    {% liquid
+                      assign category_key = 'mega_category_' | append: index
+                      assign category = menu_settings[category_key]
+                      assign category_count = category.all_products_count | default: category.products_count
+                      assign panel_id = 'shop-mega-panel-' | append: index
+                    %}
+                    {% if category != blank %}
+                      {% assign tab_render_index = tab_render_index | plus: 1 %}
+                      <li role="presentation">
+                        <button
+                          type="button"
+                          class="shop-mega-menu__category{% if tab_render_index == 1 %} is-active{% endif %}"
+                          id="shop-mega-tab-{{ index }}"
+                          role="tab"
+                          aria-selected="{% if tab_render_index == 1 %}true{% else %}false{% endif %}"
+                          aria-controls="{{ panel_id }}"
+                          tabindex="{% if tab_render_index == 1 %}0{% else %}-1{% endif %}"
+                          data-shop-mega-category="{{ index }}"
+                          data-url="{{ category.url }}"
+                          data-title="{{ category.title | escape }}"
+                          data-count="{{ category_count }}"
+                        >
+                          <span class="shop-mega-menu__category-icon" aria-hidden="true">
+                            {% case index %}
+                              {% when 1 %}
+                                <svg viewBox="0 0 24 24" fill="none">
+                                  <path d="M4 13v-2a8 8 0 0 1 16 0v2M4 13H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h2V13H4Zm16 0h1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-2v-6h1Z" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                              {% when 2 %}
+                                <svg viewBox="0 0 24 24" fill="none">
+                                  <path d="M8 3a5 5 0 0 0-5 5v2a3 3 0 0 0 3 3h2V3Zm8 0a5 5 0 0 1 5 5v2a3 3 0 0 1-3 3h-2V3ZM6 13v7m12-7v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                              {% when 3 %}
+                                <svg viewBox="0 0 24 24" fill="none">
+                                  <rect x="5" y="2" width="14" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                                  <circle cx="12" cy="15" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+                                  <circle cx="12" cy="7" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                              {% else %}
+                                <svg viewBox="0 0 24 24" fill="none">
+                                  <path d="M9 2h6v3h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V2Z" stroke="currentColor" stroke-width="1.5"/>
+                                  <path d="m13 8-3 5h3l-2 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            {% endcase %}
+                          </span>
+                          <span>{{ category.title }}</span>
+                        </button>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  {% assign live_index = 0 %}
+                  {% for collection in collections %}
+                    {% if collection.handle == 'frontpage' or collection.handle == 'all' %}
+                      {% continue %}
+                    {% endif %}
+                    {% if live_index >= 4 %}
+                      {% break %}
+                    {% endif %}
+                    {% liquid
+                      assign live_index = live_index | plus: 1
+                      assign category_count = collection.all_products_count | default: collection.products_count
+                      assign panel_id = 'shop-mega-panel-' | append: live_index
+                    %}
+                    <li role="presentation">
+                      <button
+                        type="button"
+                        class="shop-mega-menu__category{% if live_index == 1 %} is-active{% endif %}"
+                        id="shop-mega-tab-{{ live_index }}"
+                        role="tab"
+                        aria-selected="{% if live_index == 1 %}true{% else %}false{% endif %}"
+                        aria-controls="{{ panel_id }}"
+                        tabindex="{% if live_index == 1 %}0{% else %}-1{% endif %}"
+                        data-shop-mega-category="{{ live_index }}"
+                        data-url="{{ collection.url }}"
+                        data-title="{{ collection.title | escape }}"
+                        data-count="{{ category_count }}"
+                      >
+                        <span class="shop-mega-menu__category-icon" aria-hidden="true">
+                          {% case live_index %}
+                            {% when 1 %}
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M4 13v-2a8 8 0 0 1 16 0v2M4 13H3a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h2V13H4Zm16 0h1a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-2v-6h1Z" stroke="currentColor" stroke-width="1.5"/>
+                              </svg>
+                            {% when 2 %}
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M8 3a5 5 0 0 0-5 5v2a3 3 0 0 0 3 3h2V3Zm8 0a5 5 0 0 1 5 5v2a3 3 0 0 1-3 3h-2V3ZM6 13v7m12-7v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              </svg>
+                            {% when 3 %}
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <rect x="5" y="2" width="14" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/>
+                                <circle cx="12" cy="15" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+                                <circle cx="12" cy="7" r="1.5" stroke="currentColor" stroke-width="1.5"/>
+                              </svg>
+                            {% else %}
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M9 2h6v3h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V2Z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="m13 8-3 5h3l-2 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                          {% endcase %}
+                        </span>
+                        <span>{{ collection.title }}</span>
+                      </button>
+                    </li>
+                  {% endfor %}
+                {% endif %}
+              </ul>
+              <a class="shop-mega-menu__view-all" href="{{ shop_url }}">
+                <span>View All Products</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+            <div class="shop-mega-menu__products">
+              <div class="shop-mega-menu__products-header">
+                <span class="shop-mega-menu__products-label">Most popular</span>
+                <a
+                  href="{{ featured_category_url }}"
+                  data-shop-mega-all-link
+                  class="shop-mega-menu__products-all-link"
+                >
+                  <strong data-shop-mega-all-label>
+                    All {{ featured_category_title }}
+                    {% if featured_category_count != blank %}({{ featured_category_count }}){% endif %}
+                  </strong>
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+
+              <div class="shop-mega-menu__panels">
+                {% if mega_category_count > 0 %}
+                  {% assign panel_render_index = 0 %}
+                  {% for index in (1..4) %}
+                    {% liquid
+                      assign category_key = 'mega_category_' | append: index
+                      assign category = menu_settings[category_key]
+                    %}
+                    {% if category != blank %}
+                      {% liquid
+                        assign panel_render_index = panel_render_index | plus: 1
+                        assign panel_products = category.products
+                        if panel_render_index == 1 and mega_products != blank
+                          assign panel_products = mega_products
+                        endif
+                        assign panel_id = 'shop-mega-panel-' | append: index
+                        assign is_first_panel = false
+                        if panel_render_index == 1
+                          assign is_first_panel = true
+                        endif
+                      %}
+                      <div
+                        class="shop-mega-menu__panel{% if is_first_panel %} is-active{% endif %}"
+                        id="{{ panel_id }}"
+                        role="tabpanel"
+                        aria-labelledby="shop-mega-tab-{{ index }}"
+                        data-shop-mega-panel="{{ index }}"
+                        {% unless is_first_panel %}hidden{% endunless %}
+                      >
+                        <div class="shop-mega-menu__product-grid">
+                          {% for product in panel_products limit: 4 %}
+                            {% render 'shop-mega-menu-product-card', product: product %}
+                          {% else %}
+                            {% for placeholder_index in (1..4) %}
+                              <div class="shop-mega-menu__product-card shop-mega-menu__product-card--placeholder">
+                                <div class="shop-mega-menu__product-media">
+                                  {{ 'product-' | append: placeholder_index | placeholder_svg_tag: 'shop-mega-menu__placeholder' }}
+                                </div>
+                                <div class="shop-mega-menu__product-copy">
+                                  <span class="shop-mega-menu__vendor">Featured</span>
+                                  <strong class="shop-mega-menu__product-title">Popular product</strong>
+                                </div>
+                              </div>
+                            {% endfor %}
+                          {% endfor %}
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  {% assign live_index = 0 %}
+                  {% for collection in collections %}
+                    {% if collection.handle == 'frontpage' or collection.handle == 'all' %}
+                      {% continue %}
+                    {% endif %}
+                    {% if live_index >= 4 %}
+                      {% break %}
+                    {% endif %}
+                    {% liquid
+                      assign live_index = live_index | plus: 1
+                      assign panel_products = collection.products
+                      if live_index == 1 and mega_products != blank
+                        assign panel_products = mega_products
+                      endif
+                      assign panel_id = 'shop-mega-panel-' | append: live_index
+                    %}
+                    <div
+                      class="shop-mega-menu__panel{% if live_index == 1 %} is-active{% endif %}"
+                      id="{{ panel_id }}"
+                      role="tabpanel"
+                      aria-labelledby="shop-mega-tab-{{ live_index }}"
+                      data-shop-mega-panel="{{ live_index }}"
+                      {% unless live_index == 1 %}hidden{% endunless %}
+                    >
+                      <div class="shop-mega-menu__product-grid">
+                        {% for product in panel_products limit: 4 %}
+                          {% render 'shop-mega-menu-product-card', product: product %}
+                        {% else %}
+                          {% for placeholder_index in (1..4) %}
+                            <div class="shop-mega-menu__product-card shop-mega-menu__product-card--placeholder">
+                              <div class="shop-mega-menu__product-media">
+                                {{ 'product-' | append: placeholder_index | placeholder_svg_tag: 'shop-mega-menu__placeholder' }}
+                              </div>
+                              <div class="shop-mega-menu__product-copy">
+                                <span class="shop-mega-menu__vendor">Featured</span>
+                                <strong class="shop-mega-menu__product-title">Popular product</strong>
+                              </div>
+                            </div>
+                          {% endfor %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+          </shop-mega-menu>
+          <script src="{{ 'shop-mega-menu.js' | asset_url }}" type="module"></script>
+        </div>
+      {% endif %}
+    </li>
+    <li
+      role="presentation"
+      class="menu-list__list-item menu-list__list-item--collections menu-list__list-item--nav-pill"
+      on:focus="/activate"
+      on:blur="/deactivate"
+      on:pointerenter="/activate"
+      on:pointerleave="/deactivate"
+    >
+      <a
+        href="{{ collection_url }}"
+        data-skip-node-update="true"
+        data-nav-label="Collections"
+        class="menu-list__link"
+        {% if show_collections_dropdown %}
+          aria-controls="submenu-collections"
+          aria-haspopup="true"
+          aria-expanded="false"
+        {% endif %}
+        {% if collection_current %}aria-current="page"{% endif %}
+        ref="menuitem"
+      >
+        <span class="menu-list__link-title">Collections</span>
+      </a>
+      {% if show_collections_dropdown %}
+        <div class="menu-list__submenu collections-mega-menu" ref="submenu[]">
+          <collections-mega-menu
+            id="submenu-collections"
+            class="menu-list__submenu-inner collections-mega-menu__inner"
+          >
+            <div class="collections-mega-menu__grid">
+              {% liquid
+                assign mega_category_count = 0
+                for index in (1..4)
+                  assign category_key = 'mega_category_' | append: index
+                  if menu_settings[category_key] != blank
+                    assign mega_category_count = mega_category_count | plus: 1
+                  endif
+                endfor
+
+                assign fallback_handles = 'headphones,earphones,speakers,accessories' | split: ','
+              %}
+
+              {% if mega_category_count > 0 %}
+                {% for index in (1..4) %}
+                  {% liquid
+                    assign category_key = 'mega_category_' | append: index
+                    assign description_key = 'collections_card_description_' | append: index
+                    assign category = menu_settings[category_key]
+                    assign card_description = menu_settings[description_key]
+                  %}
+                  {% if category != blank %}
+                    {% liquid
+                      if card_description == blank
+                        case index
+                          when 1
+                            assign card_description = 'Surround yourself in sound.'
+                          when 2
+                            assign card_description = 'Everyday carry for your pocket.'
+                          when 3
+                            assign card_description = 'Fill the room with detail.'
+                          when 4
+                            assign card_description = 'Cables, cases, and extras.'
+                        endcase
+                      endif
+                      if card_description == blank
+                        assign card_description = category.description | strip_html | truncate: 80
+                      endif
+                      assign card_image = category.featured_image
+                      if card_image == blank and category.products.first != blank
+                        assign card_image = category.products.first.featured_image
+                      endif
+                    %}
+                    <a class="collections-mega-menu__card" href="{{ category.url }}">
+                      <span class="collections-mega-menu__card-media">
+                        {% if card_image != blank %}
+                          {{
+                            card_image
+                            | image_url: width: 720
+                            | image_tag:
+                              loading: 'lazy',
+                              widths: '220, 320, 440, 560, 720',
+                              sizes: '(min-width: 990px) 16vw, 40vw',
+                              alt: card_image.alt
+                          }}
+                        {% else %}
+                          {{ 'collection-' | append: index | placeholder_svg_tag: 'collections-mega-menu__placeholder' }}
+                        {% endif %}
+                      </span>
+                      <span class="collections-mega-menu__card-footer">
+                        <span class="collections-mega-menu__card-copy">
+                          <strong>{{ category.title }}</strong>
+                          {% if card_description != blank %}
+                            <small>{{ card_description }}</small>
+                          {% endif %}
+                        </span>
+                        <span class="collections-mega-menu__card-arrow" aria-hidden="true">→</span>
+                      </span>
+                    </a>
+                  {% endif %}
+                {% endfor %}
+              {% else %}
+                {% assign live_index = 0 %}
+                {% for handle in fallback_handles %}
+                  {% assign collection = collections[handle] %}
+                  {% if collection == blank %}
+                    {% continue %}
+                  {% endif %}
+                  {% assign live_index = live_index | plus: 1 %}
+                  {% liquid
+                    case handle
+                      when 'headphones'
+                        assign card_description = 'Surround yourself in sound.'
+                      when 'earphones'
+                        assign card_description = 'Everyday carry for your pocket.'
+                      when 'speakers'
+                        assign card_description = 'Fill the room with detail.'
+                      when 'accessories'
+                        assign card_description = 'Cables, cases, and extras.'
+                      else
+                        assign card_description = collection.description | strip_html | truncate: 80
+                    endcase
+                    assign card_image = collection.featured_image
+                    if card_image == blank and collection.products.first != blank
+                      assign card_image = collection.products.first.featured_image
+                    endif
+                  %}
+                  <a class="collections-mega-menu__card" href="{{ collection.url }}">
+                    <span class="collections-mega-menu__card-media">
+                      {% if card_image != blank %}
+                        {{
+                          card_image
+                          | image_url: width: 720
+                          | image_tag:
+                            loading: 'lazy',
+                            widths: '220, 320, 440, 560, 720',
+                            sizes: '(min-width: 990px) 16vw, 40vw',
+                            alt: card_image.alt
+                        }}
+                      {% else %}
+                        {{ 'collection-' | append: live_index | placeholder_svg_tag: 'collections-mega-menu__placeholder' }}
+                      {% endif %}
+                    </span>
+                    <span class="collections-mega-menu__card-footer">
+                      <span class="collections-mega-menu__card-copy">
+                        <strong>{{ collection.title }}</strong>
+                        {% if card_description != blank %}
+                          <small>{{ card_description }}</small>
+                        {% endif %}
+                      </span>
+                      <span class="collections-mega-menu__card-arrow" aria-hidden="true">→</span>
+                    </span>
+                  </a>
+                {% endfor %}
+                {% if live_index == 0 %}
+                  {% for collection in collections %}
+                    {% if collection.handle == 'frontpage' or collection.handle == 'all' %}
+                      {% continue %}
+                    {% endif %}
+                    {% if live_index >= 4 %}
+                      {% break %}
+                    {% endif %}
+                    {% assign live_index = live_index | plus: 1 %}
+                    {% liquid
+                      assign card_description = collection.description | strip_html | truncate: 80
+                      assign card_image = collection.featured_image
+                      if card_image == blank and collection.products.first != blank
+                        assign card_image = collection.products.first.featured_image
+                      endif
+                    %}
+                    <a class="collections-mega-menu__card" href="{{ collection.url }}">
+                      <span class="collections-mega-menu__card-media">
+                        {% if card_image != blank %}
+                          {{
+                            card_image
+                            | image_url: width: 720
+                            | image_tag:
+                              loading: 'lazy',
+                              widths: '220, 320, 440, 560, 720',
+                              sizes: '(min-width: 990px) 16vw, 40vw',
+                              alt: card_image.alt
+                          }}
+                        {% else %}
+                          {{ 'collection-' | append: live_index | placeholder_svg_tag: 'collections-mega-menu__placeholder' }}
+                        {% endif %}
+                      </span>
+                      <span class="collections-mega-menu__card-footer">
+                        <span class="collections-mega-menu__card-copy">
+                          <strong>{{ collection.title }}</strong>
+                          {% if card_description != blank %}
+                            <small>{{ card_description }}</small>
+                          {% endif %}
+                        </span>
+                        <span class="collections-mega-menu__card-arrow" aria-hidden="true">→</span>
+                      </span>
+                    </a>
+                  {% endfor %}
+                {% endif %}
+              {% endif %}
+
+              {% liquid
+                assign all_image = menu_settings.collections_all_image
+                if all_image == blank and collections.all.products.first != blank
+                  assign all_image = collections.all.products.first.featured_image
+                endif
+                assign all_title = menu_settings.collections_all_title | default: 'All Collections'
+                assign all_text = menu_settings.collections_all_text | default: 'Check out all our collections.'
+                assign all_url = menu_settings.collections_all_link | default: collection_url
+              %}
+              <a class="collections-mega-menu__card collections-mega-menu__card--featured" href="{{ all_url }}">
+                <span class="collections-mega-menu__card-media">
+                  {% if all_image != blank %}
+                    {{
+                      all_image
+                      | image_url: width: 900
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '280, 440, 640, 900',
+                        sizes: '(min-width: 990px) 16vw, 40vw',
+                        alt: all_image.alt
+                    }}
+                  {% else %}
+                    {{ 'collection-1' | placeholder_svg_tag: 'collections-mega-menu__placeholder' }}
+                  {% endif %}
+                </span>
+                <span class="collections-mega-menu__card-shade"></span>
+                <span class="collections-mega-menu__card-footer">
+                  <span class="collections-mega-menu__card-copy">
+                    <strong>{{ all_title }}</strong>
+                    <small>{{ all_text }}</small>
+                  </span>
+                  <span class="collections-mega-menu__card-arrow" aria-hidden="true">→</span>
+                </span>
+              </a>
+            </div>
+          </collections-mega-menu>
+          <script src="{{ 'collections-mega-menu.js' | asset_url }}" type="module"></script>
+        </div>
+      {% endif %}
+    </li>
+    <li
+      role="presentation"
+      class="menu-list__list-item menu-list__list-item--nav-pill"
+      on:focus="/activate"
+      on:blur="/deactivate"
+      on:pointerenter="/activate"
+      on:pointerleave="/deactivate"
+    >
+      <a
+        href="{{ contact_url }}"
+        data-skip-node-update="true"
+        data-nav-label="Contact"
+        class="menu-list__link"
+        {% if contact_current %}aria-current="page"{% endif %}
+        ref="menuitem"
+      >
+        <span class="menu-list__link-title">Contact</span>
+      </a>
+    </li>
+
+  {%- when 'mobile_bar' -%}
+    <li>
+      <a
+        href="{{ shop_url }}"
+        class="menu-list__item"
+        {% if shop_current %}aria-current="page"{% endif %}
+      >
+        Shop
+      </a>
+    </li>
+    <li>
+      <a
+        href="{{ collection_url }}"
+        class="menu-list__item"
+        {% if collection_current %}aria-current="page"{% endif %}
+      >
+        Collections
+      </a>
+    </li>
+    <li>
+      <a
+        href="{{ contact_url }}"
+        class="menu-list__item"
+        {% if contact_current %}aria-current="page"{% endif %}
+      >
+        Contact
+      </a>
+    </li>
+
+  {%- when 'drawer' -%}
+    <li
+      style="--menu-drawer-animation-index: 1;"
+      class="menu-drawer__list-item--flat"
+    >
+      <a
+        href="{{ shop_url }}"
+        class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset{% if shop_current %} menu-drawer__menu-item--active{% endif %}"
+        {% if shop_current %}aria-current="page"{% endif %}
+      >
+        <span class="menu-drawer__menu-item-text wrap-text">Shop</span>
+      </a>
+    </li>
+    <li
+      style="--menu-drawer-animation-index: 2;"
+      class="menu-drawer__list-item--flat"
+    >
+      <a
+        href="{{ collection_url }}"
+        class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset{% if collection_current %} menu-drawer__menu-item--active{% endif %}"
+        {% if collection_current %}aria-current="page"{% endif %}
+      >
+        <span class="menu-drawer__menu-item-text wrap-text">Collections</span>
+      </a>
+    </li>
+    <li
+      style="--menu-drawer-animation-index: 3;"
+      class="menu-drawer__list-item--flat"
+    >
+      <a
+        href="{{ contact_url }}"
+        class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset{% if contact_current %} menu-drawer__menu-item--active{% endif %}"
+        {% if contact_current %}aria-current="page"{% endif %}
+      >
+        <span class="menu-drawer__menu-item-text wrap-text">Contact</span>
+      </a>
+    </li>
+{%- endcase -%}

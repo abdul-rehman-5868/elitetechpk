@@ -1,0 +1,86 @@
+{% doc %}
+  Cart drawer "You may also like" upsell carousel.
+{% enddoc %}
+
+{% liquid
+  assign upsell_collection = settings.cart_upsell_collection
+  assign upsell_products = blank
+  if upsell_collection != blank
+    assign upsell_products = upsell_collection.products
+  else
+    assign upsell_products = collections.all.products
+  endif
+%}
+
+{% if upsell_products != blank and upsell_products.size > 0 %}
+  <product-pairs-carousel class="cart-drawer-upsell" data-cart-upsell>
+    <div class="cart-drawer-upsell__header">
+      <h3 class="cart-drawer-upsell__heading">You may also like</h3>
+      <div class="cart-drawer-upsell__nav">
+        <button type="button" class="cart-drawer-upsell__arrow" data-pairs-previous aria-label="Previous">
+          {{- 'icon-chevron-left.svg' | inline_asset_content -}}
+        </button>
+        <button type="button" class="cart-drawer-upsell__arrow" data-pairs-next aria-label="Next">
+          {{- 'icon-chevron-right.svg' | inline_asset_content -}}
+        </button>
+      </div>
+    </div>
+
+    <div class="cart-drawer-upsell__track" data-pairs-track>
+      {% assign shown = 0 %}
+      {% for product in upsell_products %}
+        {% if shown >= 6 %}
+          {% break %}
+        {% endif %}
+        {% assign in_cart = false %}
+        {% for item in cart.items %}
+          {% if item.product_id == product.id %}
+            {% assign in_cart = true %}
+            {% break %}
+          {% endif %}
+        {% endfor %}
+        {% unless in_cart %}
+          {% assign variant = product.selected_or_first_available_variant %}
+          <article class="cart-drawer-upsell__item">
+            <a class="cart-drawer-upsell__media" href="{{ product.url }}">
+              {% if product.featured_image != blank %}
+                {{
+                  product.featured_image
+                  | image_url: width: 160
+                  | image_tag: loading: 'lazy', widths: '80, 120, 160', sizes: '56px', alt: product.title
+                }}
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag }}
+              {% endif %}
+            </a>
+            <div class="cart-drawer-upsell__copy">
+              <a class="cart-drawer-upsell__title" href="{{ product.url }}">{{ product.title }}</a>
+              <span class="cart-drawer-upsell__price">{{ variant.price | money }}</span>
+            </div>
+            {% if variant.available %}
+              <quick-add-component
+                class="cart-drawer-upsell__quick-add"
+                data-product-url="{{ product.url }}"
+                data-product-title="{{ product.title | escape }}"
+                data-product-id="{{ product.id }}"
+                data-product-options-count="{{ product.options.size }}"
+                data-uses-selling-plans="{% if product.requires_selling_plan or product.selling_plan_groups.size > 0 %}true{% else %}false{% endif %}"
+              >
+                <button
+                  type="button"
+                  class="cart-drawer-upsell__add"
+                  on:click="quick-add-component/handleClick"
+                >
+                  View
+                </button>
+              </quick-add-component>
+            {% else %}
+              <span class="cart-drawer-upsell__add cart-drawer-upsell__add--disabled">Sold out</span>
+            {% endif %}
+          </article>
+          {% assign shown = shown | plus: 1 %}
+        {% endunless %}
+      {% endfor %}
+    </div>
+  </product-pairs-carousel>
+{% endif %}

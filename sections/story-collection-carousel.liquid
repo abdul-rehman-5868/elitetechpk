@@ -1,0 +1,821 @@
+{% liquid
+  assign selected_collections = section.settings.collection_list
+  assign use_picker = false
+  assign slide_count = 0
+
+  if selected_collections != blank and selected_collections.size > 0
+    assign use_picker = true
+    assign slide_count = selected_collections.size
+  else
+    for collection in collections
+      if collection.handle == 'frontpage' or collection.handle == 'all'
+        continue
+      endif
+      assign slide_count = slide_count | plus: 1
+    endfor
+  endif
+
+  assign show_arrows = true
+  if section.settings.icons_style == 'none' or slide_count <= 1
+    assign show_arrows = false
+  endif
+
+  assign default_subtitle = section.settings.card_subtitle
+-%}
+
+{% capture slides %}
+  {% if use_picker %}
+    {% for collection in selected_collections %}
+      {% capture slide_children %}
+        <a
+          class="story-collection-card"
+          href="{{ collection.url }}"
+          style="
+            --card-bg: {{ section.settings.card_background }};
+            --card-fg: {{ section.settings.card_text_color }};
+            --card-active-bg: {{ section.settings.card_active_background }};
+            --card-active-fg: {{ section.settings.card_active_text_color }};
+            --card-radius: {{ section.settings.card_corner_radius }}px;
+          "
+        >
+          {% liquid
+            assign card_image = collection.featured_image
+            if card_image == blank and collection.products.first != blank
+              assign card_image = collection.products.first.featured_image
+            endif
+          %}
+          {% if card_image != blank and section.settings.show_card_image %}
+            <div class="story-collection-card__media">
+              {{
+                card_image
+                | image_url: width: 1200
+                | image_tag:
+                  widths: '400, 600, 800, 1200',
+                  sizes: '(min-width: 750px) 28vw, 70vw',
+                  loading: 'lazy',
+                  class: 'story-collection-card__image',
+                  alt: collection.title
+              }}
+            </div>
+          {% endif %}
+
+          <div class="story-collection-card__content">
+            <div class="story-collection-card__copy">
+              <h3 class="story-collection-card__title">
+                <span class="story-collection-card__title-text">{{ collection.title }}</span>
+                <sup class="story-collection-card__count">{{ collection.all_products_count }}</sup>
+              </h3>
+              {% if default_subtitle != blank %}
+                <p class="story-collection-card__subtitle">{{ default_subtitle }}</p>
+              {% elsif collection.description != blank %}
+                <p class="story-collection-card__subtitle">
+                  {{ collection.description | strip_html | truncate: 60 }}
+                </p>
+              {% endif %}
+            </div>
+            <span class="story-collection-card__arrow" aria-hidden="true">
+              {{- 'icon-arrow.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        </a>
+      {% endcapture %}
+
+      {% render 'slideshow-slide',
+        index: forloop.index0,
+        children: slide_children,
+        class: 'story-collection-carousel__slide',
+        slide_id: collection.id
+      %}
+    {% endfor %}
+  {% else %}
+    {% assign slide_index = 0 %}
+    {% for collection in collections %}
+      {% if collection.handle == 'frontpage' or collection.handle == 'all' %}
+        {% continue %}
+      {% endif %}
+      {% if slide_index >= 8 %}
+        {% break %}
+      {% endif %}
+      {% capture slide_children %}
+        <a
+          class="story-collection-card"
+          href="{{ collection.url }}"
+          style="
+            --card-bg: {{ section.settings.card_background }};
+            --card-fg: {{ section.settings.card_text_color }};
+            --card-active-bg: {{ section.settings.card_active_background }};
+            --card-active-fg: {{ section.settings.card_active_text_color }};
+            --card-radius: {{ section.settings.card_corner_radius }}px;
+          "
+        >
+          {% liquid
+            assign card_image = collection.featured_image
+            if card_image == blank and collection.products.first != blank
+              assign card_image = collection.products.first.featured_image
+            endif
+          %}
+          {% if card_image != blank and section.settings.show_card_image %}
+            <div class="story-collection-card__media">
+              {{
+                card_image
+                | image_url: width: 1200
+                | image_tag:
+                  widths: '400, 600, 800, 1200',
+                  sizes: '(min-width: 750px) 28vw, 70vw',
+                  loading: 'lazy',
+                  class: 'story-collection-card__image',
+                  alt: collection.title
+              }}
+            </div>
+          {% endif %}
+
+          <div class="story-collection-card__content">
+            <div class="story-collection-card__copy">
+              <h3 class="story-collection-card__title">
+                <span class="story-collection-card__title-text">{{ collection.title }}</span>
+                <sup class="story-collection-card__count">{{ collection.all_products_count }}</sup>
+              </h3>
+              {% if default_subtitle != blank %}
+                <p class="story-collection-card__subtitle">{{ default_subtitle }}</p>
+              {% elsif collection.description != blank %}
+                <p class="story-collection-card__subtitle">
+                  {{ collection.description | strip_html | truncate: 60 }}
+                </p>
+              {% endif %}
+            </div>
+            <span class="story-collection-card__arrow" aria-hidden="true">
+              {{- 'icon-arrow.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        </a>
+      {% endcapture %}
+
+      {% render 'slideshow-slide',
+        index: slide_index,
+        children: slide_children,
+        class: 'story-collection-carousel__slide',
+        slide_id: collection.id
+      %}
+      {% assign slide_index = slide_index | plus: 1 %}
+    {% endfor %}
+  {% endif %}
+{% endcapture %}
+
+<div
+  class="story-collection-section section section--{{ section.settings.section_width }} spacing-style hp-inner-pad"
+  style="
+    --story-gap: {{ section.settings.intro_gap }}px;
+    --carousel-gap: {{ section.settings.columns_gap }}px;
+    --card-height: {{ section.settings.card_height }}px;
+    --column-count: {{ section.settings.columns }};
+    --mobile-card-size: {{ section.settings.mobile_card_size }};
+    --section-bg: {{ section.settings.background_color }};
+    --hp-pad-x-mobile: 0px;
+    --hp-pad-x-desktop: 0px;
+    --hp-pad-x-lg: 0px;
+    {% render 'spacing-padding', settings: section.settings %}
+  "
+>
+  <div class="story-collection-section__intro">
+    <div class="story-collection-section__intro-left">
+      {% if section.settings.heading != blank %}
+        <h2 class="story-collection-section__heading">
+          {{ section.settings.heading }}
+        </h2>
+      {% endif %}
+
+      {% if section.settings.button_label != blank %}
+        {% if section.settings.button_link != blank %}
+          <a class="story-collection-section__button" href="{{ section.settings.button_link }}">
+            <span>{{ section.settings.button_label }}</span>
+            <span class="story-collection-section__button-icon" aria-hidden="true">
+              {{- 'icon-arrow.svg' | inline_asset_content -}}
+            </span>
+          </a>
+        {% else %}
+          <span class="story-collection-section__button">
+            <span>{{ section.settings.button_label }}</span>
+            <span class="story-collection-section__button-icon" aria-hidden="true">
+              {{- 'icon-arrow.svg' | inline_asset_content -}}
+            </span>
+          </span>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    {% if section.settings.body != blank %}
+      <div class="story-collection-section__intro-right rte">
+        {{ section.settings.body }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div
+    class="story-collection-section__carousel"
+    style="--resource-list-column-gap: var(--carousel-gap);"
+  >
+    {% render 'slideshow',
+      ref: 'storyCollectionCarousel',
+      class: 'story-collection-carousel',
+      slides: slides,
+      show_arrows: show_arrows,
+      icon_style: section.settings.icons_style,
+      icon_shape: section.settings.icons_shape,
+      auto_hide_controls: false,
+      infinite: false,
+      initial_slide: 0,
+      slide_count: slide_count
+    %}
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Outside: X 0. Intro keeps content column; carousel uses 12 / 24 / 36px gutter tiers. */
+  .story-collection-carousel-section {
+    --hp-shell-pad-x-mobile: 0px;
+    --hp-shell-pad-x-desktop: 0px;
+  }
+
+  @media screen and (max-width: 749px) {
+    /* Halve the gap between the hero carousel above and this section */
+    .story-collection-carousel-section {
+      --homepage-section-gap: 50px;
+    }
+  }
+
+  .story-collection-section {
+    background: var(--section-bg, #ffffff);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.5rem, 3vw, 2.25rem);
+    padding-inline: 0;
+  }
+
+  .story-collection-section__intro {
+    padding-inline: var(--homepage-content-x-mobile, 20px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--story-gap, 1.5rem);
+    align-items: start;
+    margin-block-start: 75px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .story-collection-section__intro {
+      /* Full width: match the carousel's own gutter below instead of the
+         wider content inset, and halve the gap above. */
+      padding-inline: var(--homepage-gutter, 12px);
+      margin-block-start: 38px;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .story-collection-section__intro {
+      padding-inline: var(--homepage-content-x-desktop, 128px);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+      column-gap: clamp(2rem, 5vw, 4rem);
+    }
+  }
+
+  .story-collection-section__intro-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 44px;
+  }
+
+  .story-collection-section__heading {
+    margin: 0;
+    font-size: clamp(1.85rem, 4vw, 3.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    color: #111111;
+    max-width: 12ch;
+  }
+
+  .story-collection-section__heading em,
+  .story-collection-section__heading i {
+    font-style: normal;
+    position: relative;
+    display: inline-block;
+  }
+
+  .story-collection-section__heading em::after,
+  .story-collection-section__heading i::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.08em;
+    height: 0.18em;
+    background: #f0b27a;
+    border-radius: 999px;
+    opacity: 0.85;
+    z-index: -1;
+  }
+
+  .story-collection-section__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: fit-content;
+    padding: 0.7rem 1.15rem;
+    border: 1px solid #111111;
+    border-radius: 999px;
+    color: #111111;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: transparent;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .story-collection-section__button:hover {
+    background: #111111;
+    color: #ffffff;
+  }
+
+  .story-collection-section__button-icon {
+    display: inline-flex;
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+
+  .story-collection-section__button-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .story-collection-section__intro-right {
+    color: #444444;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    text-align: left;
+    width: 100%;
+    justify-self: start;
+    align-self: start;
+  }
+
+  @media screen and (min-width: 750px) {
+    .story-collection-section__intro-right {
+      /* Desktop keeps a narrower measure so the two-column layout doesn't
+         stretch the description edge-to-edge next to the heading column. */
+      width: 75%;
+      max-width: 75%;
+    }
+  }
+
+  .story-collection-section__intro-right p {
+    margin: 0 0 1rem;
+  }
+
+  .story-collection-section__intro-right p:last-child {
+    margin-bottom: 0;
+  }
+
+  .story-collection-section__carousel {
+    width: 100%;
+    position: relative;
+    margin-inline: 0;
+    padding-inline: var(--homepage-gutter, 12px);
+  }
+
+  @media screen and (max-width: 749px) {
+    .story-collection-section__intro {
+      margin-block-start: 40px;
+    }
+  }
+
+  .story-collection-carousel {
+    width: 100%;
+    container-type: inline-size;
+    container-name: story-collection-carousel;
+    overflow: hidden;
+  }
+
+  .story-collection-carousel .slideshow-control[disabled] {
+    opacity: 0.25;
+    pointer-events: none;
+  }
+
+  .story-collection-carousel slideshow-slides {
+    gap: var(--carousel-gap, 16px);
+    align-items: stretch;
+  }
+
+  .story-collection-carousel__slide {
+    width: var(--mobile-card-size, 70cqw);
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    height: var(--card-height, 420px);
+  }
+
+  @container story-collection-carousel (min-width: 750px) {
+    .story-collection-carousel__slide {
+      /* Exactly N cards across — no side peek */
+      width: calc(
+        (100% - (var(--carousel-gap, 12px) * (var(--column-count) - 1))) / var(--column-count)
+      );
+    }
+  }
+
+  .story-collection-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    width: 100%;
+    border-radius: var(--card-radius, 17px);
+    background: var(--card-bg, #f3f3f3);
+    color: var(--card-fg, #111111);
+    text-decoration: none;
+    overflow: hidden;
+    position: relative;
+    padding: 1.35rem;
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease,
+      border-radius 0.28s ease;
+  }
+
+  .story-collection-card__media {
+    position: absolute;
+    inset: 0;
+    opacity: 0.28;
+    overflow: hidden;
+    transition: opacity 0.25s ease;
+  }
+
+  .story-collection-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1);
+    transition: transform 0.4s ease;
+  }
+
+  .story-collection-card__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .story-collection-card__copy {
+    min-width: 0;
+  }
+
+  .story-collection-card__title {
+    margin: 0;
+    font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+    line-height: 1.1;
+    font-weight: 700;
+  }
+
+  .story-collection-card__title-text {
+    position: relative;
+    display: inline;
+    padding-bottom: 0.08em;
+  }
+
+  .story-collection-card__title-text::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1.5px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.35s ease;
+  }
+
+  .story-collection-card__count {
+    font-size: 0.55em;
+    font-weight: 600;
+    margin-inline-start: 0.2em;
+    vertical-align: super;
+  }
+
+  .story-collection-card__subtitle {
+    margin: 0.55rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    opacity: 0.85;
+  }
+
+  .story-collection-card__arrow {
+    display: inline-flex;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    margin-bottom: 0.15rem;
+    transition: transform 0.3s ease;
+  }
+
+  .story-collection-card__arrow svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .story-collection-card:hover,
+  .story-collection-card:focus-visible,
+  .story-collection-card:active {
+    background: var(--card-active-bg, #8a8a8a);
+    color: var(--card-active-fg, #ffffff);
+  }
+
+  .story-collection-card:hover .story-collection-card__title-text::after,
+  .story-collection-card:focus-visible .story-collection-card__title-text::after,
+  .story-collection-card:active .story-collection-card__title-text::after {
+    transform: scaleX(1);
+  }
+
+  .story-collection-card:hover .story-collection-card__arrow,
+  .story-collection-card:focus-visible .story-collection-card__arrow,
+  .story-collection-card:active .story-collection-card__arrow {
+    transform: rotate(90deg);
+  }
+
+  .story-collection-card:hover .story-collection-card__media,
+  .story-collection-card:focus-visible .story-collection-card__media,
+  .story-collection-card:active .story-collection-card__media {
+    opacity: 0.18;
+  }
+
+  .story-collection-card:hover .story-collection-card__image,
+  .story-collection-card:focus-visible .story-collection-card__image,
+  .story-collection-card:active .story-collection-card__image {
+    transform: scale(1.06);
+  }
+
+  .story-collection-card:focus-visible {
+    outline: 2px solid #111111;
+    outline-offset: 3px;
+  }
+
+  .story-collection-carousel slideshow-arrows {
+    align-items: center;
+    padding-inline: 0.25rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .story-collection-card,
+    .story-collection-card__media,
+    .story-collection-card__image,
+    .story-collection-card__title-text::after,
+    .story-collection-card__arrow,
+    .story-collection-section__button {
+      transition: none;
+    }
+
+    .story-collection-card:hover .story-collection-card__image,
+    .story-collection-card:focus-visible .story-collection-card__image,
+    .story-collection-card:active .story-collection-card__image {
+      transform: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Story collection carousel",
+  "tag": "section",
+  "class": "story-collection-carousel-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Intro"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "We believe in the power of <em>sound</em>"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body text",
+      "default": "<p>Harmony Sound is an audio brand dedicated to providing high-quality audio equipment for audiophiles and music enthusiasts.</p><p>Our mission is to create products that deliver exceptional sound quality and immersive listening experiences.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Our Story"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "range",
+      "id": "intro_gap",
+      "label": "Intro gap",
+      "min": 12,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Collections"
+    },
+    {
+      "type": "collection_list",
+      "id": "collection_list",
+      "label": "Collections"
+    },
+    {
+      "type": "text",
+      "id": "card_subtitle",
+      "label": "Default card subtitle",
+      "info": "Used on every card. Leave blank to use each collection description."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_card_image",
+      "label": "Show collection image",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Visible cards (desktop)",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "mobile_card_size",
+      "label": "Mobile card size",
+      "options": [
+        { "value": "70cqw", "label": "Large" },
+        { "value": "60cqw", "label": "Medium" },
+        { "value": "50cqw", "label": "Small" }
+      ],
+      "default": "70cqw"
+    },
+    {
+      "type": "range",
+      "id": "columns_gap",
+      "label": "Card gap",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "card_height",
+      "label": "Card height",
+      "min": 280,
+      "max": 560,
+      "step": 10,
+      "unit": "px",
+      "default": 400
+    },
+    {
+      "type": "range",
+      "id": "card_corner_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "default": 17
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Section background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#f3f3f3"
+    },
+    {
+      "type": "color",
+      "id": "card_text_color",
+      "label": "Card text",
+      "default": "#111111"
+    },
+    {
+      "type": "color",
+      "id": "card_active_background",
+      "label": "Card hover background",
+      "default": "#8a8a8a"
+    },
+    {
+      "type": "color",
+      "id": "card_active_text_color",
+      "label": "Card hover text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "select",
+      "id": "icons_style",
+      "label": "Icons",
+      "options": [
+        { "value": "arrow", "label": "Arrows" },
+        { "value": "chevron", "label": "Chevrons" },
+        { "value": "arrows_large", "label": "Large arrows" },
+        { "value": "chevron_large", "label": "Large chevrons" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "arrow"
+    },
+    {
+      "type": "select",
+      "id": "icons_shape",
+      "label": "Icon background",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "circle", "label": "Circle" },
+        { "value": "square", "label": "Square" }
+      ],
+      "default": "none",
+      "visible_if": "{{ section.settings.icons_style != 'none' }}"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "Width",
+      "options": [
+        { "value": "page-width", "label": "Page" },
+        { "value": "full-width", "label": "Full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "Top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "Bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    }
+  ],
+  "presets": [
+    {
+      "name": "Story collection carousel",
+      "category": "Collections",
+      "settings": {
+        "heading": "We believe in the power of <em>sound</em>",
+        "body": "<p>Harmony Sound is an audio brand dedicated to providing high-quality audio equipment for audiophiles and music enthusiasts.</p><p>Our mission is to create products that deliver exceptional sound quality and immersive listening experiences.</p>",
+        "button_label": "Our Story",
+        "columns": 4,
+        "columns_gap": 12,
+        "card_height": 400,
+        "card_corner_radius": 17,
+        "icons_style": "arrow",
+        "section_width": "page-width",
+        "padding-block-start": 32,
+        "padding-block-end": 32
+      }
+    }
+  ]
+}
+{% endschema %}

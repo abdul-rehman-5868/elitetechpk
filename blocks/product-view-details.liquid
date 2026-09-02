@@ -1,0 +1,82 @@
+{% liquid
+  assign product = closest.product
+  assign label = block.settings.label
+  if label == blank
+    assign label = 'content.view_more_details' | t
+  endif
+%}
+
+{% if product != blank %}
+  <a
+    class="product-view-details"
+    href="{{ product.url }}"
+    {{ block.shopify_attributes }}
+  >
+    <span>{{ label }}</span>
+    <span class="product-view-details__icon" aria-hidden="true">
+      {{- 'icon-arrow.svg' | inline_asset_content -}}
+    </span>
+  </a>
+{% else %}
+  <span
+    class="product-view-details product-view-details--placeholder"
+    {{ block.shopify_attributes }}
+  >
+    <span>{{ label }}</span>
+    <span class="product-view-details__icon" aria-hidden="true">
+      {{- 'icon-arrow.svg' | inline_asset_content -}}
+    </span>
+  </span>
+{% endif %}
+
+{% stylesheet %}
+  .product-view-details {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #111111;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .product-view-details:hover {
+    opacity: 0.75;
+  }
+
+  .product-view-details__icon {
+    display: inline-flex;
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .product-view-details__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .product-view-details--placeholder {
+    opacity: 0.55;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "View full details",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "View full details"
+    }
+  ],
+  "presets": [
+    {
+      "name": "View full details",
+      "category": "t:categories.product"
+    }
+  ]
+}
+{% endschema %}

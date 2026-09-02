@@ -1,0 +1,36 @@
+{%- comment -%}
+  Home section padding CSS variables.
+
+  Shell (outside) vars target the `.shopify-section` wrapper via the section schema class.
+  Inner vars target the section root element.
+
+  @param {number} shell_x_mobile
+  @param {number} shell_x_desktop
+  @param {number} [shell_y_start_mobile] - default 0
+  @param {number} [shell_y_end_mobile] - default 0
+  @param {number} [shell_y_start_desktop] - default 0
+  @param {number} [shell_y_end_desktop] - default 0
+  @param {number} [pad_x_mobile] - default 0
+  @param {number} [pad_x_desktop] - default 0
+  @param {number} [pad_y_start_mobile] - optional; falls back to spacing-padding
+  @param {number} [pad_y_end_mobile]
+  @param {number} [pad_y_start_desktop]
+  @param {number} [pad_y_end_desktop]
+{%- endcomment -%}
+
+--hp-shell-pad-x-mobile: {{ shell_x_mobile }}px;
+--hp-shell-pad-x-desktop: {{ shell_x_desktop }}px;
+--hp-shell-pad-y-start-mobile: {{ shell_y_start_mobile | default: 0 }}px;
+--hp-shell-pad-y-end-mobile: {{ shell_y_end_mobile | default: 0 }}px;
+--hp-shell-pad-y-start-desktop: {{ shell_y_start_desktop | default: 0 }}px;
+--hp-shell-pad-y-end-desktop: {{ shell_y_end_desktop | default: 0 }}px;
+{%- if pad_x_mobile != blank -%}
+--hp-pad-x-mobile: {{ pad_x_mobile }}px;
+--hp-pad-x-desktop: {{ pad_x_desktop | default: pad_x_mobile }}px;
+{%- endif -%}
+{%- if pad_y_start_mobile != blank -%}
+--hp-pad-y-start-mobile: {{ pad_y_start_mobile }}px;
+--hp-pad-y-end-mobile: {{ pad_y_end_mobile | default: 0 }}px;
+--hp-pad-y-start-desktop: {{ pad_y_start_desktop | default: pad_y_start_mobile }}px;
+--hp-pad-y-end-desktop: {{ pad_y_end_desktop | default: pad_y_end_mobile | default: 0 }}px;
+{%- endif -%}

@@ -1,0 +1,34 @@
+{% doc %}
+  Free shipping progress bar for the cart drawer.
+{% enddoc %}
+
+{% liquid
+  assign threshold = settings.cart_free_shipping_threshold | default: 100 | times: 100.0
+  assign cart_total = cart.total_price
+  if cart_total >= threshold
+    assign progress = 100
+    assign eligible = true
+  else
+    assign eligible = false
+    assign progress = cart_total | times: 100.0 | divided_by: threshold
+    assign remaining = threshold | minus: cart_total
+  endif
+%}
+
+{% if settings.cart_show_free_shipping_bar %}
+  <div
+    class="cart-drawer-shipping{% if eligible %} cart-drawer-shipping--eligible{% endif %}"
+    style="--shipping-progress: {{ progress }}%;"
+  >
+    {% if eligible %}
+      <p class="cart-drawer-shipping__text">You are eligible for free shipping.</p>
+    {% else %}
+      <p class="cart-drawer-shipping__text">
+        Spend {{ remaining | money }} more for free shipping.
+      </p>
+    {% endif %}
+    <div class="cart-drawer-shipping__track" aria-hidden="true">
+      <span class="cart-drawer-shipping__fill"></span>
+    </div>
+  </div>
+{% endif %}

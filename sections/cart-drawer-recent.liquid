@@ -1,0 +1,40 @@
+{% comment %}
+  Lightweight section used by cart drawer to render recently viewed products via search.
+{% endcomment %}
+
+<div data-cart-recent-section>
+  {% if search.performed and search.results_count > 0 %}
+    <ul class="cart-drawer-recent__list">
+      {% for item in search.results %}
+        {% if item.object_type == 'product' %}
+          <li class="cart-drawer-recent__item">
+            <a class="cart-drawer-recent__media" href="{{ item.url }}">
+              {% if item.featured_media %}
+                {{
+                  item.featured_media
+                  | image_url: width: 160
+                  | image_tag: loading: 'lazy', widths: '80, 120, 160', sizes: '64px', alt: item.title
+                }}
+              {% endif %}
+            </a>
+            <div>
+              <a class="cart-drawer-recent__title" href="{{ item.url }}">{{ item.title }}</a>
+              <span class="cart-drawer-recent__price">
+                {{ item.price | money }}
+              </span>
+            </div>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="cart-drawer-recent__empty">No recently viewed products yet.</p>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Cart recently viewed",
+  "settings": []
+}
+{% endschema %}
