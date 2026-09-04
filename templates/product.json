@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "main": {
       "type": "product-information",
@@ -401,14 +402,7 @@
         "meta_highlights": {
           "type": "product-meta-highlights",
           "settings": {
-            "heading": "Product highlights",
-            "fallback_driver_size": "40mm",
-            "fallback_product_weight": "285 g",
-            "fallback_battery_life": "35h",
-            "fallback_bluetooth": "v5.1",
-            "fallback_noise_cancellation": "Adaptive ANC",
-            "fallback_charging_time": "USB-C",
-            "fallback_wireless_range": "10m"
+            "heading": "Product highlights"
           },
           "blocks": {}
         }
@@ -632,7 +626,13 @@
           }
         }
       },
-      "block_order": ["faq_1", "faq_2", "faq_3", "faq_4", "faq_5"],
+      "block_order": [
+        "faq_1",
+        "faq_2",
+        "faq_3",
+        "faq_4",
+        "faq_5"
+      ],
       "settings": {
         "heading": "FAQs",
         "note": "Please read our FAQs page to find out more.",
@@ -661,7 +661,6 @@
         "heading": "You may also like",
         "max_products": 8,
         "columns_gap": 16,
-        "card_radius": 18,
         "card_background": "#F5F5F5",
         "badge_color": "#1F9D55",
         "padding-block-start": 0,

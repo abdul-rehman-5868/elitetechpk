@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "peek_hero_carousel": {
       "type": "peek-hero-carousel",
@@ -14,9 +15,10 @@
         "slide_1": {
           "type": "_peek-slide",
           "settings": {
-            "heading": "Experience unparalleled audio elegance.",
+            "image": "shopify://shop_images/images_10.jpg",
+            "heading": "Experience unparalleled quality.",
             "heading_color": "#ffffff",
-            "button_label": "Shop Headphones",
+            "button_label": "Shop Laptops",
             "button_link": "shopify://collections/all",
             "button_background": "#ffffff",
             "button_text_color": "#111111",
@@ -24,12 +26,14 @@
             "overlay_color": "#00000066",
             "overlay_style": "gradient",
             "gradient_direction": "to top"
-          }
+          },
+          "blocks": {}
         },
         "slide_2": {
           "type": "_peek-slide",
           "settings": {
-            "heading": "Crafted for immersive listening.",
+            "image": "shopify://shop_images/images_8.jpg",
+            "heading": "Crafted for work.",
             "heading_color": "#ffffff",
             "button_label": "Shop Collection",
             "button_link": "shopify://collections/all",
@@ -39,12 +43,14 @@
             "overlay_color": "#00000066",
             "overlay_style": "gradient",
             "gradient_direction": "to top"
-          }
+          },
+          "blocks": {}
         },
         "slide_3": {
           "type": "_peek-slide",
           "settings": {
-            "heading": "Premium sound. Timeless design.",
+            "image": "shopify://shop_images/images_7.jpg",
+            "heading": "Premium speed. Timeless design.",
             "heading_color": "#ffffff",
             "button_label": "Explore Now",
             "button_link": "shopify://collections/all",
@@ -54,7 +60,8 @@
             "overlay_color": "#00000066",
             "overlay_style": "gradient",
             "gradient_direction": "to top"
-          }
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -79,21 +86,20 @@
     "story_collection_carousel": {
       "type": "story-collection-carousel",
       "settings": {
-        "heading": "We believe in the power of <em>sound</em>",
-        "body": "<p>Harmony Sound is an audio brand dedicated to providing high-quality audio equipment for audiophiles and music enthusiasts.</p><p>Our mission is to create products that deliver exceptional sound quality and immersive listening experiences.</p>",
+        "heading": "We believe in the power of <em>technology</em>",
+        "body": "<p>Elite Tech is a laptop and computer brand dedicated to providing high-quality technology for work, creativity, and everyday life.</p><p>Our mission is to deliver reliable, powerful products that combine performance, thoughtful design, and an exceptional user experience.</p>",
         "button_label": "Our Story",
         "button_link": "shopify://pages/about",
+        "intro_gap": 48,
         "collection_list": [
           "headphones",
           "earphones",
           "speakers",
           "accessories"
         ],
-        "intro_gap": 48,
         "card_subtitle": "",
         "show_card_image": true,
         "columns": 4,
-        "mobile_card_size": "70cqw",
         "columns_gap": 12,
         "card_height": 400,
         "card_corner_radius": 17,
@@ -112,14 +118,15 @@
     "immersive_video_banner": {
       "type": "immersive-video-banner",
       "settings": {
-        "heading": "Sound. Sculpted.",
-        "subheading": "A speaker that excites the eye and ear from every angle.",
-        "button_label": "Shop Echo Elegance",
-        "button_link": "shopify://collections/all",
+        "video": "shopify://files/videos/10822-226624975.mp4",
         "autoplay": true,
         "loop": true,
         "height": "large",
         "corner_radius": 17,
+        "heading": "Tech. Future.",
+        "subheading": "A Laptop that gets it done",
+        "button_label": "Shop Latops",
+        "button_link": "shopify://collections/all",
         "content_max_width": 40,
         "overlay_color": "#00000059",
         "text_color": "#ffffff",
@@ -154,18 +161,20 @@
             "padding-block-end": 0,
             "padding-inline-start": 0,
             "padding-inline-end": 0
-          }
+          },
+          "blocks": {}
         },
         "featured-badge": {
           "type": "featured-product-badge",
           "static": true,
           "settings": {
-            "label": "FEATURED PRODUCT \u2022 FEATURED PRODUCT \u2022 ",
+            "label": "FEATURED PRODUCT • FEATURED PRODUCT •",
             "size": 96,
             "background_color": "#ffffff",
             "text_color": "#111111",
             "hide_on_mobile": true
-          }
+          },
+          "blocks": {}
         },
         "product-highlights": {
           "type": "product-highlights",
@@ -191,7 +200,8 @@
             "item_6_icon": "lightning_bolt",
             "item_6_title": "USB-C",
             "item_6_caption": "Connector"
-          }
+          },
+          "blocks": {}
         },
         "product-details": {
           "type": "_product-details",
@@ -202,9 +212,18 @@
             "width_mobile": "fill",
             "custom_width_mobile": 100,
             "height": "fit",
+            "details_position": "flex-start",
             "gap": 20,
             "sticky_details_desktop": true,
+            "background_media": "none",
             "background_color": "#ffffff",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
+            "border_radius": 0,
             "padding-block-start": 0,
             "padding-block-end": 0,
             "padding-inline-start": 0,
@@ -219,7 +238,16 @@
                 "max_width": "none",
                 "alignment": "left",
                 "type_preset": "paragraph",
+                "font": "var(--font-body--family)",
                 "font_size": "0.8rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
@@ -235,12 +263,32 @@
                 "vertical_on_mobile": true,
                 "horizontal_alignment": "space-between",
                 "vertical_alignment": "flex-start",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
                 "gap": 16,
                 "width": "fill",
                 "custom_width": 100,
                 "width_mobile": "fill",
                 "custom_width_mobile": 100,
                 "height": "fit",
+                "custom_height": 100,
+                "background_media": "none",
+                "background_color": "",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 0,
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
@@ -255,6 +303,16 @@
                     "max_width": "none",
                     "alignment": "left",
                     "type_preset": "h3",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
                     "padding-block-start": 0,
                     "padding-block-end": 0,
                     "padding-inline-start": 0,
@@ -271,6 +329,13 @@
                     "show_tax_info": false,
                     "type_preset": "h5",
                     "width": "fit-content",
+                    "alignment": "left",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "text_color": "",
                     "padding-block-start": 0,
                     "padding-block-end": 0,
                     "padding-inline-start": 0,
@@ -289,6 +354,7 @@
               "settings": {
                 "stars_style": "shaded",
                 "show_number": true,
+                "text_color": "",
                 "type_preset": "paragraph",
                 "width": "100%",
                 "alignment": "left"
@@ -298,10 +364,21 @@
             "description": {
               "type": "product-description",
               "settings": {
+                "text": "",
                 "width": "100%",
                 "max_width": "none",
                 "alignment": "left",
                 "type_preset": "paragraph",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
@@ -314,7 +391,16 @@
               "settings": {
                 "variant_style": "buttons",
                 "show_swatches": true,
+                "option_label_text_color": "",
                 "variant_style_class": "default",
+                "custom_variant_background": "{{ settings.color_palette.background }}",
+                "custom_variant_text": "{{ settings.color_palette.foreground }}",
+                "custom_variant_border": "{{ settings.color_palette.foreground }}",
+                "selected_variant_style_class": "default",
+                "custom_selected_variant_background": "{{ settings.color_palette.foreground }}",
+                "custom_selected_variant_text": "{{ settings.color_palette.background }}",
+                "custom_selected_variant_border": "{{ settings.color_palette.foreground }}",
+                "alignment": "left",
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
@@ -327,6 +413,7 @@
               "settings": {
                 "inventory_threshold": 10,
                 "show_inventory_quantity": true,
+                "text_color": "",
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
@@ -339,8 +426,23 @@
               "name": "t:names.product_buy_buttons",
               "settings": {
                 "stacking": true,
+                "text_color": "",
                 "show_pickup_availability": false,
                 "gift_card_form": false,
+                "recipient_button_style": "default",
+                "recipient_button_background": "{{ settings.color_palette.background }}",
+                "recipient_button_text": "{{ settings.color_palette.foreground }}",
+                "recipient_button_border": "{{ settings.color_palette.foreground }}",
+                "selected_recipient_button_style": "default",
+                "selected_recipient_button_background": "{{ settings.color_palette.foreground }}",
+                "selected_recipient_button_text": "{{ settings.color_palette.background }}",
+                "selected_recipient_button_border": "{{ settings.color_palette.foreground }}",
+                "input_style": "default",
+                "input_background_color": "{{ settings.color_palette.background }}",
+                "input_text_color": "{{ settings.color_palette.foreground }}",
+                "input_border_color": "{{ settings.color_palette.foreground }}",
+                "border_width": 1,
+                "border_radius": 0,
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
@@ -350,19 +452,32 @@
                 "quantity": {
                   "type": "quantity",
                   "static": true,
-                  "settings": {}
+                  "settings": {
+                    "input_style": "default",
+                    "input_background_color": "{{ settings.color_palette.background }}",
+                    "input_text_color": "{{ settings.color_palette.foreground }}",
+                    "input_border_color": "{{ settings.color_palette.foreground }}",
+                    "border_width": 1,
+                    "border_radius": 0
+                  },
+                  "blocks": {}
                 },
                 "add-to-cart": {
                   "type": "add-to-cart",
                   "static": true,
                   "settings": {
-                    "style_class": "button"
-                  }
+                    "style_class": "button",
+                    "custom_button_background": "{{ settings.color_palette.foreground }}",
+                    "custom_button_text": "{{ settings.color_palette.background }}",
+                    "custom_button_border": "{{ settings.color_palette.background }}"
+                  },
+                  "blocks": {}
                 },
                 "accelerated-checkout": {
                   "type": "accelerated-checkout",
                   "static": true,
-                  "settings": {}
+                  "settings": {},
+                  "blocks": {}
                 }
               },
               "block_order": []
@@ -418,7 +533,6 @@
           ]
         }
       },
-      "block_order": [],
       "name": "Featured product showcase",
       "settings": {
         "product": "apex-ultrabook-14",
@@ -442,41 +556,50 @@
           "type": "comparison-slider",
           "static": true,
           "settings": {
+            "before_image": "shopify://shop_images/images_7.jpg",
+            "after_image": "shopify://shop_images/WhatsApp_Image_2026-09-02_at_7.51.14_AM_3.jpg",
             "slider_style": "horizontal",
             "show_text": true,
             "before_text": "Flow Harmony|Gold Tone",
             "after_text": "Flow Harmony|Crimson Shadow",
             "text_preset": "h6",
             "text_position_horizontal": "end",
+            "text_position_vertical": "start",
             "text_background": false,
+            "text_background_color": "{{ settings.color_palette.background }}",
+            "text_corner_radius": 0,
             "text_color": "#ffffff",
             "image_ratio": "landscape",
             "width": "fill",
+            "custom_width": 100,
             "width_mobile": "fill",
+            "custom_width_mobile": 100,
             "height": "fit",
             "slider_bg_color": "#ffffff",
             "slider_handle_color": "#777777",
             "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
             "border_radius": 17,
             "padding-block-start": 0,
             "padding-block-end": 0,
             "padding-inline-start": 0,
             "padding-inline-end": 0
-          }
+          },
+          "blocks": {}
         }
       },
-      "block_order": [],
       "name": "Image compare showcase",
       "settings": {
         "eyebrow": "Sound in Spectrum",
-        "heading": "<em>Vibrant</em> Headphone Choices",
+        "heading": "<em>Vibrant</em> Laptop Choices",
         "eyebrow_color": "#111111",
         "heading_color": "#111111",
         "accent_start": "#c4a574",
         "accent_end": "#8b6914",
         "background_color": "#ffffff",
         "corner_radius": 17,
-        "padding_inline_mobile": 12,
         "padding-block-start": 0,
         "padding-block-end": 0
       }
@@ -487,7 +610,7 @@
         "text_RGxHtE": {
           "type": "text",
           "settings": {
-            "text": "<h2>Effort \u25cb Play anything \u25cb Different</h2>",
+            "text": "<h2>Effort ○ Create anything ○ Different</h2>",
             "width": "fit-content",
             "max_width": "none",
             "alignment": "left",
@@ -499,7 +622,6 @@
             "case": "none",
             "wrap": "nowrap",
             "text_color": "#171717",
-            "font_weight": "900 !important",
             "background": false,
             "background_color": "#00000026",
             "corner_radius": 0,
@@ -538,11 +660,12 @@
       "type": "parallax-sale-banner",
       "name": "Parallax sale banner",
       "settings": {
+        "image": "shopify://shop_images/WhatsApp_Image_2026-09-02_at_7.51.14_AM_5.jpg",
         "image_position": "center center",
         "height": "medium",
         "parallax_strength": 48,
         "corner_radius": 17,
-        "heading": "Get up to 50% off\non waterproof speakers",
+        "heading": "Get up to 10% off\non gaming Laptops",
         "subheading": "",
         "button_label": "Discover sales",
         "button_link": "shopify://collections/all",
@@ -561,7 +684,7 @@
         "hotspot_1": {
           "type": "hotspot_product",
           "settings": {
-            "product": "apex-overear-pro",
+            "product": "dell-aero-14",
             "x_position": 58,
             "y_position": 42,
             "rating": "5.0"
@@ -570,7 +693,7 @@
         "hotspot_2": {
           "type": "hotspot_product",
           "settings": {
-            "product": "apex-overear-lite",
+            "product": "acer-aspireflow-15",
             "x_position": 42,
             "y_position": 68,
             "rating": "5.0"
@@ -583,8 +706,9 @@
       ],
       "name": "Hotspot product showcase",
       "settings": {
-        "eyebrow": "Premium Speakers",
-        "heading": "Bring Quality Sound into Your Home",
+        "image": "shopify://shop_images/images_10.jpg",
+        "eyebrow": "Premium Laptops",
+        "heading": "Bring Quality Latops In you Reach",
         "button_label": "Choose options",
         "corner_radius": 17,
         "gap": 40,
@@ -634,6 +758,7 @@
       ],
       "name": "Review quote slider",
       "settings": {
+        "image": "shopify://shop_images/images_8.jpg",
         "overlay_opacity": 55,
         "height": "medium",
         "corner_radius": 17,
@@ -678,13 +803,15 @@
           "type": "brand_logo",
           "settings": {
             "label": "Apple",
+            "alt": "",
             "logo_width": 100
           }
         },
         "logo_2": {
           "type": "brand_logo",
           "settings": {
-            "label": "Bowers & Wilkins",
+            "label": "Asus",
+            "alt": "",
             "logo_width": 190
           }
         },
@@ -692,34 +819,39 @@
           "type": "brand_logo",
           "settings": {
             "label": "urbanista",
+            "alt": "",
             "logo_width": 140
           }
         },
         "logo_4": {
           "type": "brand_logo",
           "settings": {
-            "label": "B&O",
+            "label": "Macbook",
+            "alt": "",
             "logo_width": 100
           }
         },
         "logo_5": {
           "type": "brand_logo",
           "settings": {
-            "label": "BOSE",
+            "label": "Hp",
+            "alt": "",
             "logo_width": 110
           }
         },
         "logo_6": {
           "type": "brand_logo",
           "settings": {
-            "label": "Master & Dynamic",
+            "label": "DELL",
+            "alt": "",
             "logo_width": 170
           }
         },
         "logo_7": {
           "type": "brand_logo",
           "settings": {
-            "label": "logitech",
+            "label": "Lenovo",
+            "alt": "",
             "logo_width": 130
           }
         }
