@@ -366,8 +366,6 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 0;
-        height: calc(100svh - var(--header-height, 96px));
-    min-height: 20rem;
   }
 
   .hps__media {
@@ -376,9 +374,25 @@
     border-radius: var(--hps-radius, 17px);
     overflow: hidden;
     background: #ececec;
-    /* Fits the remaining viewport below the navbar on both breakpoints. */
-min-height:30rem;
+    /* Responsive height via aspect-ratio instead of a viewport-height calc.
+       The previous height: calc(100svh - header-height) lived on
+       .hps__layout (the whole title+image+cards stack), squeezing
+       everything into one viewport height and letting
+       .hotspot-product-showcase's overflow: clip cut off the product cards
+       below the image. aspect-ratio scales with the section's own width
+       instead of fighting with page height, so the cards below always get
+       the room they need on both breakpoints. */
+    width:100%;
+    min-height: 20rem;
+    max-height: 34rem;
     margin-block-end: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  @media screen and (min-width: 750px) {
+    .hps__media {
+      aspect-ratio: 16 / 9;
+      max-height: 42rem;
+    }
   }
 
   .hps__lifestyle-image,

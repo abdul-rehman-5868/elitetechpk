@@ -519,49 +519,20 @@
     "product_tech_specs": {
       "type": "product-tech-specs",
       "blocks": {
-        "spec_sound": {
+        "spec_performance": {
           "type": "spec_group",
           "settings": {
-            "title": "Sound",
+            "title": "Performance",
             "open_by_default": true,
-            "col_1_heading": "Advanced Sound Features",
-            "col_1_body": "<p>- Adaptive Active Noise Cancellation<br>- Transparency mode<br>- Spatial audio support</p>",
-            "col_2_heading": "Frequency Range",
-            "col_2_body": "<p>- 20 Hz – 20 kHz</p>",
-            "col_3_heading": "Driver Type & Size",
-            "col_3_body": "<p>- Dynamic drivers<br>- 40 mm</p>",
-            "col_4_heading": "Customizable Sound EQ",
-            "col_4_body": "<p>- App-based EQ presets<br>- Custom profiles</p>"
+            "group_kind": "performance"
           }
         },
-        "spec_design": {
+        "spec_display": {
           "type": "spec_group",
           "settings": {
-            "title": "Design",
+            "title": "Display",
             "open_by_default": false,
-            "col_1_heading": "Designer",
-            "col_1_body": "<p>- MNML</p>",
-            "col_2_heading": "Fit",
-            "col_2_body": "<p>- Over-ear</p>",
-            "col_3_heading": "Materials",
-            "col_3_body": "<p>- Aluminium, Leather, Fabric, Polymer, Rubber</p>",
-            "col_4_heading": "Dust and Waterproof Rating",
-            "col_4_body": "<p>- IP53</p>"
-          }
-        },
-        "spec_battery": {
-          "type": "spec_group",
-          "settings": {
-            "title": "Battery",
-            "open_by_default": false,
-            "col_1_heading": "Battery life",
-            "col_1_body": "<p>- Up to 30 hours with ANC</p>",
-            "col_2_heading": "Charging",
-            "col_2_body": "<p>- USB-C fast charge</p>",
-            "col_3_heading": "Quick charge",
-            "col_3_body": "<p>- 10 min = 5 hours</p>",
-            "col_4_heading": "Standby",
-            "col_4_body": "<p>- Auto sleep after idle</p>"
+            "group_kind": "display"
           }
         },
         "spec_connectivity": {
@@ -569,62 +540,41 @@
           "settings": {
             "title": "Connectivity",
             "open_by_default": false,
-            "col_1_heading": "Bluetooth",
-            "col_1_body": "<p>- Bluetooth 5.1</p>",
-            "col_2_heading": "Codecs",
-            "col_2_body": "<p>- AAC, SBC</p>",
-            "col_3_heading": "Wired",
-            "col_3_body": "<p>- 3.5 mm audio</p>",
-            "col_4_heading": "Multipoint",
-            "col_4_body": "<p>- Two devices</p>"
+            "group_kind": "connectivity"
           }
         },
-        "included_1": {
-          "type": "included_item",
+        "spec_battery": {
+          "type": "spec_group",
           "settings": {
-            "icon_preset": "headphones",
-            "label": "Headphones"
+            "title": "Battery & Power",
+            "open_by_default": false,
+            "group_kind": "battery"
           }
         },
-        "included_2": {
-          "type": "included_item",
+        "spec_design": {
+          "type": "spec_group",
           "settings": {
-            "icon_preset": "case",
-            "label": "Fabric carrying case"
+            "title": "Design",
+            "open_by_default": false,
+            "group_kind": "design"
           }
         },
-        "included_3": {
-          "type": "included_item",
+        "spec_os": {
+          "type": "spec_group",
           "settings": {
-            "icon_preset": "usb_cable",
-            "label": "USB-A to USB-C cable, 1.25 m"
-          }
-        },
-        "included_4": {
-          "type": "included_item",
-          "settings": {
-            "icon_preset": "audio_cable",
-            "label": "3.5 mm audio cable, 1.25 m"
-          }
-        },
-        "included_5": {
-          "type": "included_item",
-          "settings": {
-            "icon_preset": "manual",
-            "label": "Quick Start Guide"
+            "title": "Operating System",
+            "open_by_default": false,
+            "group_kind": "operating_system"
           }
         }
       },
       "block_order": [
-        "spec_sound",
-        "spec_design",
-        "spec_battery",
+        "spec_performance",
+        "spec_display",
         "spec_connectivity",
-        "included_1",
-        "included_2",
-        "included_3",
-        "included_4",
-        "included_5"
+        "spec_battery",
+        "spec_design",
+        "spec_os"
       ],
       "settings": {
         "heading": "Tech Specs",

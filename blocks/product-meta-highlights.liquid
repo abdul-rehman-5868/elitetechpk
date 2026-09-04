@@ -1,15 +1,14 @@
 {% liquid
   assign product = closest.product
-  assign driver_size = product.metafields.custom.driver_size.value | default: block.settings.fallback_driver_size
-  assign product_weight = product.metafields.custom.product_weight.value | default: block.settings.fallback_product_weight
-  assign battery_life = product.metafields.custom.battery_life.value | default: block.settings.fallback_battery_life
-  assign bluetooth_version = product.metafields.custom.bluetooth_version.value | default: block.settings.fallback_bluetooth
-  assign charging_time = product.metafields.custom.charging_time.value | default: block.settings.fallback_charging_time
-  assign wireless_range = product.metafields.custom.wireless_range.value | default: block.settings.fallback_wireless_range
-  assign noise_cancellation = product.metafields.custom.noise_cancellation.value | default: block.settings.fallback_noise_cancellation
+  assign processor = product.metafields.custom.processor.value
+  assign ram = product.metafields.custom.ram.value
+  assign storage = product.metafields.custom.storage.value
+  assign display_spec = product.metafields.custom.display.value
+  assign battery_life = product.metafields.custom.battery_life.value
+  assign weight = product.metafields.custom.weight.value
 
   assign has_specs = false
-  if driver_size != blank or product_weight != blank or battery_life != blank or bluetooth_version != blank or charging_time != blank or wireless_range != blank or noise_cancellation != blank
+  if processor != blank or ram != blank or storage != blank or display_spec != blank or battery_life != blank or weight != blank
     assign has_specs = true
   endif
 %}
@@ -25,66 +24,57 @@
     {% endif %}
 
     <div class="product-meta-highlights__grid">
-      {% if driver_size != blank %}
+      {% if processor != blank %}
         <article class="product-meta-highlights__item">
-          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'ruler' %}</svg></span>
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'lightning_bolt' %}</svg></span>
           <div class="product-meta-highlights__copy">
-            <strong>{{ driver_size }}</strong>
-            <small>Driver size</small>
+            <strong>{{ processor }}</strong>
+            <small>Processor</small>
           </div>
         </article>
       {% endif %}
-      {% if product_weight != blank %}
+      {% if ram != blank %}
         <article class="product-meta-highlights__item">
           <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'box' %}</svg></span>
           <div class="product-meta-highlights__copy">
-            <strong>{{ product_weight }}</strong>
-            <small>Product weight</small>
+            <strong>{{ ram }}</strong>
+            <small>Memory (RAM)</small>
+          </div>
+        </article>
+      {% endif %}
+      {% if storage != blank %}
+        <article class="product-meta-highlights__item">
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'check_box' %}</svg></span>
+          <div class="product-meta-highlights__copy">
+            <strong>{{ storage }}</strong>
+            <small>Storage</small>
+          </div>
+        </article>
+      {% endif %}
+      {% if display_spec != blank %}
+        <article class="product-meta-highlights__item">
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'eye' %}</svg></span>
+          <div class="product-meta-highlights__copy">
+            <strong>{{ display_spec }}</strong>
+            <small>Display</small>
           </div>
         </article>
       {% endif %}
       {% if battery_life != blank %}
         <article class="product-meta-highlights__item">
-          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'lightning_bolt' %}</svg></span>
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'star' %}</svg></span>
           <div class="product-meta-highlights__copy">
             <strong>{{ battery_life }}</strong>
             <small>Battery life</small>
           </div>
         </article>
       {% endif %}
-      {% if bluetooth_version != blank %}
+      {% if weight != blank %}
         <article class="product-meta-highlights__item">
-          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'star' %}</svg></span>
+          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'ruler' %}</svg></span>
           <div class="product-meta-highlights__copy">
-            <strong>{{ bluetooth_version }}</strong>
-            <small>Bluetooth</small>
-          </div>
-        </article>
-      {% endif %}
-      {% if noise_cancellation != blank %}
-        <article class="product-meta-highlights__item">
-          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'eye' %}</svg></span>
-          <div class="product-meta-highlights__copy">
-            <strong>{{ noise_cancellation }}</strong>
-            <small>Noise cancellation</small>
-          </div>
-        </article>
-      {% endif %}
-      {% if charging_time != blank %}
-        <article class="product-meta-highlights__item">
-          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'check_box' %}</svg></span>
-          <div class="product-meta-highlights__copy">
-            <strong>{{ charging_time }}</strong>
-            <small>Connector</small>
-          </div>
-        </article>
-      {% endif %}
-      {% if wireless_range != blank %}
-        <article class="product-meta-highlights__item">
-          <span class="product-meta-highlights__icon" aria-hidden="true"><svg viewBox="0 0 20 20">{% render 'icon', icon: 'lock' %}</svg></span>
-          <div class="product-meta-highlights__copy">
-            <strong>{{ wireless_range }}</strong>
-            <small>Wireless range</small>
+            <strong>{{ weight }}</strong>
+            <small>Weight</small>
           </div>
         </article>
       {% endif %}
@@ -176,54 +166,8 @@
       "default": "Product highlights"
     },
     {
-      "type": "header",
-      "content": "Fallback values"
-    },
-    {
       "type": "paragraph",
-      "content": "Used when product metafields are empty so the section still appears."
-    },
-    {
-      "type": "text",
-      "id": "fallback_driver_size",
-      "label": "Driver size",
-      "default": "40mm"
-    },
-    {
-      "type": "text",
-      "id": "fallback_product_weight",
-      "label": "Product weight",
-      "default": "285 g"
-    },
-    {
-      "type": "text",
-      "id": "fallback_battery_life",
-      "label": "Battery life",
-      "default": "35h"
-    },
-    {
-      "type": "text",
-      "id": "fallback_bluetooth",
-      "label": "Bluetooth",
-      "default": "v5.1"
-    },
-    {
-      "type": "text",
-      "id": "fallback_noise_cancellation",
-      "label": "Noise cancellation",
-      "default": "Adaptive ANC"
-    },
-    {
-      "type": "text",
-      "id": "fallback_charging_time",
-      "label": "Connector",
-      "default": "USB-C"
-    },
-    {
-      "type": "text",
-      "id": "fallback_wireless_range",
-      "label": "Wireless range",
-      "default": "10m"
+      "content": "Reads product.metafields.custom.processor / ram / storage / display / battery_life / weight. No fallback text — an item is hidden if its metafield is blank, and the whole section is hidden if none are set."
     }
   ],
   "presets": [

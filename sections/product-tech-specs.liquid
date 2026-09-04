@@ -1,6 +1,7 @@
 {% liquid
   assign heading = section.settings.heading
   assign included_heading = section.settings.included_heading
+  assign product = closest.product
 %}
 
 <script
@@ -33,71 +34,118 @@
       <div class="product-tech-specs__accordion">
         {% for block in section.blocks %}
           {% if block.type != 'spec_group' %}{% continue %}{% endif %}
-          <details
-            class="product-tech-specs__group"
-            {% if block.settings.open_by_default %}open{% endif %}
-            {{ block.shopify_attributes }}
-          >
-            <summary class="product-tech-specs__summary">
-              <span>{{ block.settings.title | escape }}</span>
-              <span class="product-tech-specs__icon" aria-hidden="true">
-                <span class="product-tech-specs__icon-plus">
-                  <span class="svg-wrapper">{{ 'icon-plus.svg' | inline_asset_content }}</span>
+
+          {% liquid
+            assign group_kind = block.settings.group_kind
+            assign spec_1_label = blank
+            assign spec_1_value = blank
+            assign spec_2_label = blank
+            assign spec_2_value = blank
+            assign spec_3_label = blank
+            assign spec_3_value = blank
+            assign spec_4_label = blank
+            assign spec_4_value = blank
+
+            case group_kind
+              when 'performance'
+                assign spec_1_label = 'Processor'
+                assign spec_1_value = product.metafields.custom.processor.value
+                assign spec_2_label = 'Graphics'
+                assign spec_2_value = product.metafields.custom.graphics.value
+                assign spec_3_label = 'Memory (RAM)'
+                assign spec_3_value = product.metafields.custom.ram.value
+                assign spec_4_label = 'Storage'
+                assign spec_4_value = product.metafields.custom.storage.value
+              when 'display'
+                assign spec_1_label = 'Display'
+                assign spec_1_value = product.metafields.custom.display.value
+                assign spec_2_label = 'Resolution'
+                assign spec_2_value = product.metafields.custom.display_resolution.value
+                assign spec_3_label = 'Refresh rate'
+                assign spec_3_value = product.metafields.custom.refresh_rate.value
+              when 'connectivity'
+                assign spec_1_label = 'Ports'
+                assign spec_1_value = product.metafields.custom.ports.value
+                assign spec_2_label = 'Wi-Fi'
+                assign spec_2_value = product.metafields.custom.wifi.value
+                assign spec_3_label = 'Bluetooth'
+                assign spec_3_value = product.metafields.custom.bluetooth_version.value
+                assign spec_4_label = 'Webcam'
+                assign spec_4_value = product.metafields.custom.webcam.value
+              when 'battery'
+                assign spec_1_label = 'Battery life'
+                assign spec_1_value = product.metafields.custom.battery_life.value
+                assign spec_2_label = 'Charger'
+                assign spec_2_value = product.metafields.custom.charger_wattage.value
+              when 'design'
+                assign spec_1_label = 'Dimensions'
+                assign spec_1_value = product.metafields.custom.dimensions.value
+                assign spec_2_label = 'Weight'
+                assign spec_2_value = product.metafields.custom.weight.value
+                assign spec_3_label = 'Color'
+                assign spec_3_value = product.metafields.custom.color.value
+                assign spec_4_label = 'Material'
+                assign spec_4_value = product.metafields.custom.material.value
+              when 'operating_system'
+                assign spec_1_label = 'Operating system'
+                assign spec_1_value = product.metafields.custom.operating_system.value
+            endcase
+
+            assign has_group_specs = false
+            if spec_1_value != blank or spec_2_value != blank or spec_3_value != blank or spec_4_value != blank
+              assign has_group_specs = true
+            endif
+          %}
+
+          {% if has_group_specs %}
+            <details
+              class="product-tech-specs__group"
+              {% if block.settings.open_by_default %}open{% endif %}
+              {{ block.shopify_attributes }}
+            >
+              <summary class="product-tech-specs__summary">
+                <span>{{ block.settings.title | escape }}</span>
+                <span class="product-tech-specs__icon" aria-hidden="true">
+                  <span class="product-tech-specs__icon-plus">
+                    <span class="svg-wrapper">{{ 'icon-plus.svg' | inline_asset_content }}</span>
+                  </span>
+                  <span class="product-tech-specs__icon-close">
+                    <span class="svg-wrapper">{{ 'icon-accordion-close.svg' | inline_asset_content }}</span>
+                  </span>
                 </span>
-                <span class="product-tech-specs__icon-close">
-                  <span class="svg-wrapper">{{ 'icon-accordion-close.svg' | inline_asset_content }}</span>
-                </span>
-              </span>
-            </summary>
-            <div class="product-tech-specs__panel">
-              <div class="product-tech-specs__grid">
-                {% if block.settings.col_1_heading != blank or block.settings.col_1_body != blank %}
-                  <div class="product-tech-specs__col">
-                    {% if block.settings.col_1_heading != blank %}
-                      <h3 class="product-tech-specs__col-heading">{{ block.settings.col_1_heading | escape }}</h3>
-                    {% endif %}
-                    {% if block.settings.col_1_body != blank %}
-                      <div class="product-tech-specs__col-body rte">{{ block.settings.col_1_body }}</div>
-                    {% endif %}
-                  </div>
-                {% endif %}
-                {% if block.settings.col_2_heading != blank or block.settings.col_2_body != blank %}
-                  <div class="product-tech-specs__col">
-                    {% if block.settings.col_2_heading != blank %}
-                      <h3 class="product-tech-specs__col-heading">{{ block.settings.col_2_heading | escape }}</h3>
-                    {% endif %}
-                    {% if block.settings.col_2_body != blank %}
-                      <div class="product-tech-specs__col-body rte">{{ block.settings.col_2_body }}</div>
-                    {% endif %}
-                  </div>
-                {% endif %}
-                {% if block.settings.col_3_heading != blank or block.settings.col_3_body != blank %}
-                  <div class="product-tech-specs__col">
-                    {% if block.settings.col_3_heading != blank %}
-                      <h3 class="product-tech-specs__col-heading">{{ block.settings.col_3_heading | escape }}</h3>
-                    {% endif %}
-                    {% if block.settings.col_3_body != blank %}
-                      <div class="product-tech-specs__col-body rte">{{ block.settings.col_3_body }}</div>
-                    {% endif %}
-                  </div>
-                {% endif %}
-                {% if block.settings.col_4_heading != blank or block.settings.col_4_body != blank %}
-                  <div class="product-tech-specs__col">
-                    {% if block.settings.col_4_heading != blank %}
-                      <h3 class="product-tech-specs__col-heading">{{ block.settings.col_4_heading | escape }}</h3>
-                    {% endif %}
-                    {% if block.settings.col_4_body != blank %}
-                      <div class="product-tech-specs__col-body rte">{{ block.settings.col_4_body }}</div>
-                    {% endif %}
-                  </div>
-                {% endif %}
+              </summary>
+              <div class="product-tech-specs__panel">
+                <div class="product-tech-specs__grid">
+                  {% render 'product-tech-specs-column', heading: spec_1_label, value: spec_1_value %}
+                  {% render 'product-tech-specs-column', heading: spec_2_label, value: spec_2_value %}
+                  {% render 'product-tech-specs-column', heading: spec_3_label, value: spec_3_value %}
+                  {% render 'product-tech-specs-column', heading: spec_4_label, value: spec_4_value %}
+                </div>
               </div>
-            </div>
-          </details>
+            </details>
+          {% endif %}
         {% endfor %}
       </div>
     </div>
 
+    {% liquid
+      assign included_item_index = 0
+      assign included_item_count = 0
+      for block in section.blocks
+        if block.type == 'included_item'
+          assign included_item_count = included_item_count | plus: 1
+        endif
+      endfor
+    %}
+
+    {% comment %}
+      "Included in the Box" removed for now (no included_item blocks configured
+      on the live template) — this whole aside is gated on included_item_count
+      so it disappears cleanly instead of showing an empty heading/panel. The
+      block type and rendering logic are left intact so it can be turned back
+      on later by simply adding included_item blocks again in the theme editor.
+    {% endcomment %}
+    {% if included_item_count > 0 %}
     <aside class="product-tech-specs__aside">
       <div class="product-tech-specs__included-package">
         <div class="product-tech-specs__included-handle" aria-hidden="true">
@@ -110,17 +158,6 @@
           <h3 class="product-tech-specs__included-heading">{{ included_heading | escape }}</h3>
         {% endif %}
 
-        {% liquid
-          assign included_item_index = 0
-          assign included_item_count = 0
-          for block in section.blocks
-            if block.type == 'included_item'
-              assign included_item_count = included_item_count | plus: 1
-            endif
-          endfor
-        %}
-
-        {% if included_item_count > 0 %}
           <div class="product-tech-specs__included-grid">
             <ul class="product-tech-specs__included-row" role="list">
               {% for block in section.blocks %}
@@ -149,10 +186,10 @@
               </ul>
             {% endif %}
           </div>
-        {% endif %}
         </div>
       </div>
     </aside>
+    {% endif %}
   </div>
 </product-tech-specs>
 
@@ -573,7 +610,7 @@
           "type": "text",
           "id": "title",
           "label": "Title",
-          "default": "Sound"
+          "default": "Performance"
         },
         {
           "type": "checkbox",
@@ -582,52 +619,19 @@
           "default": false
         },
         {
-          "type": "text",
-          "id": "col_1_heading",
-          "label": "Column 1 heading",
-          "default": "Advanced Sound Features"
-        },
-        {
-          "type": "richtext",
-          "id": "col_1_body",
-          "label": "Column 1 body",
-          "default": "<p>Adaptive Active Noise Cancellation<br>Transparency mode<br>Spatial audio support</p>"
-        },
-        {
-          "type": "text",
-          "id": "col_2_heading",
-          "label": "Column 2 heading",
-          "default": "Frequency Range"
-        },
-        {
-          "type": "richtext",
-          "id": "col_2_body",
-          "label": "Column 2 body",
-          "default": "<p>20 Hz – 20 kHz</p>"
-        },
-        {
-          "type": "text",
-          "id": "col_3_heading",
-          "label": "Column 3 heading",
-          "default": "Driver Type & Size"
-        },
-        {
-          "type": "richtext",
-          "id": "col_3_body",
-          "label": "Column 3 body",
-          "default": "<p>Dynamic drivers<br>40 mm</p>"
-        },
-        {
-          "type": "text",
-          "id": "col_4_heading",
-          "label": "Column 4 heading",
-          "default": "Customizable Sound EQ"
-        },
-        {
-          "type": "richtext",
-          "id": "col_4_body",
-          "label": "Column 4 body",
-          "default": "<p>App-based EQ presets<br>Custom profiles</p>"
+          "type": "select",
+          "id": "group_kind",
+          "label": "Spec source",
+          "info": "Which product metafields this group pulls its values from. The group is hidden entirely if none of its fields are set on the product.",
+          "options": [
+            { "value": "performance", "label": "Performance (Processor, Graphics, RAM, Storage)" },
+            { "value": "display", "label": "Display (Display, Resolution, Refresh rate)" },
+            { "value": "connectivity", "label": "Connectivity (Ports, Wi-Fi, Bluetooth, Webcam)" },
+            { "value": "battery", "label": "Battery & power (Battery life, Charger)" },
+            { "value": "design", "label": "Design (Dimensions, Weight, Color, Material)" },
+            { "value": "operating_system", "label": "Operating system" }
+          ],
+          "default": "performance"
         }
       ]
     },
@@ -686,58 +690,44 @@
         {
           "type": "spec_group",
           "settings": {
-            "title": "Sound",
+            "title": "Performance",
             "open_by_default": true,
-            "col_1_heading": "Advanced Sound Features",
-            "col_1_body": "<p>Adaptive Active Noise Cancellation<br>Transparency mode<br>Spatial audio support</p>",
-            "col_2_heading": "Frequency Range",
-            "col_2_body": "<p>20 Hz – 20 kHz</p>",
-            "col_3_heading": "Driver Type & Size",
-            "col_3_body": "<p>Dynamic drivers<br>40 mm</p>",
-            "col_4_heading": "Customizable Sound EQ",
-            "col_4_body": "<p>App-based EQ presets<br>Custom profiles</p>"
+            "group_kind": "performance"
           }
         },
         {
           "type": "spec_group",
           "settings": {
-            "title": "Design",
-            "col_1_heading": "Designer",
-            "col_1_body": "<p>MNML</p>",
-            "col_2_heading": "Fit",
-            "col_2_body": "<p>Over-ear</p>",
-            "col_3_heading": "Materials",
-            "col_3_body": "<p>Aluminium, Leather, Fabric, Polymer, Rubber</p>",
-            "col_4_heading": "Dust and Waterproof Rating",
-            "col_4_body": "<p>IP53</p>"
-          }
-        },
-        {
-          "type": "spec_group",
-          "settings": {
-            "title": "Battery",
-            "col_1_heading": "Battery life",
-            "col_1_body": "<p>Up to 30 hours with ANC</p>",
-            "col_2_heading": "Charging",
-            "col_2_body": "<p>USB-C fast charge</p>",
-            "col_3_heading": "Quick charge",
-            "col_3_body": "<p>10 min = 5 hours</p>",
-            "col_4_heading": "Standby",
-            "col_4_body": "<p>Auto sleep after idle</p>"
+            "title": "Display",
+            "group_kind": "display"
           }
         },
         {
           "type": "spec_group",
           "settings": {
             "title": "Connectivity",
-            "col_1_heading": "Bluetooth",
-            "col_1_body": "<p>Bluetooth 5.1</p>",
-            "col_2_heading": "Codecs",
-            "col_2_body": "<p>AAC, SBC</p>",
-            "col_3_heading": "Wired",
-            "col_3_body": "<p>3.5 mm audio</p>",
-            "col_4_heading": "Multipoint",
-            "col_4_body": "<p>Two devices</p>"
+            "group_kind": "connectivity"
+          }
+        },
+        {
+          "type": "spec_group",
+          "settings": {
+            "title": "Battery & Power",
+            "group_kind": "battery"
+          }
+        },
+        {
+          "type": "spec_group",
+          "settings": {
+            "title": "Design",
+            "group_kind": "design"
+          }
+        },
+        {
+          "type": "spec_group",
+          "settings": {
+            "title": "Operating System",
+            "group_kind": "operating_system"
           }
         },
         {

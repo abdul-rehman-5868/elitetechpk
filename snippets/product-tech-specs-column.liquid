@@ -1,0 +1,17 @@
+{%- doc -%}
+  Renders one Tech Specs column (heading + value) inside product-tech-specs.liquid,
+  only if a value is actually present. Kept as its own snippet so the section's
+  per-group-kind logic doesn't repeat this markup for every possible column.
+
+  @param {string} [heading] - The spec label, e.g. "Processor"
+  @param {string} [value] - The spec value, e.g. "Intel Core i7-1355U"
+{%- enddoc -%}
+
+{% if value != blank %}
+  <div class="product-tech-specs__col">
+    {% if heading != blank %}
+      <h3 class="product-tech-specs__col-heading">{{ heading | escape }}</h3>
+    {% endif %}
+    <div class="product-tech-specs__col-body rte">{{ value }}</div>
+  </div>
+{% endif %}

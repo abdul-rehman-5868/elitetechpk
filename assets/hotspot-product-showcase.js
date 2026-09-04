@@ -24,7 +24,7 @@ class HotspotProductShowcase extends HTMLElement {
     this.#bindGalleries(signal);
 
     const initial = Number(this.dataset.activeIndex || 0);
-    this.#setActiveProduct(Number.isFinite(initial) ? initial : 0, { announce: false });
+    this.#setActiveProduct(Number.isFinite(initial) ? initial : 0, { announce: false, scrollIntoView: false });
   }
 
   disconnectedCallback() {
@@ -149,7 +149,7 @@ class HotspotProductShowcase extends HTMLElement {
 
   /**
    * @param {number} index
-   * @param {{ announce?: boolean }} [options]
+   * @param {{ announce?: boolean, scrollIntoView?: boolean }} [options]
    */
   #setActiveProduct(index, options = {}) {
     const panels = [...this.querySelectorAll('[data-hps-panel]')];
@@ -170,7 +170,13 @@ class HotspotProductShowcase extends HTMLElement {
     // visible, not hidden/shown) instead of a single swapped panel — bring
     // the matching card into view. `block: 'nearest'` keeps this a no-op on
     // desktop, where the panel is already fully in view.
-    panels[nextIndex]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    // Only for genuine user interaction (hover/focus/click) — the initial
+    // connectedCallback call (options.scrollIntoView: false) used to run
+    // this unconditionally on every page load/reload, which scrolled the
+    // whole page down to this section before the user did anything.
+    if (options.scrollIntoView !== false) {
+      panels[nextIndex]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
 
     const hotspots = this.querySelectorAll('[data-hps-hotspot]');
     hotspots.forEach((hotspot, i) => {
