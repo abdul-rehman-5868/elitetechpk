@@ -33,6 +33,7 @@
     "inventory_status": "Inventory status",
     "localization_region_and_language": "Region and language selector",
     "menu": "Menu",
+    "quick_navigation": "Quick navigation",
     // This is the label for the header navigation menu when using screen readers, it will read "Primary navigation"
     "header_navigation_label": "Primary",
     "nested_product": "{{ product_title }} for {{ parent_title }}",
@@ -175,6 +176,8 @@
     "blog_details_separator": "|",
     "cart_estimated_total": "Estimated total",
     "cart_title": "Cart",
+    "home_nav_label": "Home",
+    "shop_nav_label": "Shop",
     "cart_subtotal": "Subtotal",
     "cart_total": "Cart total",
     "checkout": "Check out",

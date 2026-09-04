@@ -24,7 +24,7 @@
 
 <nav
   class="mobile-bottom-nav"
-  aria-label="Quick navigation"
+  aria-label="{{ 'accessibility.quick_navigation' | t }}"
 >
   <a
     href="{{ routes.root_url }}"
@@ -57,15 +57,15 @@
         />
       </svg>
     </span>
-    <span class="mobile-bottom-nav__label">Home</span>
+    <span class="mobile-bottom-nav__label">{{ 'content.home_nav_label' | t }}</span>
   </a>
 
   <button
     type="button"
     class="mobile-bottom-nav__item"
-    data-mobile-bottom-nav-menu
+    on:click="#menu-drawer/toggle"
     aria-haspopup="dialog"
-    aria-controls="Details-menu-drawer-container"
+    aria-controls="menu-drawer"
   >
     <span
       class="svg-wrapper mobile-bottom-nav__icon"
@@ -117,7 +117,7 @@
         />
       </svg>
     </span>
-    <span class="mobile-bottom-nav__label">Shop</span>
+    <span class="mobile-bottom-nav__label">{{ 'content.shop_nav_label' | t }}</span>
   </a>
 
   {% if settings.cart_type == 'drawer' and template.name != 'cart' %}

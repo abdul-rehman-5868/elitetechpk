@@ -502,6 +502,22 @@ class DropdownLocalizationComponent extends Component {
  */
 class DrawerLocalizationComponent extends Component {
   /**
+   * Closes this component's own <details> (the localization submenu),
+   * returning to the parent menu list. Previously this button targeted the
+   * old header-drawer component's generic back() method (closing whichever
+   * <details> was nearest the click); that component no longer exists now
+   * that the menu drawer uses <theme-drawer>, so this component owns its
+   * own close-and-return behavior instead.
+   *
+   * @param {Event} [event] - The event object.
+   */
+  back(event) {
+    const details =
+      event?.target instanceof Element ? event.target.closest('details') : this.querySelector('details');
+    if (details instanceof HTMLDetailsElement) details.open = false;
+  }
+
+  /**
    * Toggles the dialog.
    *
    * @param {ToggleEvent} event - The event object.

@@ -290,6 +290,21 @@
                   </div>
                 {% endif %}
               </div>
+
+              {% if product != blank and cta_label != blank %}
+                {% comment %}
+                  Compact mobile card only — the desktop reference layout keeps
+                  its own overlay .hps__cta inside .hps__gallery above. Kept
+                  as a separate element (not a relocation of the one above)
+                  since the two need different DOM positions for their
+                  respective layouts and there's no product-count/id
+                  collision risk (plain link, no theme-block identity).
+                {% endcomment %}
+                <a class="hps__cta-compact" href="{{ product.url }}">
+                  <span class="hps__cta-compact-icon" aria-hidden="true">+</span>
+                  <span>{{ cta_label }}</span>
+                </a>
+              {% endif %}
             </article>
           {% endfor %}
 
@@ -343,33 +358,27 @@
     }
   }
 
+  /* Title (eyebrow + heading) on top, centered; lifestyle image below sized
+     to the remaining viewport; product cards below that — same order and
+     centered title on both desktop and mobile now (previously a 2-column
+     grid with the title beside the image only on desktop). */
   .hps__layout {
     display: grid;
-    gap: var(--hps-gap, 40px);
     grid-template-columns: 1fr;
-    align-items: stretch;
-  }
-
-  @media screen and (min-width: 990px) {
-    .hps__layout {
-      grid-template-columns: minmax(0, 1.55fr) minmax(17rem, 0.95fr);
-      min-height: 36rem;
-      gap: clamp(2rem, 4vw, 3.5rem);
-    }
+    gap: 0;
+        height: calc(100svh - var(--header-height, 96px));
+    min-height: 20rem;
   }
 
   .hps__media {
     position: relative;
+    order: 2;
     border-radius: var(--hps-radius, 17px);
     overflow: hidden;
     background: #ececec;
-    min-height: 18rem;
-  }
-
-  @media screen and (min-width: 990px) {
-    .hps__media {
-      min-height: 100%;
-    }
+    /* Fits the remaining viewport below the navbar on both breakpoints. */
+min-height:30rem;
+    margin-block-end: clamp(1.5rem, 3vw, 2.5rem);
   }
 
   .hps__lifestyle-image,
@@ -435,25 +444,16 @@
     border-radius: 999px;
   }
 
+  /* Flattened so eyebrow/heading/products can each get their own `order`
+     against .hps__media, rather than moving as one block. */
   .hps__aside {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: clamp(1.25rem, 2.5vw, 2rem);
-    min-width: 0;
-    padding-block: 0.15rem 0.5rem;
-  }
-
-  @media screen and (min-width: 990px) {
-    .hps__aside {
-      justify-content: space-between;
-      padding-block: 0.35rem 0.15rem;
-      padding-inline-end: 0.25rem;
-    }
+    display: contents;
   }
 
   .hps__eyebrow {
-    margin: 0 0 0.35rem;
+    order: 0;
+    margin: 0 0 0.5rem;
+    text-align: center;
     color: #8a8a8a;
     font-size: 0.8125rem;
     line-height: 1.3;
@@ -462,8 +462,10 @@
   }
 
   .hps__heading {
-    margin: 0;
-    max-width: 11.5ch;
+    order: 1;
+    margin: 0 auto clamp(1.5rem, 3vw, 2.5rem);
+    max-width: 22ch;
+    text-align: center;
     font-size: clamp(2rem, 3.6vw, 3.15rem);
     line-height: 1.05;
     letter-spacing: -0.035em;
@@ -486,27 +488,84 @@
   }
 
   .hps__products {
+    order: 3;
     position: relative;
     width: 100%;
   }
 
+  @media screen and (max-width: 989px) {
+    /* Compact, full-width, horizontally scrollable cards — one card fills
+       the viewport width at a time, swipe for the other (see
+       #setActiveProduct's scrollIntoView call in the JS, which scrolls the
+       matching card into view when its hotspot is tapped). */
+    .hps__products {
+      display: flex;
+      gap: 0.65rem;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+    }
+
+    .hps__products::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    /* Both cards side by side, left and right. */
+    .hps__products {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+  }
+
+  /* Compact card (thumbnail + vendor/name/price + button) on both
+     breakpoints now — both hotspot products stay visible at once instead of
+     the old single-panel swap. */
   .hps__product {
-    display: grid;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     gap: 0.75rem;
+    padding: 0.6rem;
+    border-radius: var(--hps-radius, 17px);
+    background: var(--hps-card-bg, #f7f7f7);
+    outline: 2px solid transparent;
+    outline-offset: -2px;
+    transition: outline-color 0.2s ease;
+  }
+
+  /* Visual feedback for which card a hovered/tapped hotspot maps to, now
+     that both stay visible rather than one swapping in. */
+  .hps__product.is-active {
+    outline-color: var(--hps-accent, #e8b089);
   }
 
   .hps__product[hidden] {
-    display: none;
+    display: flex !important;
+  }
+
+  @media screen and (max-width: 989px) {
+    .hps__product {
+      flex: 0 0 auto;
+      width: 100%;
+      scroll-snap-align: start;
+    }
   }
 
   .hps__gallery {
     position: relative;
+    flex: 0 0 auto;
+    width: 5.5rem;
+    height: 5.5rem;
+    aspect-ratio: 1;
     overflow: hidden;
-    border-radius: var(--hps-radius, 17px);
+    border-radius: calc(var(--hps-radius, 17px) * 0.6);
     background: var(--hps-card-bg, #f7f7f7);
-    aspect-ratio: 1 / 1.05;
-    cursor: ew-resize;
-    touch-action: manipulation;
+    cursor: default;
+    touch-action: pan-y;
   }
 
   .hps__track {
@@ -536,17 +595,20 @@
     height: 100%;
     object-fit: contain;
     object-position: center;
-    padding: clamp(1rem, 3vw, 1.75rem);
+    padding: 0.35rem;
     background: var(--hps-card-bg, #f7f7f7);
   }
 
-  .hps__zones {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    z-index: 1;
-    pointer-events: none;
+  /* Desktop-only gallery chrome from the old rich single-panel layout
+     (multi-image hover zones, rating badge, overlay CTA, image dots) has no
+     room in the compact card used on both breakpoints now. Left in the DOM
+     (harmless, JS still runs) rather than removed, to keep this change
+     scoped to layout/CSS. */
+  .hps__zones,
+  .hps__rating,
+  .hps__cta,
+  .hps__dots {
+    display: none;
   }
 
   .hps__rating {
@@ -554,7 +616,6 @@
     top: 0.85rem;
     right: 0.85rem;
     z-index: 3;
-    display: inline-flex;
     align-items: center;
     gap: 0.25rem;
     padding: 0.3rem 0.55rem;
@@ -579,7 +640,6 @@
     bottom: 2.4rem;
     z-index: 4;
     transform: translateX(-50%);
-    display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0.7rem 1.15rem;
@@ -612,7 +672,6 @@
     bottom: 0.85rem;
     z-index: 3;
     transform: translateX(-50%);
-    display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     padding: 0;
@@ -638,6 +697,8 @@
 
   .hps__meta {
     display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
     gap: 0.2rem;
   }
 
@@ -652,14 +713,14 @@
 
   .hps__title-row {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
   }
 
   .hps__product-title {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     line-height: 1.25;
     letter-spacing: -0.01em;
     font-weight: 700;
@@ -677,7 +738,7 @@
 
   .hps__price {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 0.9rem;
     font-weight: 400;
     letter-spacing: -0.01em;
     color: #111111;
@@ -695,16 +756,24 @@
     display: none;
   }
 
-  @media screen and (max-width: 989px) {
-    .hps__cta {
-      opacity: 1;
-      pointer-events: auto;
-      bottom: 2.55rem;
-    }
+  .hps__cta-compact {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 999px;
+    background: #111111;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
 
-    .hps__heading {
-      max-width: 16ch;
-    }
+  .hps__cta-compact-icon {
+    font-size: 1rem;
+    line-height: 1;
   }
 {% endstylesheet %}
 

@@ -152,7 +152,11 @@
     margin: 0;
     padding: 0;
     border: 0;
-    border-radius: 40px 0 0 40px;
+    /* Matches the cart drawer's floating-card corner treatment (all four
+       corners rounded at the same radius) — both panels already share the
+       same 0.75rem inset from the top/right/bottom edges, so this makes the
+       two consistent instead of search's previous flat right edge. */
+    border-radius: 28px;
     overflow: hidden;
     background: #ffffff;
     color: #111111;
@@ -604,18 +608,70 @@
   }
 
   @media screen and (max-width: 749px) {
+    /* Bottom sheet on mobile, matching the menu drawer and cart drawer
+       (rounded top, slides up) instead of the previous full-screen panel
+       animated in from the right. Internal search/predictive-results
+       markup is unchanged. */
     .search-modal__content {
       --search-modal-pad: calc(1.35rem + 10px);
 
-      inset: 0;
+      inset: auto 0 0 0;
       width: 100%;
       max-width: none;
-      max-height: none;
-      border-radius: 0;
+      height: auto;
+      min-height: 80vh;
+      max-height: 88vh;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .search-modal__content::before {
+      content: '';
+      position: absolute;
+      top: 0.6rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2.25rem;
+      height: 0.25rem;
+      border-radius: 999px;
+      background: rgb(0 0 0 / 0.18);
+      pointer-events: none;
+      z-index: 1;
     }
 
     .search-modal__panel {
-      max-height: 100dvh;
+      max-height: 88vh;
+    }
+
+    .dialog-modal[open].search-modal__content {
+      animation: search-sheet-slide-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .dialog-modal.search-modal__content.dialog-closing {
+      animation: search-sheet-slide-out 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes search-sheet-slide-in {
+      from {
+        transform: translateY(100%);
+        opacity: 0.92;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes search-sheet-slide-out {
+      from {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateY(100%);
+        opacity: 0.92;
+      }
     }
   }
 {% endstylesheet %}

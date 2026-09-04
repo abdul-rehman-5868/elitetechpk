@@ -156,6 +156,12 @@
     margin-bottom: 1.75rem;
   }
 
+  @media screen and (max-width: 749px) {
+    .bss__header {
+      margin-bottom: 1.25rem;
+    }
+  }
+
   .bss__heading {
     margin: 0;
     font-size: clamp(2rem, 4vw, 3rem);
@@ -163,6 +169,16 @@
     letter-spacing: -0.04em;
     font-weight: 700;
     color: #111111;
+  }
+
+  @media screen and (max-width: 749px) {
+    /* The desktop clamp's 4vw component never actually reaches its 2rem
+       floor until ~800px wide, so every phone size — 320px or 749px alike —
+       was rendering at a flat 32px. Give mobile its own clamp so smaller
+       phones genuinely get smaller text instead of one fixed size. */
+    .bss__heading {
+      font-size: clamp(1.75rem, 7vw, 2.25rem);
+    }
   }
 
   .bss__toolbar {
@@ -274,6 +290,28 @@
   @media screen and (max-width: 749px) {
     .bss__nav {
       display: none;
+    }
+
+    .bss__track {
+      gap: 0.75rem;
+    }
+
+    /* bss-product-card's text sizes (title/price/vendor) are fixed rem
+       values shared by every consumer of this card (Best Sellers here, but
+       also the main Collections grid and "You may also like" — see
+       snippets/bss-product-card-styles.liquid). Scoping to
+       .best-sellers-showcase keeps this mobile tightening local to this
+       section instead of affecting those other pages. */
+    .best-sellers-showcase .bss-card__title {
+      font-size: 0.95rem;
+    }
+
+    .best-sellers-showcase .bss-card__price {
+      font-size: 0.9rem;
+    }
+
+    .best-sellers-showcase .bss-card__body {
+      padding: 0.65rem 0.75rem 0.8rem;
     }
   }
 {% endstylesheet %}

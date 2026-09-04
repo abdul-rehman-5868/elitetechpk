@@ -166,6 +166,12 @@ class HotspotProductShowcase extends HTMLElement {
       panel.setAttribute('aria-hidden', active ? 'false' : 'true');
     });
 
+    // On mobile the panels form a horizontally scrollable compact list (all
+    // visible, not hidden/shown) instead of a single swapped panel — bring
+    // the matching card into view. `block: 'nearest'` keeps this a no-op on
+    // desktop, where the panel is already fully in view.
+    panels[nextIndex]?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
     const hotspots = this.querySelectorAll('[data-hps-hotspot]');
     hotspots.forEach((hotspot, i) => {
       const active = i === nextIndex;

@@ -140,6 +140,74 @@
     contain: layout;
   }
 
+  @media screen and (max-width: 749px) {
+    /* Bottom sheet on mobile instead of the shared theme-drawer[overlay]
+       right-inset floating card — scoped to #cart-drawer specifically
+       (not theme-drawer[overlay] generally) so other overlay-style drawers
+       (e.g. chat-drawer.liquid) are unaffected. Internal cart markup,
+       tabs, and close button are unchanged — only outer position/entrance
+       direction differ from desktop. */
+    #cart-drawer .theme-drawer__dialog.cart-drawer-dialog {
+      position: fixed;
+      top: auto;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: none;
+      height: auto;
+      min-height: 80vh;
+      max-height: 88vh;
+      border-radius: 20px 20px 0 0;
+    }
+
+    #cart-drawer .theme-drawer__dialog.cart-drawer-dialog::before {
+      content: '';
+      position: absolute;
+      top: 0.6rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2.25rem;
+      height: 0.25rem;
+      border-radius: 999px;
+      background: rgb(0 0 0 / 0.18);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .cart-drawer-header {
+      padding-top: 1.75rem;
+    }
+
+    #cart-drawer .theme-drawer__dialog.cart-drawer-dialog.theme-drawer__dialog--opening {
+      animation-name: cart-drawer-sheet-slide-in;
+    }
+
+    #cart-drawer .theme-drawer__dialog.cart-drawer-dialog.theme-drawer__dialog--closing {
+      animation-name: cart-drawer-sheet-slide-out;
+    }
+
+    @keyframes cart-drawer-sheet-slide-in {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes cart-drawer-sheet-slide-out {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(100%);
+      }
+    }
+  }
+
   #cart-drawer .theme-drawer__close-button.cart-drawer-header__close {
     --private-button-size: 2.25rem;
     background: #111111;

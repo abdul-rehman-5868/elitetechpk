@@ -68,6 +68,38 @@
   %}
 </featured-product-information>
 
+<script type="module">
+  (() => {
+    // Mobile order should be: image, product info, then highlights. Desktop
+    // keeps highlights under the image (its normal DOM position, nested in
+    // the media column) — there's no pure-CSS way to reorder across that
+    // nesting boundary, so this relocates the single .product-highlights
+    // node on breakpoint change instead of duplicating its markup.
+    const root = document.getElementById('{{ section.id }}');
+    if (!root) return;
+
+    const highlights = root.querySelector('.product-highlights');
+    const mediaWrap = root.querySelector('.featured-product-showcase__media-wrap');
+    const productDetails = root.querySelector('.product-details');
+    if (!highlights || !mediaWrap || !productDetails) return;
+
+    const mobileQuery = window.matchMedia('(max-width: 749px)');
+
+    const place = () => {
+      if (mobileQuery.matches) {
+        if (highlights.previousElementSibling !== productDetails) {
+          productDetails.insertAdjacentElement('afterend', highlights);
+        }
+      } else if (highlights.parentElement !== mediaWrap) {
+        mediaWrap.appendChild(highlights);
+      }
+    };
+
+    place();
+    mobileQuery.addEventListener('change', place);
+  })();
+</script>
+
 {% stylesheet %}
   /* Outside: X 0. Inside: X uses --homepage-gutter on product-information. Y via theme editor. */
   .featured-product-information-section {
@@ -120,7 +152,6 @@
     .featured-product-showcase--reference
     .product-details.sticky-content--desktop {
     --sticky-header-offset: var(--fps-sticky-top);
-    top: var(--fps-sticky-top);
   }
 
   /* Smooth main-image swipe when thumbnails / arrows change slides */
@@ -368,6 +399,13 @@
     .featured-product-showcase--reference {
       --fps-details-gap: 1.125rem;
       --fps-thumbnail-size: 72px;
+      /* Rounding moves to the media container below (mobile has no sticky
+         column, so nothing here needs an overflow:clip containing block —
+         see the desktop comment on the .featured-product-information-section
+         rule in base.css about that clip breaking position:sticky). Content
+         was getting clipped at this box's bottom edge, cutting off the
+         service panel / "Full details" link. */
+      overflow: visible;
     }
 
     .featured-product-showcase--reference .product-details.sticky-content--desktop {
@@ -375,9 +413,31 @@
       top: auto;
     }
 
+    /* The shared product-information-content.liquid snippet's generic mobile
+       rule confines .product-details to a partial subgrid column
+       (grid-column: 2 / 3) — fine for its other consumer (the real product
+       page's own grid setup) but leaves this section's details column
+       narrower than the image above it and offset from the left edge.
+       Force it full-width here, matching .product-information__media. */
     .featured-product-showcase--reference .product-details {
+      grid-column: 1 / -1;
       padding-inline: 0;
       padding-block: 1.25rem 0.5rem;
+    }
+
+    /* Give the media container its own top rounding (matching the Immersive
+       Video Banner section above it) now that the outer wrapper no longer
+       clips to provide it. */
+    .featured-product-showcase--reference .media-gallery--carousel slideshow-container,
+    .featured-product-showcase--reference .media-gallery--carousel slideshow-slide,
+    .featured-product-showcase--reference .media-gallery--carousel .product-media,
+    .featured-product-showcase--reference .media-gallery--carousel .product-media-container {
+      border-radius: var(--fps-radius, 17px) var(--fps-radius, 17px) 0 0;
+      overflow: hidden;
+    }
+
+    .featured-product-showcase--reference .media-gallery--carousel .product-media-container {
+      max-height: 65vh;
     }
 
     .featured-product-showcase--reference .product-media-gallery__placeholder-image {
@@ -385,8 +445,14 @@
       padding: 3rem;
     }
 
+    /* Relocated after .product-details on mobile (see the inline script
+       above) — needs its own explicit full-width placement since it's no
+       longer nested inside .product-information__media. */
     .featured-product-showcase--reference .product-highlights {
-      margin-top: 1rem;
+      grid-column: 1 / -1;
+      margin: 1rem 0 0;
+      padding: 0;
+      border: none;
     }
   }
 

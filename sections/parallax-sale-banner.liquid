@@ -116,6 +116,18 @@
     isolation: isolate;
   }
 
+  @media screen and (max-width: 749px) {
+    .parallax-sale-banner {
+      /* Same mobile height treatment as the Immersive Video Banner above:
+         slightly shorter than the desktop-tuned height presets. */
+      min-height: calc(var(--psb-min-height, 36rem) * 0.85);
+    }
+
+    .parallax-sale-banner__content {
+      gap: 0.65rem;
+    }
+  }
+
   .parallax-sale-banner__media,
   .parallax-sale-banner__overlay,
   .parallax-sale-banner__content {

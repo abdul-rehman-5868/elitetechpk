@@ -56,8 +56,21 @@ class HeaderDrawer extends Component {
 
   /**
    * Toggle the main menu drawer
+   * @param {Event} [event]
    */
-  toggle() {
+  toggle(event) {
+    // The <summary> this is bound to has a native default action (toggling
+    // the parent <details> element's `open` attribute) that the theme's
+    // on:click dispatch never prevents. Left alone, that native toggle races
+    // against our own class-based open/close below — `isOpen` can read a
+    // native `open` state the browser just flipped a tick before our JS
+    // runs, driving this into the wrong branch. Worse, if the native toggle
+    // ever *removes* `open` on its own, the browser's UA stylesheet
+    // immediately `display: none`s .menu-drawer regardless of our CSS
+    // transition. Owning the `open` attribute ourselves (see #open below)
+    // requires preventing that native action entirely.
+    event?.preventDefault();
+
     return this.isOpen ? this.close() : this.open();
   }
 
@@ -73,6 +86,11 @@ class HeaderDrawer extends Component {
     if (!summary) return;
 
     summary.setAttribute('aria-expanded', 'true');
+
+    // Set synchronously (not in the rAF below) so the element is laid out —
+    // and thus animatable — at its closed CSS position on this frame, before
+    // .menu-open flips it to the open position on the next one.
+    details.open = true;
 
     this.preventInitialAccordionAnimations(details);
     requestAnimationFrame(() => {

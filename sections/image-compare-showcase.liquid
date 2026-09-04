@@ -54,6 +54,12 @@
     margin-block-end: clamp(1.5rem, 3vw, 2.25rem);
   }
 
+  @media screen and (max-width: 749px) {
+    .image-compare-showcase__intro {
+      margin-block-end: 1rem;
+    }
+  }
+
   .image-compare-showcase__eyebrow {
     margin: 0;
     color: var(--ics-eyebrow-color, #111111);
@@ -161,6 +167,32 @@
     font-size: clamp(1.15rem, 2vw, 1.5rem);
     font-weight: 700;
   }
+
+  @media screen and (max-width: 749px) {
+    /* Square crop reads better than the desktop-tuned landscape/portrait
+       ratios at narrow widths, regardless of the merchant's chosen ratio. */
+    .image-compare-showcase__media .comparison-slider {
+      aspect-ratio: 1;
+    }
+
+    /* Before/after labels sit directly on the photo with no background by
+       default on this instance — add a scrim + text-shadow so they stay
+       legible against the square mobile crop's image content. */
+    .image-compare-showcase__media .comparison-slider__text {
+      padding: 0.65rem 0.75rem;
+      border-radius: 10px;
+      background: linear-gradient(rgb(0 0 0 / 0.05), rgb(0 0 0 / 0.45));
+      text-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+    }
+
+    .image-compare-showcase__media .comparison-slider__label-kicker {
+      font-size: 0.7rem;
+    }
+
+    .image-compare-showcase__media .comparison-slider__label-title {
+      font-size: 1rem;
+    }
+  }
 {% endstylesheet %}
 
 {% schema %}
@@ -228,16 +260,6 @@
       "step": 1,
       "unit": "px",
       "default": 17
-    },
-    {
-      "type": "range",
-      "id": "padding_inline_mobile",
-      "label": "Mobile side padding",
-      "min": 8,
-      "max": 40,
-      "step": 2,
-      "unit": "px",
-      "default": 12
     },
     {
       "type": "range",

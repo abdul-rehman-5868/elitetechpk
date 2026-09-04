@@ -1796,6 +1796,69 @@
     height: var(--font-paragraph--size);
     position: absolute;
   }
+
+  /* Mobile: bottom sheet matching the cart drawer, instead of the shared
+     theme-drawer[overlay][data-side="start"] rules' rounded top-left-pinned
+     floating panel (used here on desktop). Scoped to #filters-drawer only,
+     not theme-drawer[overlay] generally, so other overlay-style drawers
+     (cart, menu, chat) are unaffected — same approach used for those. */
+  @media screen and (max-width: 749px) {
+    #filters-drawer .theme-drawer__dialog.filters-overlay-dialog {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      max-width: none;
+      height: auto;
+      min-height: 80vh;
+      max-height: 88vh;
+      border-radius: 20px 20px 0 0;
+    }
+
+    #filters-drawer .theme-drawer__dialog.filters-overlay-dialog::before {
+      content: '';
+      position: absolute;
+      top: 0.6rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2.25rem;
+      height: 0.25rem;
+      border-radius: 999px;
+      background: rgb(0 0 0 / 0.18);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #filters-drawer .theme-drawer__dialog.filters-overlay-dialog.theme-drawer__dialog--opening-start {
+      animation-name: filters-drawer-sheet-slide-in;
+    }
+
+    #filters-drawer .theme-drawer__dialog.filters-overlay-dialog.theme-drawer__dialog--closing-start {
+      animation-name: filters-drawer-sheet-slide-out;
+    }
+
+    @keyframes filters-drawer-sheet-slide-in {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes filters-drawer-sheet-slide-out {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(100%);
+      }
+    }
+  }
 {% endstylesheet %}
 
 {% schema %}

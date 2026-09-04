@@ -49,7 +49,6 @@ html[scroll-lock] .page-wrapper {
   display: flex;
   background-color: #ffffff;
   flex-direction: column;
-  border-radius: 25px;
   min-height: 100dvh;
   transition: margin-right var(--animation-speed) var(--animation-timing-fade-out);
 }
@@ -2560,10 +2559,19 @@ body.template-index #MainContent.homepage-shell {
   isolation: isolate;
   background: var(--homepage-surface);
   --page-margin: 0px;
-  --homepage-section-gap: 100px;
+  /* Standard vertical rhythm between homepage sections: half-gap on mobile,
+     full gap from tablet up. Individual sections should rely on this rather
+     than declaring their own --homepage-section-gap override. */
+  --homepage-section-gap: 50px;
   --homepage-content-x-mobile: 20px;
   /* 148px effective centered intro − 100px ≈ aligned column with hero slide copy */
   --homepage-content-x-desktop: 128px;
+}
+
+@media screen and (min-width: 750px) {
+  body.template-index #MainContent.homepage-shell {
+    --homepage-section-gap: 100px;
+  }
 }
 
 /*
@@ -2574,18 +2582,38 @@ body.template-index #MainContent.homepage-shell {
 */
 body.template-index .homepage-shell-frame {
   position: sticky;
-  top: var(--header-height, 96px);
+  /* The sticky header (sections/header.liquid) sticks at `top: -1px`, so its
+     stuck bottom edge sits 1px higher than --header-height alone implies.
+     Match that offset here so the frame's top border meets the header with
+     no visible gap. */
+  top: calc(var(--header-height, 93px) - 1px);
   z-index: 20;
   height: 0;
 
   pointer-events: none;
 }
 
+/* The frame's border/chrome only makes sense while the sticky navbar is
+   actually occupying `--header-height` above it. On mobile, once the hero
+   has scrolled past and the navbar slides off-screen (see
+   body[data-mobile-nav-collapsed] in sections/header.liquid and
+   assets/mobile-bottom-nav.js), fade the frame out too instead of leaving
+   its border/chrome pinned in the now-empty gap where the navbar was. */
+@media screen and (max-width: 749px) {
+  body.template-index .homepage-shell-frame {
+    transition: opacity var(--animation-speed-slow, 0.35s) cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  body.template-index[data-mobile-nav-collapsed] .homepage-shell-frame {
+    opacity: 0;
+  }
+}
+
 body.template-index .homepage-shell-frame::before {
   content: '';
   display: block;
   box-sizing: border-box;
-  height: calc(100svh - var(--header-height, 96px));
+  height: calc(100svh - var(--header-height, 93px) + 1px);
   border: 1px solid var(--homepage-frame-border);
   border-bottom: 0;
   border-radius: var(--homepage-radius) var(--homepage-radius) 0 0;

@@ -41,543 +41,82 @@
   endif
 %}
 
-<script
-  src="{{ 'header-drawer.js' | asset_url }}"
-  type="module"
-  fetchpriority="low"
-></script>
+{%- comment -%}
+  Menu drawer now uses the same <theme-drawer>/<dialog> mechanism as
+  cart-drawer.liquid and search-modal.liquid, instead of a bespoke
+  <details>/<summary> implementation. That previous approach relied on the
+  browser's native <details> toggle-on-click default action, which the
+  theme's on:click dispatch never prevented — it raced against this
+  component's own class-based open/close state, causing the reported
+  unreliable opening (sometimes from the top, sometimes not at all).
+  <theme-drawer> has no such native-default-action to race against; open/
+  close state is entirely owned by theme-drawer.js's own showModal()/close()
+  calls. header-drawer.js and the <header-drawer> custom element are no
+  longer used by this snippet (theme-drawer.js, already loaded once
+  globally from layout/theme.liquid, replaces them).
+{%- endcomment -%}
+<button
+  type="button"
+  class="header__icon header__icon--menu header__icon--summary"
+  aria-label="{{ 'accessibility.menu' | t }}"
+  aria-haspopup="dialog"
+  aria-controls="menu-drawer"
+  on:click="#menu-drawer/toggle"
+>
+  <span class="svg-wrapper header-drawer-icon header-drawer-icon--open">
+    {{- 'icon-menu.svg' | inline_asset_content -}}
+  </span>
+  <span class="svg-wrapper header-drawer-icon header-drawer-icon--close">
+    {{- 'icon-close.svg' | inline_asset_content -}}
+  </span>
+</button>
 
-<header-drawer
+<theme-drawer
+  id="menu-drawer"
   class="header-drawer {{ class }}"
+  overlay
+  data-skip-node-update
   style="--menu-image-border-radius: {{ image_border_radius }}px; --resource-card-corner-radius: {{ image_border_radius }}px;"
 >
-  <details
-    id="Details-menu-drawer-container"
-    data-skip-node-update="true"
-    class="menu-drawer-container"
-    ref="details"
-    scroll-lock
+  <dialog
+    ref="panel"
+    class="
+      theme-drawer__dialog menu-drawer
+      {% if block_settings.background_color != blank or block_settings.text_color != blank %}
+        color-custom-{{ block.id }}
+      {% endif %}
+    "
+    aria-labelledby="menu-drawer-heading"
   >
-    <summary
-      class="header__icon header__icon--menu header__icon--summary"
-      aria-label="{{ 'accessibility.menu' | t }}"
-      on:click="/toggle"
+    <h2 id="menu-drawer-heading" class="visually-hidden">{{ 'accessibility.menu' | t }}</h2>
+    <button
+      class="button close-button menu-drawer__close-button focus-inset"
+      type="button"
+      aria-label="{{ 'actions.close' | t }}"
+      on:click="#menu-drawer/close"
     >
-      <span class="svg-wrapper header-drawer-icon header-drawer-icon--open">
-        {{- 'icon-menu.svg' | inline_asset_content -}}
-      </span>
       <span class="svg-wrapper header-drawer-icon header-drawer-icon--close">
         {{- 'icon-close.svg' | inline_asset_content -}}
       </span>
-    </summary>
-    <div
-      ref="menuDrawer"
-      class="
-        menu-drawer
-        {% if block_settings.background_color != blank or block_settings.text_color != blank %}
-          color-custom-{{ block.id }}
-        {% endif %}
+    </button>
+    <nav
+      class="menu-drawer__navigation"
+      style="
+        {%- render 'menu-font-styles', settings: block_settings, menu_type: 'drawer' %}
+        {%- render 'submenu-font-styles', settings: block_settings %}
       "
+      aria-label="{{ 'accessibility.header_navigation_label' | t }}"
     >
-      <button
-        class="button close-button menu-drawer__close-button focus-inset"
-        type="button"
-        aria-label="{{ 'actions.close' | t }}"
-        on:click="/close"
+      <ul
+        class="menu-drawer__menu has-submenu"
+        role="list"
       >
-        <span class="svg-wrapper header-drawer-icon header-drawer-icon--close">
-          {{- 'icon-close.svg' | inline_asset_content -}}
-        </span>
-      </button>
-      <nav
-        class="menu-drawer__navigation"
-        style="
-          {%- render 'menu-font-styles', settings: block_settings, menu_type: 'drawer' %}
-          {%- render 'submenu-font-styles', settings: block_settings %}
-        "
-        aria-label="{{ 'accessibility.header_navigation_label' | t }}"
-      >
-        <ul
-          class="menu-drawer__menu has-submenu"
-          role="list"
-        >
-          {% render 'primary-nav', variant: 'drawer' %}
-          {%- comment -%} Store main-menu tree disabled — primary nav only. {%- endcomment -%}
-          {% if false %}
-          {% if linklist.levels < 3 %}
-            {% assign first_accordion_open = false %}
-            {% assign animation_index = 0 %}
-            {%- for link in linklist.links -%}
-              {% assign animation_index = animation_index | plus: 1 %}
-              <li
-                style="--menu-drawer-animation-index: {{ animation_index }};"
-                class="{%- if block_settings.drawer_accordion -%}menu-drawer__list-item--deep{%- else -%}menu-drawer__list-item--flat{%- endif -%}{% if block_settings.drawer_dividers %} menu-drawer__list-item--divider{% endif %}"
-              >
-                {% if block_settings.drawer_accordion and link.links != blank %}
-                  {%- comment -%}
-                    Accordion for links with children, in menus with fewer than 3 levels of links
-                  {%- endcomment -%}
-                  {% liquid
-                    assign should_open_first = false
-                    if first_accordion_open == false and block_settings.drawer_accordion_expand_first
-                      assign first_accordion_open = true
-                      assign should_open_first = true
-                    endif
-                  %}
-                  {% capture accordion_children %}
-                    <details
-                      id="Details-menu-drawer-{{ link.handle }}"
-                    >
-                      <summary
-                        id="HeaderDrawer-{{ link.handle }}"
-                        class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
-                      >
-                        <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
-                        <span class="svg-wrapper icon-plus">
-                          {{- 'icon-plus.svg' | inline_asset_content -}}
-                        </span>
-                      </summary>
-                      {% liquid
-                        assign render_link_image = false
-                        if block_settings.menu_style == 'collection_images'
-                          assign catalog_links = link.links | where: 'type', 'catalog_link'
-                          assign collection_list_links = link.links | where: 'type', 'collections_link'
-                          assign collection_links = link.links | where: 'type', 'collection_link'
-                          if catalog_links.size > 0 or collection_list_links.size > 0 or collection_links.size > 0
-                            assign render_link_image = true
-                          endif
-                        endif
-                      %}
-                      <ul
-                        class="menu-drawer__menu menu-drawer__menu--childlist menu-drawer__animated-element details-content{% if render_link_image %} menu-drawer__menu--grid{% endif %}"
-                        role="list"
-                        tabindex="-1"
-                      >
-                        {%- for childlink in link.links -%}
-                          <li
-                            class="menu-drawer__list-item"
-                            style="--menu-drawer-animation-index: {{ forloop.index }};"
-                          >
-                            <a
-                              id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
-                              href="{{ childlink.url }}"
-                              class="menu-drawer__menu-item menu-drawer__menu-item--child focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
-                              {% if childlink.current %}
-                                aria-current="page"
-                              {% endif %}
-                            >
-                              {% if render_link_image %}
-                                {% render 'link-featured-image',
-                                  link: childlink,
-                                  class: 'menu-drawer__link-image',
-                                  sizes: 'auto, 400px'
-                                %}
-                              {% endif %}
-                              <span class="menu-drawer__menu-item-text wrap-text">{{ childlink.title | escape }}</span>
-                            </a>
-                          </li>
-                        {%- endfor -%}
-                      </ul>
-                    </details>
-                  {% endcapture %}
-                  {% render 'accordion-custom-component',
-                    children: accordion_children,
-                    open_by_default_on_mobile: should_open_first
-                  %}
-                {% elsif block_settings.drawer_accordion == false and link.links != blank %}
-                  {%- comment -%}
-                    Flat menus for links with children, in menus with fewer than 3 levels of links
-                  {%- endcomment -%}
-                  <a
-                    id="HeaderDrawer-{{ link.handle }}"
-                    href="{{ link.url }}"
-                    class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
-                    {% if link.current %}
-                      aria-current="page"
-                    {% endif %}
-                  >
-                    <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
-                  </a>
-                  {% liquid
-                    assign render_link_image = false
-                    if block_settings.menu_style == 'collection_images'
-                      assign catalog_links = link.links | where: 'type', 'catalog_link'
-                      assign collection_list_links = link.links | where: 'type', 'collections_link'
-                      assign collection_links = link.links | where: 'type', 'collection_link'
-                      if catalog_links.size > 0 or collection_list_links.size > 0 or collection_links.size > 0
-                        assign render_link_image = true
-                      endif
-                    endif
-                  %}
-                  <ul
-                    class="menu-drawer__menu menu-drawer__menu--childlist{% if render_link_image %} menu-drawer__menu--grid{% endif %}"
-                    role="list"
-                    tabindex="-1"
-                  >
-                    {%- for childlink in link.links -%}
-                      <li
-                        class="menu-drawer__list-item"
-                        style="--menu-drawer-animation-index: {{ animation_index }};"
-                      >
-                        <a
-                          href="{{ childlink.url }}"
-                          class="menu-drawer__menu-item menu-drawer__menu-item--child menu-drawer__animated-element focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
-                          {% if childlink.current %}
-                            aria-current="page"
-                          {% endif %}
-                        >
-                          {% if render_link_image %}
-                            {% render 'link-featured-image',
-                              link: childlink,
-                              class: 'menu-drawer__link-image',
-                              sizes: 'auto, 400px'
-                            %}
-                          {% endif %}
-                          <span class="menu-drawer__menu-item-text wrap-text">{{ childlink.title | escape }}</span>
-                        </a>
-                      </li>
-                    {%- endfor -%}
-                  </ul>
-                {% else %}
-                  {%- comment -%}
-                    Simple links for links with no children (regardless of accordion setting), in menus with fewer than 3 levels of links
-                  {%- endcomment -%}
-                  <a
-                    id="HeaderDrawer-{{ link.handle }}"
-                    href="{{ link.url }}"
-                    class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
-                    {% if link.current %}
-                      aria-current="page"
-                    {% endif %}
-                  >
-                    <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
-                  </a>
-                {% endif %}
-              </li>
-            {%- endfor -%}
-          {% else %}
-            {%- comment -%}
-              Handle menus with 3 levels of links
-            {%- endcomment -%}
-            {% assign animation_index = 0 %}
-            {%- for link in linklist.links -%}
-              {% assign animation_index = animation_index | plus: 1 %}
-              <li
-                class="menu-drawer__list-item"
-                style="--menu-drawer-animation-index: {{ animation_index }};"
-              >
-                {%- if link.links != blank -%}
-                  {%- comment -%}
-                    Regardless of the Accordion setting, in menus with 3 levels of links, we use a details element to handle the top level of the menu for links that have children.
-                  {%- endcomment -%}
-                  <details
-                    id="Details-menu-drawer-menu-item-{{ forloop.index }}"
-                    class="menu-drawer__menu-container{% if block_settings.drawer_dividers %} menu-drawer__menu-container--divider{% endif %}"
-                  >
-                    <summary
-                      id="HeaderDrawer-{{ link.handle }}"
-                      class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset{% if link.child_active %} menu-drawer__menu-item--active{% endif %}"
-                      on:click="header-drawer/open/submenu"
-                    >
-                      <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
-                      <span class="svg-wrapper icon-caret icon-caret--forward">
-                        {{- 'icon-caret.svg' | inline_asset_content -}}
-                      </span>
-                    </summary>
-                    <div
-                      id="link-{{ link.handle | escape }}"
-                      class="menu-drawer__submenu has-submenu"
-                      tabindex="-1"
-                      style="--menu-drawer-animation-index: {{ animation_index }};"
-                    >
-                      <div class="menu-drawer__inner-submenu">
-                        <div class="menu-drawer__nav-buttons">
-                          <button
-                            class="button menu-drawer__back-button focus-inset"
-                            on:click="header-drawer/back"
-                            aria-label="{{ 'actions.back_to' | t: title: link.title }}"
-                          >
-                            <span class="svg-wrapper icon-caret icon-caret--backward">
-                              {{- 'icon-caret.svg' | inline_asset_content -}}
-                            </span>
-                            <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
-                          </button>
-                          <button
-                            class="button button-unstyled close-button menu-drawer__close-button focus-inset"
-                            type="button"
-                            aria-label="{{ 'actions.close' | t }}"
-                            on:click="header-drawer/close"
-                          >
-                            <span class="svg-wrapper header-drawer-icon header-drawer-icon--close">
-                              {{- 'icon-close.svg' | inline_asset_content -}}
-                            </span>
-                          </button>
-                        </div>
-                        {% liquid
-                          assign render_link_image = false
-                          if block_settings.menu_style == 'collection_images'
-                            assign catalog_links = link.links | where: 'type', 'catalog_link'
-                            assign collection_list_links = link.links | where: 'type', 'collections_link'
-                            assign collection_links = link.links | where: 'type', 'collection_link'
-                            if catalog_links.size > 0 or collection_list_links.size > 0 or collection_links.size > 0
-                              assign render_link_image = true
-                            endif
-                          endif
-                        %}
-                        <ul
-                          class="menu-drawer__menu menu-drawer__menu--childlist{% if render_link_image and link.levels == 1 %} menu-drawer__menu--grid{% endif %}"
-                          role="list"
-                          tabindex="-1"
-                        >
-                          {% assign first_accordion_open = false -%}
-                          {%- for childlink in link.links -%}
-                            <li
-                              class="
-                                menu-drawer__list-item
-                                {% if childlink.links != blank -%}
-                                  {% if block_settings.drawer_accordion -%} menu-drawer__list-item--deep{% else -%} menu-drawer__list-item--flat{%- endif -%}
-                                {%- endif -%}
-                                {% if block_settings.drawer_dividers %} menu-drawer__list-item--divider{% endif %}
-                              "
-                            >
-                              {%- if childlink.links == blank -%}
-                                {%- comment -%}
-                                  Simple links for links with no children (regardless of accordion setting), in menus with 3 levels of links
-                                  This link is currently using --parent class style but --child would match the pattern on desktop
-                                {%- endcomment -%}
-                                <a
-                                  id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
-                                  href="{{ childlink.url }}"
-                                  class="menu-drawer__menu-item menu-drawer__menu-item--parent focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
-                                  {% if childlink.current %}
-                                    aria-current="page"
-                                  {% endif %}
-                                >
-                                  {% if render_link_image and link.levels == 1 %}
-                                    {% render 'link-featured-image',
-                                      link: childlink,
-                                      class: 'menu-drawer__link-image',
-                                      sizes: 'auto, 400px'
-                                    %}
-                                  {% endif %}
-                                  <span class="menu-drawer__menu-item-text wrap-text">
-                                    {{- childlink.title | escape -}}
-                                  </span>
-                                </a>
-                              {%- else -%}
-                                {% liquid
-                                  assign should_open_first_nested = false
-                                  if first_accordion_open == false and block_settings.drawer_accordion and block_settings.drawer_accordion_expand_first
-                                    assign first_accordion_open = true
-                                    assign should_open_first_nested = true
-                                  endif
-                                %}
-                                {% if block_settings.drawer_accordion %}
-                                  {%- comment -%}
-                                    Accordion for links with children, in menus with 3 levels of links
-                                  {%- endcomment -%}
-                                  {% capture accordion_children_nested %}
-                                    <details
-                                      id="Details-menu-drawer-{{ link.handle }}-{{ childlink.handle }}"
-                                    >
-                                      <summary
-                                        id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
-                                        class="menu-drawer__menu-item menu-drawer__menu-item--parent focus-inset"
-                                      >
-                                        <span class="menu-drawer__menu-item-text wrap-text">
-                                          {{- childlink.title | escape -}}
-                                        </span>
-                                        <span class="svg-wrapper icon-plus">
-                                          {{- 'icon-plus.svg' | inline_asset_content -}}
-                                        </span>
-                                      </summary>
-                                      {% liquid
-                                        assign render_link_image = false
-                                        if block_settings.menu_style == 'collection_images'
-                                          assign catalog_links = childlink.links | where: 'type', 'catalog_link'
-                                          assign collection_list_links = childlink.links | where: 'type', 'collections_link'
-                                          assign collection_links = childlink.links | where: 'type', 'collection_link'
-                                          if catalog_links.size > 0 or collection_list_links.size > 0 or collection_links.size > 0
-                                            assign render_link_image = true
-                                          endif
-                                        endif
-                                      %}
-                                      <ul
-                                        class="menu-drawer__menu menu-drawer__menu--grandchildlist details-content{% if render_link_image %} menu-drawer__menu--grid{% endif %}"
-                                        role="list"
-                                        tabindex="-1"
-                                      >
-                                        {%- for grandchildlink in childlink.links -%}
-                                          <li
-                                            class="menu-drawer__list-item"
-                                            style="--menu-drawer-animation-index: {{ forloop.index }};"
-                                          >
-                                            <a
-                                              id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
-                                              href="{{ grandchildlink.url }}"
-                                              class="menu-drawer__menu-item menu-drawer__menu-item--child focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"
-                                              {% if grandchildlink.current %}
-                                                aria-current="page"
-                                              {% endif %}
-                                            >
-                                              {% if render_link_image %}
-                                                {% render 'link-featured-image',
-                                                  link: grandchildlink,
-                                                  class: 'menu-drawer__link-image',
-                                                  sizes: 'auto, 400px'
-                                                %}
-                                              {% endif %}
-                                              <span class="menu-drawer__menu-item-text wrap-text">
-                                                {{- grandchildlink.title | escape -}}
-                                              </span>
-                                            </a>
-                                          </li>
-                                        {%- endfor -%}
-                                      </ul>
-                                    </details>
-                                  {% endcapture %}
-                                  {% render 'accordion-custom-component',
-                                    children: accordion_children_nested,
-                                    open_by_default_on_mobile: should_open_first_nested
-                                  %}
-                                {% else %}
-                                  {%- comment -%}
-                                    Flat menus for links with children, in menus with 3 levels of links
-                                  {%- endcomment -%}
-                                  <a
-                                    id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
-                                    href="{{ childlink.url }}"
-                                    class="menu-drawer__menu-item menu-drawer__menu-item--parent focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
-                                    {% if childlink.current %}
-                                      aria-current="page"
-                                    {% endif %}
-                                  >
-                                    <span class="menu-drawer__menu-item-text wrap-text">
-                                      {{- childlink.title | escape -}}
-                                    </span>
-                                  </a>
-                                  {% liquid
-                                    assign render_link_image = false
-                                    if block_settings.menu_style == 'collection_images'
-                                      assign catalog_links = childlink.links | where: 'type', 'catalog_link'
-                                      assign collection_list_links = childlink.links | where: 'type', 'collections_link'
-                                      assign collection_links = childlink.links | where: 'type', 'collection_link'
-                                      if catalog_links.size > 0 or collection_list_links.size > 0 or collection_links.size > 0
-                                        assign render_link_image = true
-                                      endif
-                                    endif
-                                  %}
-                                  <ul
-                                    class="menu-drawer__menu menu-drawer__menu--grandchildlist details-content{% if render_link_image %} menu-drawer__menu--grid{% endif %}"
-                                    role="list"
-                                    tabindex="-1"
-                                  >
-                                    {%- for grandchildlink in childlink.links -%}
-                                      <li
-                                        class="menu-drawer__list-item"
-                                        style="--menu-drawer-animation-index: {{ forloop.index }};"
-                                      >
-                                        <a
-                                          id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
-                                          href="{{ grandchildlink.url }}"
-                                          class="menu-drawer__menu-item menu-drawer__menu-item--child focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"
-                                          {% if grandchildlink.current %}
-                                            aria-current="page"
-                                          {% endif %}
-                                        >
-                                          {% if render_link_image %}
-                                            {% render 'link-featured-image',
-                                              link: grandchildlink,
-                                              class: 'menu-drawer__link-image',
-                                              sizes: 'auto, 400px'
-                                            %}
-                                          {% endif %}
-                                          <span class="menu-drawer__menu-item-text wrap-text">
-                                            {{- grandchildlink.title | escape -}}
-                                          </span>
-                                        </a>
-                                      </li>
-                                    {%- endfor -%}
-                                  </ul>
-                                {%- endif -%}
-                              {%- endif -%}
-                            </li>
-                          {%- endfor -%}
-                        </ul>
-                        {% liquid
-                          if eager_loading
-                            if block_settings.menu_style == 'featured_collections'
-                              assign featured_collections = link.links | where: 'type', 'collection_link'
-                            endif
-
-                            if block_settings.menu_style == 'featured_products'
-                              assign collection_linklist = link.links | where: 'type', 'collection_link' | first
-                              assign featured_products_collection = collection_linklist.object
-                            endif
-                          else
-                            assign featured_collections = null | sort
-                            assign featured_products_collection = null | sort
-                          endif
-                        -%}
-
-                        {% if featured_collections.size > 0 or featured_products_collection.products_count > 0 %}
-                          <div
-                            class="menu-drawer__featured-content menu-drawer__featured-content--childlist"
-                            style="--menu-drawer-animation-index: {{ linklist.links.size | plus: 1 }};"
-                          >
-                            <ul class="menu-drawer__featured-content-list list-unstyled">
-                              {% if featured_collections.size > 0 %}
-                                {%- for collection in featured_collections limit: max_featured_items -%}
-                                  <li class="menu-drawer__featured-content-list-item menu-drawer__featured-content-list-item--collection">
-                                    {% render 'resource-card',
-                                      resource: collection.object,
-                                      resource_type: 'collection',
-                                      style: 'overlay',
-                                      image_aspect_ratio: ratio,
-                                      image_sizes: 'auto, 400px'
-                                    %}
-                                  </li>
-                                {%- endfor -%}
-                              {% else %}
-                                {% paginate featured_products_collection.products by max_featured_items %}
-                                  {%- for product in featured_products_collection.products limit: max_featured_items -%}
-                                    <li class="menu-drawer__featured-content-list-item menu-drawer__featured-content-list-item--product">
-                                      {% render 'resource-card',
-                                        resource: product,
-                                        resource_type: 'product',
-                                        image_aspect_ratio: ratio,
-                                        image_sizes: 'auto, 400px',
-                                        product_view_context: 'dialog'
-                                      %}
-                                    </li>
-                                  {%- endfor -%}
-                                {% endpaginate %}
-                              {% endif %}
-                            </ul>
-                          </div>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </details>
-                {%- else -%}
-                  {%- comment -%}
-                    Simple links for links with no children (regardless of accordion setting), in menus with 3 levels of links
-                  {%- endcomment -%}
-                  <a
-                    id="HeaderDrawer-{{ link.handle }}"
-                    href="{{ link.url }}"
-                    class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
-                    {% if link.current %}
-                      aria-current="page"
-                    {% endif %}
-                  >
-                    <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
-                  </a>
-                {%- endif -%}
-              </li>
-            {%- endfor -%}
-          {% endif %}
-          {% endif %}
+        {% render 'primary-nav', variant: 'drawer' %}
+        {%- comment -%}
+          Store main-menu tree (accordion/featured-collections) removed here —
+          it was already unreachable dead code (wrapped in `{% if false %}`)
+          before this migration, per a prior audit finding. Primary nav only.
+        {%- endcomment -%}
         </ul>
       </nav>
       <div
@@ -629,7 +168,6 @@
                   id="HeaderDrawer-localization"
                   class="drawer-localization__button h3 focus-inset"
                   aria-expanded="false"
-                  on:click="header-drawer/open/submenu"
                   style="{{ form_style }}"
                 >
                   <div class="drawer-localization__button--label h6">
@@ -677,7 +215,7 @@
                   >
                     <button
                       class="button menu-drawer__back-button focus-inset"
-                      on:click="header-drawer/back"
+                      on:click="drawer-localization-component/back"
                     >
                       <span class="svg-wrapper icon-caret icon-caret--backward">
                         {{- 'icon-caret.svg' | inline_asset_content -}}
@@ -688,7 +226,7 @@
                       class="button close-button menu-drawer__close-button focus-inset"
                       type="button"
                       aria-label="{{ 'actions.close' | t }}"
-                      on:click="header-drawer/close"
+                      on:click="#menu-drawer/close"
                     >
                       <span class="svg-wrapper header-drawer-icon header-drawer-icon--close">
                         {{- 'icon-close.svg' | inline_asset_content -}}
@@ -764,25 +302,27 @@
           </ul>
         </div>
       {% endif %}
-    </div>
-    <div
-      class="menu-drawer__backdrop"
-      on:click="header-drawer/close"
-    ></div>
-  </details>
-</header-drawer>
+  </dialog>
+</theme-drawer>
 
 {% stylesheet %}
   .header__icon--menu {
     position: initial;
   }
 
-  .menu-drawer-container .header__icon--summary {
+  .header__icon--summary {
+    /* This is a real <button> now (previously a <summary>, which has no
+       native chrome) — reset the browser's default button background/border
+       so only the icon shows, matching the original <summary>'s look. */
+    background: none;
+    border: 0;
+    margin: 0;
     color: var(--color-foreground);
     display: flex;
     justify-content: center;
     align-items: center;
     padding: var(--padding-lg);
+    cursor: pointer;
   }
 
   .header__icon--summary .header-drawer-icon {
@@ -835,17 +375,17 @@
     }
   }
 
-  details:not(.menu-open) .header__icon--menu .header-drawer-icon--close {
+  body:not(:has(#menu-drawer[open])) .header__icon--menu .header-drawer-icon--close {
     display: none;
   }
 
-  details.menu-open .header__icon--menu .header-drawer-icon--close {
+  body:has(#menu-drawer[open]) .header__icon--menu .header-drawer-icon--close {
     @media screen and (min-width: 750px) {
       display: none;
     }
   }
 
-  details.menu-open .header__icon--menu .header-drawer-icon--open {
+  body:has(#menu-drawer[open]) .header__icon--menu .header-drawer-icon--open {
     display: none;
 
     @media screen and (min-width: 750px) {
@@ -853,25 +393,32 @@
     }
   }
 
-  .menu-drawer {
-    position: fixed;
-    transform: translateX(-100%);
-    visibility: hidden;
-    height: var(--drawer-height);
-    width: var(--drawer-width);
-    max-width: var(--drawer-max-width);
-    z-index: var(--layer-menu-drawer);
-    left: 0;
+  /* .menu-drawer is now the <dialog> element itself (see the markup above —
+     class="theme-drawer__dialog menu-drawer"), sharing the theme-drawer
+     mechanism cart-drawer.liquid uses. Native [open] handles show/hide;
+     these rules only describe where it sits and how it looks, overriding
+     the shared theme-drawer[overlay] rules' rounded/inset "floating card"
+     look (used by cart) with the menu's own flush-left sidebar appearance.
+     Scoped via #menu-drawer + .menu-drawer for specificity over the shared
+     attribute-based rules regardless of stylesheet bundle order. */
+  #menu-drawer .theme-drawer__dialog.menu-drawer {
     top: 0;
-    padding: 0;
-    background-color: var(--color-background);
-    overflow: auto;
-    display: flex;
+    bottom: 0;
+    left: 0;
+    right: auto;
+    width: 100%;
+    max-width: var(--drawer-max-width, 500px);
+    height: 100dvh;
+    border-radius: 0;
     border-right: var(--style-border-drawer);
-    flex-direction: column;
+    box-shadow: none;
+    background-color: var(--color-background);
+  }
 
-    @media screen and (min-width: 750px) {
+  @media screen and (min-width: 750px) {
+    #menu-drawer .theme-drawer__dialog.menu-drawer {
       width: 25rem;
+      max-width: 25rem;
     }
   }
 
@@ -880,35 +427,97 @@
     overflow: initial;
   }
 
-  .menu-drawer__backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100dvh;
-    backdrop-filter: brightness(0.75);
-    z-index: var(--layer-overlay);
-    opacity: 0;
-    transition: opacity var(--drawer-animation-speed) ease;
+  /* Desktop: slide in from the left (custom keyframes — the shared overlay
+     mechanism's default entrance is from the right, used by cart-drawer). */
+  #menu-drawer .theme-drawer__dialog.menu-drawer.theme-drawer__dialog--opening {
+    animation-name: menu-drawer-slide-in-left;
+  }
 
-    .menu-open & {
-      opacity: 1;
+  #menu-drawer .theme-drawer__dialog.menu-drawer.theme-drawer__dialog--closing {
+    animation-name: menu-drawer-slide-out-left;
+  }
+
+  @keyframes menu-drawer-slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(0);
     }
   }
 
-  .menu-drawer,
-  details[open] > .menu-drawer__submenu {
-    transition: transform var(--drawer-animation-speed) ease, visibility var(--drawer-animation-speed) ease,
-      opacity var(--drawer-animation-speed) ease;
+  @keyframes menu-drawer-slide-out-left {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-100%);
+    }
   }
 
-  .menu-open > .menu-drawer,
-  .menu-open > .menu-drawer__submenu:not(.menu-drawer__menu--childlist) {
-    transform: translateX(0);
-    visibility: visible;
-    opacity: 1;
-    display: flex;
-    flex-direction: column;
+  @media screen and (max-width: 749px) {
+    /* Bottom sheet on mobile: slides up from the bottom instead of in from
+       the left, rounded top corners, drag-handle affordance. Internal menu
+       content/markup is unchanged — only the outer panel's position and
+       entrance direction differ from desktop. */
+    #menu-drawer .theme-drawer__dialog.menu-drawer {
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      max-width: none;
+      height: auto;
+      min-height: 80vh;
+      max-height: 88vh;
+      border-right: none;
+      border-radius: 20px 20px 0 0;
+      padding-top: 1.5rem;
+    }
+
+    #menu-drawer .theme-drawer__dialog.menu-drawer::before {
+      content: '';
+      position: absolute;
+      top: 0.6rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2.25rem;
+      height: 0.25rem;
+      border-radius: 999px;
+      background: var(--color-foreground-subdued, #cccccc);
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    #menu-drawer .theme-drawer__dialog.menu-drawer.theme-drawer__dialog--opening {
+      animation-name: menu-drawer-sheet-slide-in;
+    }
+
+    #menu-drawer .theme-drawer__dialog.menu-drawer.theme-drawer__dialog--closing {
+      animation-name: menu-drawer-sheet-slide-out;
+    }
+
+    @keyframes menu-drawer-sheet-slide-in {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes menu-drawer-sheet-slide-out {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(100%);
+      }
+    }
   }
 
   .menu-drawer__inner-container {
@@ -1022,7 +631,7 @@
     padding-inline: 0;
   }
 
-  .menu-drawer-container[open] .menu-drawer__animated-element {
+  .menu-drawer[open] .menu-drawer__animated-element {
     animation: menu-drawer-nav-open var(--drawer-animation-speed) ease-in-out;
     animation-delay: calc(var(--drawer-animation-speed) + (var(--menu-drawer-animation-index) - 1) * 0.1s);
     animation-fill-mode: backwards;

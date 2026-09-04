@@ -145,6 +145,27 @@
     }
   }
 
+  @media screen and (max-width: 749px) {
+    /* Non-outlined text blocks (custom font size) size themselves via the
+       generic typography-style.liquid fluid clamp, which floors at ~3.375rem
+       for a 7.5rem desktop size — still oversized for a scrolling marquee
+       ribbon on a narrow screen. Give the marquee its own smaller mobile
+       floor/ceiling instead. */
+    .marquee__content .text-block.custom-font-size {
+      font-size: clamp(1.75rem, 9vw, 2.5rem) !important;
+    }
+
+    marquee-component.spacing-style {
+      padding-block: 16px !important;
+    }
+
+    .marquee__wrapper,
+    .marquee__content,
+    .marquee__repeated-items {
+      gap: 16px !important;
+    }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     marquee-component:not([data-disabled]):not([data-reactive]) .marquee__wrapper {
       animation: marquee-motion var(--marquee-speed) linear infinite var(--marquee-direction);

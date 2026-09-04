@@ -164,6 +164,18 @@
     transition: border-radius 0.28s ease;
   }
 
+  @media screen and (max-width: 749px) {
+    .immersive-video-banner {
+      /* Slightly shorter on mobile so it fits the viewport better than the
+         desktop-tuned height presets (small/medium/large/full) alone allow. */
+      min-height: calc(var(--ivb-min-height, 34rem) * 0.85);
+    }
+
+    .immersive-video-banner__content {
+      gap: 0.65rem;
+    }
+  }
+
   .immersive-video-banner__media,
   .immersive-video-banner__content {
     grid-area: 1 / 1;

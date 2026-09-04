@@ -80,7 +80,8 @@
 <quick-add-component
   class="quick-add custom-color-quick-add"
   ref="quickAdd"
-  data-product-title="{{ product.title }}"
+  data-product-title="{{ product.title | escape }}"
+  data-view-details-label="{{ 'content.view_more_details' | t }}"
   data-product-id="{{ product.id }}"
   data-quick-add-button="{{ initial_button }}"
   data-product-options-count="{{ product.options.size }}"

@@ -335,6 +335,14 @@
     sticky-add-to-cart:not([data-variant-available='true']) .sticky-add-to-cart__button {
       width: auto;
     }
+
+    /* The mobile bottom dock (mobile-bottom-nav.liquid) now appears on every
+       template, not just the homepage — previously this bar had the bottom
+       edge to itself. When the dock is showing, lift this bar to sit above
+       it instead of underneath/behind it. */
+    body[data-mobile-nav-collapsed] .sticky-add-to-cart__bar {
+      bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    }
   }
 
   /* Small mobile - hide text content and compare price */

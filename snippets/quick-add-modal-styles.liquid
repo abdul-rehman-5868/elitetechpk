@@ -43,27 +43,46 @@
     box-shadow: 0 12px 48px rgb(0 0 0 / 0.22);
 
     @media screen and (max-width: 749px) {
+      /* Bottom sheet matching the cart drawer's mobile treatment (same
+         min/max-height and corner radius) instead of the generic centered
+         "pop in" look this modal used before. */
       position: fixed;
-      margin: auto 0 0 0;
-      min-height: unset;
-      max-width: 100%;
-      border-radius: 0;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0;
+      width: 100%;
+      max-width: none;
+      height: auto;
+      min-height: 80vh;
+      max-height: 88vh;
+      border-radius: 20px 20px 0 0;
       overflow: clip;
-      height: fit-content;
     }
   }
 
   .quick-add-modal[open] {
     @media screen and (max-width: 750px) {
-      border-top-left-radius: var(--style-border-radius-popover);
-      border-top-right-radius: var(--style-border-radius-popover);
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
     }
   }
 
+  /* Flex on both breakpoints (previously desktop-only) so
+     .quick-add-modal__content — the dialog's only real layout child, the
+     close button is position: absolute — always gets a definite,
+     flex-bounded height to size against. On mobile the dialog's own height
+     is `auto` clamped by min/max-height (80vh/88vh); relying on the child's
+     `height: 100%` to resolve against that auto-but-clamped box was
+     unreliable and let content grow taller than the dialog with nowhere
+     for the overflow to go except hard-clipped by the dialog's own
+     `overflow: clip` — the child's own `overflow-y: auto` never got a
+     chance to create a real scrollbar. flex: 1 on the child (below) sizes
+     it deterministically instead. */
   .quick-add-modal[open] {
-    @media screen and (min-width: 750px) {
-      display: flex;
-    }
+    display: flex;
+    flex-direction: column;
   }
 
   .quick-add-modal[open] {
@@ -72,6 +91,46 @@
 
   .quick-add-modal.dialog-closing {
     animation: modalSlideOutTop var(--animation-speed) var(--animation-easing) forwards;
+  }
+
+  /* Mobile: slide up from the bottom like the cart drawer, instead of the
+     generic centered "pop in" (modalSlideInTop/Out) desktop uses. Placed
+     after the unconditional rules above — a mobile-scoped rule with equal
+     specificity at the same selector must come later in source order to win
+     the cascade (a lesson from an earlier menu-drawer bug in this project:
+     the reverse ordering silently lost to the unconditional rule). */
+  @media screen and (max-width: 749px) {
+    .quick-add-modal[open] {
+      animation-name: quick-add-sheet-slide-in;
+    }
+
+    .quick-add-modal.dialog-closing {
+      animation-name: quick-add-sheet-slide-out;
+    }
+
+    @keyframes quick-add-sheet-slide-in {
+      from {
+        transform: translateY(100%);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes quick-add-sheet-slide-out {
+      from {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateY(100%);
+        opacity: 1;
+      }
+    }
   }
 
   .quick-add-modal__close {
@@ -127,15 +186,26 @@
     }
 
     @media screen and (max-width: 749px) {
-      grid-template-columns: repeat(4, 1fr);
+      /* Simple single-column stack instead of the old 4-column grid, which
+         explicitly placed a JS-constructed `.product-header` (title + price)
+         at grid-row: 1 — the same row the auto-placed product image (also
+         grid-column: 1 / -1) occupied, overlapping the title/price text on
+         top of the image instead of stacking below it. That DOM-surgery
+         approach (assets/quick-add.js updateQuickAddModal removing
+         .product-details and rebuilding a standalone header) has since been
+         replaced by keeping .product-details intact on mobile, so a plain
+         flex column is all that's needed — elements already land in the
+         right order (image, then details) via normal DOM order. */
+      display: flex;
+      flex-direction: column;
       padding-inline: var(--padding-xl);
       padding-block: var(--padding-xl);
       gap: var(--gap-lg);
-      flex: 1;
+      flex: 1 1 auto;
       min-height: 0;
       overflow-y: auto;
       height: auto;
-      max-height: 100vh;
+      max-height: none;
     }
   }
 
@@ -152,34 +222,54 @@
     width: fit-content;
   }
 
-  .quick-add-modal__content .product-header {
-    @media screen and (max-width: 749px) {
-      display: flex;
-      flex-direction: column;
-      grid-column: 2 / -1;
-      grid-row: 1;
-      padding-right: var(--padding-2xl);
-    }
-  }
-
-  .quick-add-modal__content .product-header a:not(product-price *) {
-    @media screen and (max-width: 749px) {
-      font-size: var(--font-size--md);
-      font-weight: 500;
-      color: inherit;
-      width: fit-content;
-    }
-  }
-
-  .quick-add-modal__content variant-picker,
-  .quick-add-modal__content product-form-component {
-    @media screen and (max-width: 749px) {
-      grid-column: 1 / -1;
-    }
-  }
-
+  /* Was forced to `cursor: default` here — the button itself was always
+     fully clickable (zoom-dialog.js), only the visual "expand" affordance
+     was suppressed. Restored so it's clear the image can be expanded. */
   .quick-add-modal__content .product-media-container__zoom-button {
-    cursor: default;
+    cursor: zoom-in;
+  }
+
+  @media screen and (max-width: 749px) {
+    /* On mobile the button covers the entire slide (same as desktop, where
+       hovering anywhere on the image shows a zoom cursor) — but the whole
+       image also needs to be free for swipe/drag between slides, and a
+       full-image tap target fighting the slideshow's own drag handling was
+       part of why the gallery felt unresponsive here. Restrict the actual
+       click target to a small explicit "expand" badge in the top-left
+       corner instead, leaving the rest of the image untouched for swiping. */
+    .quick-add-modal__content .product-media-container__zoom-button {
+      pointer-events: none;
+    }
+
+    .quick-add-modal__content .product-media-container__zoom-button::after {
+      content: '';
+      position: absolute;
+      top: 0.75rem;
+      left: 0.75rem;
+      width: 2.15rem;
+      height: 2.15rem;
+      border-radius: 50%;
+      background-color: rgb(255 255 255 / 0.9);
+      background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2024%2024'%20fill='none'%20stroke='%23111111'%20stroke-width='2'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpolyline%20points='9%203%203%203%203%209'/%3E%3Cpolyline%20points='15%203%2021%203%2021%209'/%3E%3Cpolyline%20points='3%2015%203%2021%209%2021'/%3E%3Cpolyline%20points='21%2015%2021%2021%2015%2021'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 1.05rem;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.15);
+      pointer-events: auto;
+      z-index: 2;
+    }
+  }
+
+  .quick-add-modal__view-details {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+    color: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
 
   .quick-add-modal__content .product-details {
@@ -207,10 +297,30 @@
     }
 
     @media screen and (max-width: 749px) {
-      grid-column: 1 / -1;
-      grid-row: span 1;
-      max-height: 100%;
-      height: 100%;
+      /* Desktop's height:100%/overflow-y:auto give .product-details its own
+         independent scroll column beside a fixed-height media column — on
+         mobile there's a single stacked flex column instead, with the
+         scrolling handled once by .quick-add-modal__content itself (see
+         above). Forcing height:100% here on a flex item in that column
+         made this block claim the *entire* column height for itself,
+         crushing it against the media block above and pushing
+         product-recommendations below to render as if it had taken over
+         the details' space. Let it size to its own content instead. */
+      flex: 0 0 auto;
+      width: 100%;
+      height: auto;
+      max-height: none;
+      overflow-y: visible;
+
+      /* product-information-content.liquid's
+         .product-information--reference-layout .product-details rule sets
+         align-self: start for its desktop layout. In a flex *column*
+         (this mobile layout), align-self affects the cross axis, i.e.
+         width — "start" means "shrink to content width, align left"
+         instead of the default "stretch to fill." That's what was making
+         the details block hug the left edge narrower than the image above
+         it. Overriding back to stretch here, scoped to mobile only. */
+      align-self: stretch !important;
     }
   }
 
@@ -219,6 +329,17 @@
     width: 100%;
     max-width: none;
     padding-block: 0;
+
+    /* .product-information--reference-layout .product-details > .group-block
+       (product-information-content.liquid) caps this at max-width: 32rem for
+       the desktop PDP's narrower details column — same selector specificity
+       as this rule, so whichever stylesheet happens to load second wins.
+       !important removes that coin flip so the modal is always full width. */
+    @media screen and (max-width: 749px) {
+      width: 100% !important;
+      max-width: none !important;
+      margin-inline: 0 !important;
+    }
   }
 
   .quick-add-modal__content .product-details > .group-block > .group-block-content {
@@ -281,7 +402,13 @@
     }
 
     @media screen and (max-width: 749px) {
-      grid-column: 1 / -1;
+      /* Flex-column now (see .quick-add-modal__content above), not grid —
+         this item needs its own explicit sizing since nothing stretches it
+         vertically the way the old grid row did. */
+      flex: 0 0 auto;
+      aspect-ratio: 1;
+      border-radius: 14px;
+      overflow: hidden;
     }
   }
 
@@ -366,12 +493,6 @@
     visibility: visible;
   }
 
-  .quick-add-modal__content .product-information__media slideshow-slide[aria-hidden='true'] {
-    @media screen and (max-width: 749px) {
-      display: none;
-    }
-  }
-
   .quick-add-modal__content .product-information__media .product-media-container,
   .quick-add-modal__content .product-information__media .product-media,
   .quick-add-modal__content .product-information__media .product-media__image {
@@ -384,6 +505,19 @@
 
   .quick-add-modal__content .product-information__media slideshow-arrows {
     display: none;
+  }
+
+  /* The gallery renders up to two slideshow-controls instances side by side
+     — a desktop thumbnail rail (class "mobile:hidden") and a separate
+     mobile-only one (class "desktop:hidden media-gallery__mobile-controls";
+     see product-media-gallery-content.liquid) — normally only one is ever
+     visible at a time via those utility classes. The dot-conversion rule
+     below targets slideshow-controls[thumbnails] unconditionally, which
+     matches both and silently overrides the "mobile:hidden" one back to
+     visible, showing two overlapping control rows. Force it hidden here
+     first so only the intended mobile-only instance becomes the dot rail. */
+  .quick-add-modal__content .product-information__media slideshow-controls.mobile\:hidden {
+    display: none !important;
   }
 
   /* Prefer dots; convert thumbnail rail into bottom-center dots in the modal */

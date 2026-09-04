@@ -356,6 +356,110 @@
     body.template-collection .collection-page-products .collection-wrapper {
       padding-top: 0.2rem;
     }
+
+    /* The product grid schema exposes "padding-inline-start/end" settings
+       but nothing in this section ever reads them (a dead-setting gap like
+       the ones fixed on other pages this session) — the grid actually had
+       zero horizontal inset on mobile, running edge to edge. */
+    body.template-collection .collection-page-products .product-grid-container {
+      padding-inline: 12px;
+    }
+
+    /* Product card text: single column (brand → name → price → variants)
+       instead of the shared bss-card's default title+price side-by-side row.
+       Scoped to this page only (not snippets/bss-product-card-styles.liquid
+       directly) since that card is shared with Best Sellers Showcase and
+       product recommendations — same scoping approach used for Best Sellers'
+       own mobile text-sizing pass. */
+    body.template-collection .collection-page-products .bss-card__title-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.2rem;
+    }
+
+    body.template-collection .collection-page-products .bss-card__title {
+      font-weight: 500;
+    }
+
+    /* Tech specs: horizontally scrollable row instead of the desktop
+       hover-reveal (:hover/:focus-within translateX of a 200%-wide, 2-page
+       grid) — there's no hover on touch, so mobile could never reach specs
+       beyond the first 3. Neutralize the hover transform/grid entirely and
+       let native horizontal scroll take over, one line per item. */
+    body.template-collection .collection-page-products .bss-card__spec-scroller {
+      /* Shrink to the content's natural width instead of always stretching
+         to the full card width (which is what the shared card's block-level
+         default did); cap at the card's own width and scroll past that. */
+      width: fit-content;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    body.template-collection .collection-page-products .bss-card__spec-scroller::-webkit-scrollbar {
+      display: none;
+    }
+
+    body.template-collection .collection-page-products .bss-card__spec-track {
+      display: flex;
+      width: auto;
+      transform: none !important;
+    }
+
+    body.template-collection .collection-page-products .bss-card__spec {
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 8.5rem;
+    }
+
+    body.template-collection .collection-page-products .bss-card__spec-copy strong,
+    body.template-collection .collection-page-products .bss-card__spec-copy small {
+      white-space: nowrap;
+    }
+
+    /* Whole card navigates to the product page; interactive controls
+       (gallery zones/dots, swatches, spec scroller, eye/preview icon) stay
+       independently clickable above the transparent link via z-index. */
+    body.template-collection .collection-page-products .bss-card {
+      position: relative;
+    }
+
+    body.template-collection .collection-page-products .bss-card__link {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    body.template-collection .collection-page-products .bss-card__gallery,
+    body.template-collection .collection-page-products .bss-card__body,
+    body.template-collection .collection-page-products .bss-card__spec-scroller {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* "Choose options" removed on mobile; the eye/preview icon (previously
+       hover-only and therefore unreachable on touch — original audit finding
+       PC5) becomes the mobile quick-add trigger in its place, since removing
+       the CTA would otherwise leave no way to reach quick-add without
+       leaving the page. */
+    body.template-collection .collection-page-products .bss-card__cta {
+      display: none !important;
+    }
+
+    body.template-collection .collection-page-products .bss-card__rating {
+      display: none;
+    }
+
+    body.template-collection .collection-page-products .bss-card__view {
+      display: grid !important;
+      opacity: 1;
+    }
+
+    body.template-collection .collection-page-products .bss-card__quick-add .bss-card__view {
+      pointer-events: auto;
+    }
   }
 {% endstylesheet %}
 

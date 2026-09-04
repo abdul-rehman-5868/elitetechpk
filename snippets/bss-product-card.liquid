@@ -67,6 +67,20 @@
 %}
 
 <article class="bss-card" data-bss-card>
+  {% comment %}
+    Whole-card link (mobile only — see the scoped CSS in
+    sections/main-collection.liquid). Same "transparent absolutely-positioned
+    anchor behind the content" technique snippets/product-card.liquid already
+    uses elsewhere in this theme, rather than wrapping the whole article in
+    one <a> (invalid HTML here since the card already nests interactive
+    buttons/swatches). Unstyled by default so it's inert on desktop and any
+    other consumer of this card that doesn't apply the mobile override.
+  {% endcomment %}
+  <a
+    href="{{ product.url }}"
+    class="bss-card__link"
+    aria-label="{{ product.title | escape }}"
+  ></a>
   <div
     class="bss-card__gallery"
     data-bss-gallery
@@ -117,6 +131,7 @@
       class="bss-card__quick-add"
       data-product-url="{{ product.url }}"
       data-product-title="{{ product.title | escape }}"
+      data-view-details-label="{{ 'content.view_more_details' | t }}"
       data-product-id="{{ product.id }}"
       data-quick-add-button="choose"
       data-product-options-count="{{ product.options.size }}"

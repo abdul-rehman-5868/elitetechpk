@@ -117,6 +117,7 @@ export class QuickAddComponent extends Component {
         if (gridElement) {
           // Cache the cloned element to avoid modifying the original
           productGrid = /** @type {Element} */ (gridElement.cloneNode(true));
+
           this.#cachedContent.set(currentUrl, productGrid);
         }
       }
@@ -219,40 +220,57 @@ export class QuickAddComponent extends Component {
     if (!productGrid || !modalContent) return;
 
     if (isMobileBreakpoint()) {
+      // Previously this branch pulled product-price/variant-picker/the buy
+      // button form out of .product-details into a hand-built summary
+      // header, then deleted .product-details outright — discarding the
+      // brand, description, inventory status, and share/"need help" row
+      // entirely on mobile. .product-details now stays intact; the mobile
+      // bottom sheet lays it out as a plain single-column stack (see
+      // quick-add-modal-styles.liquid), so nothing needs to be torn apart
+      // to fit. Only addition: a visible "view full details" link, since
+      // the real product template doesn't configure a product-view-details
+      // block (only a hidden title anchor used purely to hold the canonical
+      // URL for JS).
       const productDetails = productGrid.querySelector('.product-details');
-      const productFormComponent = productGrid.querySelector('product-form-component');
-      const variantPicker = productGrid.querySelector('variant-picker');
-      const productPrice = productGrid.querySelector('product-price');
-      const productTitle = document.createElement('a');
-      productTitle.textContent = this.dataset.productTitle || '';
 
-      // Make product title as a link to the product page
-      productTitle.href = this.productPageUrl;
-
-      const productHeader = document.createElement('div');
-      productHeader.classList.add('product-header');
-
-      productHeader.appendChild(productTitle);
-      if (productPrice) {
-        productHeader.appendChild(productPrice);
+      if (productDetails && !productDetails.querySelector('.quick-add-modal__view-details')) {
+        const viewDetailsLink = document.createElement('a');
+        viewDetailsLink.className = 'quick-add-modal__view-details';
+        viewDetailsLink.href = this.productPageUrl;
+        viewDetailsLink.textContent = this.dataset.viewDetailsLabel || 'View full details';
+        productDetails.appendChild(viewDetailsLink);
       }
-      productGrid.appendChild(productHeader);
-
-      if (variantPicker) {
-        productGrid.appendChild(variantPicker);
-      }
-      if (productFormComponent) {
-        productGrid.appendChild(productFormComponent);
-      }
-
-      productDetails?.remove();
     }
+
+    // Fresh insertion rather than a smart patch: morph() reuses/patches an
+    // existing node when it matches the incoming one closely enough, which
+    // does not guarantee a custom element's connectedCallback runs again —
+    // that's how the media gallery/zoom could end up present but not
+    // actually interactive after a second quick-add open re-used the first
+    // open's gallery node. Clearing first forces every element, including
+    // the gallery, to be genuinely (re)connected on each open.
+    modalContent.replaceChildren();
 
     // Sync the view-event-payload attribute and morph children into the modal's product-component
     const payload = productGrid.getAttribute('view-event-payload') || '';
     modalContent.setAttribute('view-event-payload', payload);
 
     morph(modalContent, productGrid);
+
+    // Slideshow scrolling is gated behind a shared IntersectionObserver
+    // ([in-viewport], see slideshow.js/slideshow-styles.liquid) that only
+    // enables `overflow-x: scroll` once a slideshow is actually visible in
+    // the browser viewport. The modal's dialog is still closed/hidden at
+    // this point (updateQuickAddModal always runs before #openQuickAddModal
+    // shows it), so the slideshow connects with zero rendered size and the
+    // observer has no reliable, consistently-timed way to know it becomes
+    // visible once the dialog opens later — this is what made the gallery
+    // swipe/scroll intermittently fail to ever enable itself on mobile.
+    // Since anything mounted here is about to be shown full-screen in the
+    // modal, force it on directly instead of waiting on that observer.
+    modalContent.querySelectorAll('slideshow-component').forEach((slideshow) => {
+      slideshow.setAttribute('in-viewport', '');
+    });
 
     this.#syncVariantSelection(modalContent);
   }
@@ -327,12 +345,10 @@ class QuickAddDialog extends DialogComponent {
         const { html } = detail;
         const anchorElement = /** @type {HTMLAnchorElement} */ (html.querySelector('.view-product-title a'));
         const viewMoreDetailsLink = /** @type {HTMLAnchorElement} */ (this.querySelector('.view-product-title a'));
-        const mobileProductTitle = /** @type {HTMLAnchorElement} */ (this.querySelector('.product-header a'));
 
         if (!anchorElement) return;
 
         if (viewMoreDetailsLink) viewMoreDetailsLink.href = anchorElement.href;
-        if (mobileProductTitle) mobileProductTitle.href = anchorElement.href;
       })
       .catch((error) => {
         if (error?.name !== 'AbortError') console.warn('[quick-add] Event promise rejected:', error);
