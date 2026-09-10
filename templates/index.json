@@ -556,9 +556,9 @@
           "type": "comparison-slider",
           "static": true,
           "settings": {
-            "before_image": "shopify://shop_images/images.jpg",
-            "after_image": "shopify://shop_images/images_1.jpg",
-            "slider_style": "horizontal",
+            "before_image": "shopify://shop_images/9f16606dfcab54a9fcf7a05a91558037-hi.jpg",
+            "after_image": "shopify://shop_images/images_2.jpg",
+            "slider_style": "vertical",
             "show_text": true,
             "before_text": "Flow Harmony|Gold Tone",
             "after_text": "Flow Harmony|Crimson Shadow",
