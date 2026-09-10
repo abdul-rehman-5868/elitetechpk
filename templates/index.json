@@ -86,8 +86,8 @@
     "story_collection_carousel": {
       "type": "story-collection-carousel",
       "settings": {
-        "heading": "ELEVATE THE WAY YOU COMPUTE",
-        "body": "<p>Elite Tech is a laptop and computer brand dedicated to providing high-quality technology for work, creativity, and everyday life.</p><p>Our mission is to deliver reliable, powerful products that combine performance, thoughtful design, and an exceptional user experience.</p>",
+        "heading": "<strong>BUILT FOR WHAT'S NEXT</strong>",
+        "body": "<p>Technology is more than a device. It's how you work, create, learn, connect, and move forward.</p><p>At Elite Tech, we bring you a carefully curated selection of new and used laptops designed to meet the demands of modern life. With a focus on performance, quality, and value, we make it easier to choose technology you can rely on.</p><p></p>",
         "button_label": "Our Story",
         "button_link": "shopify://pages/about",
         "intro_gap": 48,
