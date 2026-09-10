@@ -15,7 +15,7 @@
         "slide_1": {
           "type": "_peek-slide",
           "settings": {
-            "image": "shopify://shop_images/images_10.jpg",
+            "image": "shopify://shop_images/laptop-with-glowing-screen-table-dark-top-view-copy-space.jpg",
             "heading": "Experience unparalleled quality.",
             "heading_color": "#ffffff",
             "button_label": "Shop Laptops",
@@ -32,7 +32,7 @@
         "slide_2": {
           "type": "_peek-slide",
           "settings": {
-            "image": "shopify://shop_images/images_8.jpg",
+            "image": "shopify://shop_images/stock-market-cryptocurrency-concept-stock-trading-laptops.jpg",
             "heading": "Crafted for work.",
             "heading_color": "#ffffff",
             "button_label": "Shop Collection",
@@ -49,7 +49,7 @@
         "slide_3": {
           "type": "_peek-slide",
           "settings": {
-            "image": "shopify://shop_images/images_7.jpg",
+            "image": "shopify://shop_images/working-businessman-modern-desk-illuminated-laptop-generated-by-ai.jpg",
             "heading": "Premium speed. Timeless design.",
             "heading_color": "#ffffff",
             "button_label": "Explore Now",
