@@ -488,14 +488,12 @@
                 {% assign is_active = false %}
                 {% assign price_filter = blank %}
                 {% assign availability_filter = blank %}
-                {% assign has_brand_filter = false %}
 
                 {%- comment -%} Brands / vendor first {%- endcomment -%}
                 {%- for filter in filters -%}
                   {% liquid
                     assign filter_key = filter.param_name | downcase
                     assign filter_label = filter.label | downcase
-                    assign is_availability = false
                     assign is_brand = false
 
                     if filter.type == 'price_range'
@@ -504,13 +502,11 @@
                     endif
 
                     if filter_key contains 'availability' or filter_label contains 'availability' or filter_label == 'in stock'
-                      assign is_availability = true
                       assign availability_filter = filter
                     endif
 
                     if filter_key contains 'vendor' or filter_label == 'brand' or filter_label == 'vendor' or filter_label == 'brands'
                       assign is_brand = true
-                      assign has_brand_filter = true
                     endif
                   %}
 
@@ -526,11 +522,12 @@
                   {% endif %}
                 {%- endfor -%}
 
-                {%- unless has_brand_filter -%}
-                  {% if collection != blank %}
-                    {% render 'filter-brands-fallback', collection: collection, section_id: section.id %}
-                  {% endif %}
-                {%- endunless -%}
+                {%- comment -%}
+                  Vendor facets must be enabled in Shopify Search & Discovery.
+                  Rendering a hand-built vendor checkbox when no native facet
+                  exists only changes the URL; Shopify ignores it and cannot
+                  return active-filter pills for it.
+                {%- endcomment -%}
 
                 {%- if availability_filter != blank -%}
                   {% if availability_filter.active_values.size > 0 %}
@@ -1762,6 +1759,7 @@
     border-radius: 999px;
     padding-block: 0.95rem;
     padding-inline: 1.15rem;
+    white-space: nowrap;
   }
 
   #filters-drawer .facets__see-results {

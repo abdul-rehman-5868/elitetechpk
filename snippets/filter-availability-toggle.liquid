@@ -32,28 +32,34 @@
 %}
 
 {% if in_stock_value != blank %}
-  <div class="filter-stock-toggle">
-    <span class="filter-stock-toggle__label">In stock only</span>
-    <label class="filter-stock-toggle__control">
-      <input
-        type="checkbox"
-        class="filter-stock-toggle__input"
-        name="{{ in_stock_value.param_name }}"
-        value="{{ in_stock_value.value }}"
-        id="Filter-stock-{{ section_id }}"
-        {% if in_stock_active %}
-          checked
-        {% endif %}
-        {% if in_stock_value.count == 0 and in_stock_active == false %}
-          disabled
-        {% endif %}
-      >
-      <span class="filter-stock-toggle__track" aria-hidden="true">
-        <span class="filter-stock-toggle__thumb"></span>
-      </span>
-      <span class="visually-hidden">In stock only</span>
-    </label>
-  </div>
+  <facet-inputs-component
+    class="filter-stock-toggle-inputs"
+    on:change="/updateFilters"
+    id="facet-inputs-component-stock-{{ section_id }}"
+  >
+    <div class="filter-stock-toggle">
+      <span class="filter-stock-toggle__label">In stock only</span>
+      <label class="filter-stock-toggle__control">
+        <input
+          type="checkbox"
+          class="filter-stock-toggle__input"
+          name="{{ in_stock_value.param_name }}"
+          value="{{ in_stock_value.value }}"
+          id="Filter-stock-{{ section_id }}"
+          {% if in_stock_active %}
+            checked
+          {% endif %}
+          {% if in_stock_value.count == 0 and in_stock_active == false %}
+            disabled
+          {% endif %}
+        >
+        <span class="filter-stock-toggle__track" aria-hidden="true">
+          <span class="filter-stock-toggle__thumb"></span>
+        </span>
+        <span class="visually-hidden">In stock only</span>
+      </label>
+    </div>
+  </facet-inputs-component>
 {% endif %}
 
 {% stylesheet %}

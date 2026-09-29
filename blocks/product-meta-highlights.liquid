@@ -96,8 +96,9 @@
   }
 
   .product-meta-highlights__grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    display: flex;
+    flex-direction:row;
+    flex-wrap:wrap;
     gap: 0.75rem;
   }
 
@@ -105,8 +106,8 @@
     display: flex;
     align-items: center;
     gap: 0.7rem;
-    border-radius: 14px;
-    background: #ffffff;
+    border-radius: 10px;
+    background: #f6f6f6;
     padding: 0.95rem 1rem;
   }
 

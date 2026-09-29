@@ -782,8 +782,8 @@
     grid-template-columns: minmax(200px, 0.85fr) minmax(0, 3.35fr);
     align-items: stretch;
     gap: clamp(1.75rem, 3.2vw, 3.75rem);
-    min-height: min(34rem, calc(100dvh - var(--header-height, 7rem) - 1.25rem));
-    height: min(34rem, calc(100dvh - var(--header-height, 7rem) - 1.25rem));
+    min-height: min(calc(34rem + 50px), calc(100dvh - var(--header-height, 7rem) - 1.25rem + 50px));
+    height: min(calc(34rem + 50px), calc(100dvh - var(--header-height, 7rem) - 1.25rem + 50px));
     box-sizing: border-box;
     /* Clip-path hides the top header-height of this panel — offset so labels/cards aren't cropped */
     padding: calc(var(--header-height, 5rem) + 1.75rem) clamp(1.5rem, 3vw, 3rem) 2.5rem;
@@ -1078,12 +1078,14 @@
     flex-direction: column;
     overflow: hidden;
     border-radius: 18px;
-    background: #f4f4f4;
+    --shop-mega-card-bg: #f4f4f4;
+    background: var(--shop-mega-card-bg);
     transition: background 180ms ease, translate 180ms ease;
   }
 
   .shop-mega-menu__product-card:hover {
-    background: #efefef;
+    --shop-mega-card-bg: #efefef;
+    background: var(--shop-mega-card-bg);
     translate: 0 -2px;
   }
 
@@ -1093,9 +1095,17 @@
     place-items: center;
     flex: 1 1 auto;
     min-height: 0;
-    aspect-ratio: 1 / 1.05;
-    overflow: visible;
+    overflow: hidden;
     background: transparent;
+  }
+
+  .shop-mega-menu__product-media::after {
+    position: absolute;
+    inset: auto 0 0;
+    height: 38%;
+    background: linear-gradient(to bottom, transparent 0%, var(--shop-mega-card-bg, #f4f4f4) 100%);
+    content: '';
+    pointer-events: none;
   }
 
   .shop-mega-menu__product-media img,
@@ -1103,8 +1113,8 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    padding: 1rem 0.85rem 0.35rem;
+    object-fit: cover;
+    padding: 0;
     transition: scale 420ms var(--ease-out-cubic);
   }
 
@@ -1252,7 +1262,7 @@
     flex-direction: column;
     overflow: hidden;
     border-radius: 20px;
-    background: #f5f5f5;
+    background: var(--collections-card-bg, #f5f5f5);
     box-shadow: none;
     white-space: normal;
     color: #111111;
@@ -1313,6 +1323,21 @@
     background: #f5f5f5;
   }
 
+  .collections-mega-menu__card:not(.collections-mega-menu__card--featured) .collections-mega-menu__card-media {
+    position: relative;
+    flex: 0 0 75%;
+    background: var(--collections-card-bg, #f5f5f5);
+  }
+
+  .collections-mega-menu__card:not(.collections-mega-menu__card--featured) .collections-mega-menu__card-media::after {
+    position: absolute;
+    inset: auto 0 0;
+    height: 42%;
+    background: linear-gradient(to bottom, transparent 0%, var(--collections-card-bg, #f5f5f5) 100%);
+    content: '';
+    pointer-events: none;
+  }
+
   .collections-mega-menu__card-media img,
   .collections-mega-menu__card-media svg {
     display: block;
@@ -1322,6 +1347,11 @@
     object-fit: contain;
     object-position: center center;
     transition: scale 420ms var(--ease-out-cubic);
+  }
+
+  .collections-mega-menu__card:not(.collections-mega-menu__card--featured) .collections-mega-menu__card-media img,
+  .collections-mega-menu__card:not(.collections-mega-menu__card--featured) .collections-mega-menu__card-media svg {
+    object-fit: cover;
   }
 
   .collections-mega-menu__card:hover .collections-mega-menu__card-media img {
@@ -1478,8 +1508,8 @@
     .shop-mega-menu .shop-mega-menu__inner {
       grid-template-columns: minmax(160px, 0.8fr) minmax(0, 2.95fr);
       gap: 1.25rem;
-      min-height: min(30rem, calc(100dvh - var(--header-height, 7rem) - 1rem));
-      height: min(30rem, calc(100dvh - var(--header-height, 7rem) - 1rem));
+      min-height: min(calc(30rem + 50px), calc(100dvh - var(--header-height, 7rem) - 1rem + 50px));
+      height: min(calc(30rem + 50px), calc(100dvh - var(--header-height, 7rem) - 1rem + 50px));
       padding: calc(var(--header-height, 5rem) + 1.5rem) 1.5rem 2rem;
     }
 

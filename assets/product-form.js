@@ -427,13 +427,18 @@ class ProductFormComponent extends Component {
     }
 
     const cartItemsComponents = document.querySelectorAll('cart-items-component');
-    let cartItemComponentsSectionIds = [];
+    const cartItemComponentsSectionIds = new Set();
     cartItemsComponents.forEach((item) => {
       if (item instanceof HTMLElement && item.dataset.sectionId) {
-        cartItemComponentsSectionIds.push(item.dataset.sectionId);
+        cartItemComponentsSectionIds.add(item.dataset.sectionId);
       }
-      formData.append('sections', cartItemComponentsSectionIds.join(','));
     });
+    if (cartItemComponentsSectionIds.size > 0) {
+      // Send one complete section list so Shopify returns fresh cart markup for
+      // the drawer/page in the successful cart/add response.
+      formData.set('sections', Array.from(cartItemComponentsSectionIds).join(','));
+      formData.set('sections_url', window.location.pathname);
+    }
 
     const itemCount = Number(formData.get('quantity')) || Number(this.dataset.quantityDefault);
     const deferredEventPromise = CartLinesUpdateEvent.createPromise();
@@ -620,6 +625,7 @@ class ProductFormComponent extends Component {
         quantity: item.quantity,
       })),
       sections: cartItemComponentsSectionIds.join(','),
+      sections_url: window.location.pathname,
     };
 
     fetch(Theme.routes.cart_add_url, {

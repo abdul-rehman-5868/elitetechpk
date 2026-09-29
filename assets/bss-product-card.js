@@ -109,6 +109,28 @@ class BssProductCards extends HTMLElement {
   }
 }
 
+document.addEventListener('click', (event) => {
+  if (!(event.target instanceof Element) || event.defaultPrevented) return;
+
+  const card = event.target.closest('.bss-card');
+  if (!(card instanceof HTMLElement)) return;
+
+  // Preserve controls and native links inside the card. The specs scroller is
+  // excluded as a whole so pointer/touch interaction never triggers navigation.
+  if (event.target.closest('a, button, input, label, select, textarea, [data-bss-spec-scroller]')) return;
+  if (event instanceof MouseEvent && event.button !== 0) return;
+
+  const productLink = card.querySelector('.bss-card__link');
+  if (!(productLink instanceof HTMLAnchorElement) || !productLink.href) return;
+
+  if (event instanceof MouseEvent && (event.metaKey || event.ctrlKey || event.shiftKey)) {
+    window.open(productLink.href, '_blank', 'noopener');
+    return;
+  }
+
+  window.location.assign(productLink.href);
+});
+
 if (!customElements.get('bss-product-cards')) {
   customElements.define('bss-product-cards', BssProductCards);
 }

@@ -22,7 +22,7 @@
       id: 'featured-badge'
     %}
     {% content_for 'block',
-      type: 'product-highlights',
+      type: 'product-meta-highlights',
       id: 'product-highlights',
       closest.product: featured_product
     %}
@@ -73,12 +73,12 @@
     // Mobile order should be: image, product info, then highlights. Desktop
     // keeps highlights under the image (its normal DOM position, nested in
     // the media column) — there's no pure-CSS way to reorder across that
-    // nesting boundary, so this relocates the single .product-highlights
+    // nesting boundary, so this relocates the single .product-meta-highlights
     // node on breakpoint change instead of duplicating its markup.
     const root = document.getElementById('{{ section.id }}');
     if (!root) return;
 
-    const highlights = root.querySelector('.product-highlights');
+    const highlights = root.querySelector('.product-meta-highlights');
     const mediaWrap = root.querySelector('.featured-product-showcase__media-wrap');
     const productDetails = root.querySelector('.product-details');
     if (!highlights || !mediaWrap || !productDetails) return;
@@ -171,7 +171,7 @@
     display: none;
   }
 
-  .featured-product-showcase:not(.featured-product-showcase--show-highlights) .product-highlights {
+  .featured-product-showcase:not(.featured-product-showcase--show-highlights) .product-meta-highlights {
     display: none;
   }
 
@@ -295,7 +295,7 @@
     border-radius: var(--fps-radius, 17px);
   }
 
-  .featured-product-showcase--reference .product-highlights {
+  .featured-product-showcase--reference .product-meta-highlights {
     margin: 1.5rem 0 0;
   }
 
@@ -448,7 +448,7 @@
     /* Relocated after .product-details on mobile (see the inline script
        above) — needs its own explicit full-width placement since it's no
        longer nested inside .product-information__media. */
-    .featured-product-showcase--reference .product-highlights {
+    .featured-product-showcase--reference .product-meta-highlights {
       grid-column: 1 / -1;
       margin: 1rem 0 0;
       padding: 0;
@@ -483,7 +483,7 @@
       "type": "featured-product-badge"
     },
     {
-      "type": "product-highlights"
+      "type": "product-meta-highlights"
     }
   ],
   "disabled_on": {
@@ -646,11 +646,10 @@
           }
         },
         "product-highlights": {
-          "type": "product-highlights",
+          "type": "product-meta-highlights",
           "static": true,
           "settings": {
-            "heading": "Product highlights",
-            "corner_radius": 17
+            "heading": "Product highlights"
           }
         },
         "product-details": {

@@ -177,29 +177,10 @@
           "blocks": {}
         },
         "product-highlights": {
-          "type": "product-highlights",
+          "type": "product-meta-highlights",
           "static": true,
           "settings": {
-            "heading": "Product highlights",
-            "corner_radius": 17,
-            "item_1_icon": "ruler",
-            "item_1_title": "40mm",
-            "item_1_caption": "Driver size",
-            "item_2_icon": "box",
-            "item_2_title": "323 g",
-            "item_2_caption": "Product weight",
-            "item_3_icon": "lightning_bolt",
-            "item_3_title": "38h",
-            "item_3_caption": "Battery life",
-            "item_4_icon": "star",
-            "item_4_title": "v5.1",
-            "item_4_caption": "Bluetooth",
-            "item_5_icon": "check_box",
-            "item_5_title": "Adaptive active",
-            "item_5_caption": "Noise cancellation",
-            "item_6_icon": "lightning_bolt",
-            "item_6_title": "USB-C",
-            "item_6_caption": "Connector"
+            "heading": "Product highlights"
           },
           "blocks": {}
         },
@@ -651,8 +632,8 @@
         "font_size": 10,
         "font_size_mobile": 3.5,
         "background_color": "#ffffff",
-        "padding-block-start": 0,
-        "padding-block-end": 0,
+        "padding-block-start": 10,
+        "padding-block-end": 10,
         "gap_between_elements": 56
       }
     },
